@@ -1,0 +1,1623 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PR IPM SMA MUHAMMADIYAH 1 METRO</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #FFFFFF;
+    --navy-mid: #F8F9FA;
+    --gold: #008000;
+    --gold-light: #FFFF00;
+    --cream: #FFFFFF;
+    --text: #212529;
+    --muted: #6B7280;
+    --border: #E9ECEF;
+    --success: #22C55E;
+    --warning: #F59E0B;
+    --danger: #FF0000;
+    --white: #ffffff;
+    --shadow: 0 4px 24px rgba(0,128,0,0.12);
+    --shadow-lg: 0 12px 48px rgba(0,128,0,0.18);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--text); min-height: 100vh; overflow-x: hidden; line-height: 1.6; }
+
+  /* ─── LAYOUT VIEWS ─── */
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* ─── NAVBAR ─── */
+  .navbar {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(255,255,255,0.98); backdrop-filter: blur(16px);
+    border-bottom: 2px solid rgba(0,128,0,0.08);
+    padding: 0.75rem 2rem;
+    display: flex; align-items: center; justify-content: space-between;
+    height: auto; min-height: 70px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+    transition: all .3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .navbar:hover { box-shadow: 0 12px 40px rgba(0,128,0,0.12); }
+  .nav-brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem; font-weight: 700;
+    color: var(--gold); letter-spacing: 0.02em;
+    display: flex; align-items: center; gap: 0.75rem; cursor: pointer;
+    transition: all .3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .nav-brand:hover { transform: translateY(-2px); }
+  .nav-brand img { height: 45px; width: auto; border-radius: 8px; transition: all .3s; box-shadow: 0 4px 12px rgba(0,128,0,0.2); }
+  .nav-brand:hover img { transform: scale(1.08) rotate(-2deg); box-shadow: 0 6px 16px rgba(0,128,0,0.3); }
+  .nav-links { display: flex; gap: .2rem; }
+  .nav-links a {
+    color: var(--text); text-decoration: none;
+    padding: 0.6rem 1.25rem; border-radius: 8px; font-size: 0.95rem; font-weight: 500;
+    transition: all .3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer;
+    position: relative;
+  }
+  .nav-links a::after { content: ''; position: absolute; bottom: 0; left: 50%; width: 0; height: 2px; background: var(--gold); transition: all .3s; transform: translateX(-50%); }
+  .nav-links a:hover::after, .nav-links a.active::after { width: 60%; }
+  .nav-links a:hover, .nav-links a.active { color: var(--gold); background: rgba(0,128,0,0.1); }
+  .nav-cta {
+    background: linear-gradient(135deg, var(--gold-light) 0%, #FFFF00 100%); color: #000000 !important;
+    font-weight: 650 !important; border-radius: 10px !important; padding: 0.7rem 1.5rem !important;
+    box-shadow: 0 6px 20px rgba(255,255,0,0.35); transition: all .3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  }
+  .nav-cta:hover { background: linear-gradient(135deg, #FFFF00 0%, var(--gold-light) 100%) !important; transform: translateY(-3px); box-shadow: 0 10px 30px rgba(255,255,0,0.45) !important; }
+
+  /* ─── HAMBURGER MENU ─── */
+  .nav-toggle {
+    display: none; flex-direction: column; gap: 5px; cursor: pointer; background: none; border: none;
+    padding: 0.5rem; transition: all .3s ease;
+  }
+  .nav-toggle span {
+    width: 25px; height: 3px; background: var(--gold); border-radius: 2px;
+    transition: all .3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .nav-toggle.active span:nth-child(1) { transform: rotate(45deg) translateY(11px); }
+  .nav-toggle.active span:nth-child(2) { opacity: 0; }
+  .nav-toggle.active span:nth-child(3) { transform: rotate(-45deg) translateY(-11px); }
+
+  /* ─── HERO ─── */
+  .hero {
+    min-height: 100vh; background: linear-gradient(135deg, #008000 0%, #005d00 30%, #00AA00 60%, #007700 100%);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; padding: 6rem 2rem;
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 100% 100% at 50% 50%, rgba(255,255,255,0.15) 0%, transparent 70%);
+    animation: float 8s ease-in-out infinite;
+  }
+  .hero::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 60% 60% at 50% 20%, rgba(255,255,0,0.3) 0%, transparent 60%);
+    animation: float 10s ease-in-out infinite reverse;
+  }
+  @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-20px); } }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 0.6rem;
+    background: rgba(255,255,255,0.25); border: 1.5px solid rgba(255,255,0,0.6);
+    color: var(--white); font-size: 0.85rem; font-weight: 700; letter-spacing: 0.1em;
+    padding: 0.55rem 1.4rem; border-radius: 99px; margin-bottom: 2rem; text-transform: uppercase;
+    animation: fadeUp .7s ease both; transition: all .3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(8px);
+  }
+  .hero-badge:hover { background: rgba(255,255,255,0.35); border-color: rgba(255,255,0,0.9); transform: translateY(-3px); }
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.8rem, 7vw, 5rem); font-weight: 800;
+    color: var(--white); line-height: 1.15; margin-bottom: 1.5rem;
+    animation: fadeUp .8s .1s ease both;
+    text-shadow: 0 6px 24px rgba(0,0,0,0.25);
+    letter-spacing: -0.015em;
+  }
+  .hero h1 em { color: #FFFF00; font-style: normal; font-weight: 700; }
+  .hero p {
+    max-width: 680px; color: rgba(255,255,255,0.98); font-size: 1.2rem;
+    line-height: 1.8; margin-bottom: 2.5rem;
+    animation: fadeUp .8s .2s ease both;
+    font-weight: 400;
+    text-shadow: 0 3px 12px rgba(0,0,0,0.15);
+  }
+  .hero-btns { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; animation: fadeUp .7s .3s ease both; position: relative; z-index: 20; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 0.6rem;
+    padding: 0.85rem 2rem; border-radius: 12px;
+    font-weight: 650; font-size: 0.98rem; cursor: pointer;
+    transition: all .3s cubic-bezier(0.4, 0, 0.2, 1); border: none; text-decoration: none;
+    position: relative; overflow: hidden; outline: none; letter-spacing: 0.3px;
+  }
+  .btn::before { content: ''; position: absolute; inset: 0; background: rgba(255,255,255,0.2); opacity: 0; transition: opacity .3s; }
+  .btn:hover::before { opacity: 1; }
+  .btn:active { transform: scale(0.98); }
+  .btn:focus { outline: 2px solid rgba(255,255,255,0.5); outline-offset: 2px; }
+  .btn-primary { background: linear-gradient(135deg, var(--gold-light) 0%, #FFFF00 100%); color: #000000; box-shadow: 0 6px 20px rgba(255,255,0,0.4); }
+  .btn-primary:hover { background: linear-gradient(135deg, #FFFF00 0%, var(--gold-light) 100%); transform: translateY(-4px) scale(1.02); box-shadow: 0 12px 32px rgba(255,255,0,0.5); }
+  .btn-primary:active { transform: scale(0.97) translateY(-2px); box-shadow: 0 4px 12px rgba(255,255,0,0.4); }
+  .btn-outline { background: transparent; color: var(--white); border: 2px solid var(--white); }
+  .btn-outline:hover { background: rgba(255,255,255,0.15); transform: translateY(-3px); box-shadow: 0 6px 20px rgba(255,255,0,0.25); }
+  .stats-row {
+    display: flex; gap: 3.5rem; margin-top: 5.5rem; padding-top: 3.5rem;
+    border-top: 1.5px solid rgba(255,255,255,0.3);
+    animation: fadeUp .8s .4s ease both;
+    justify-content: center; flex-wrap: wrap;
+  }
+  .stat-item { text-align: center; animation: fadeUp .6s ease-out both; }
+  .stat-item:nth-child(1) { animation-delay: .2s; }
+  .stat-item:nth-child(2) { animation-delay: .3s; }
+  .stat-item:nth-child(3) { animation-delay: .4s; }
+  .stat-item:nth-child(4) { animation-delay: .5s; }
+  .stat-num { font-family: 'Playfair Display', serif; font-size: 2.8rem; font-weight: 800; color: #FFFF00; transition: all .3s; }
+  .stat-item:hover .stat-num { transform: scale(1.2); }
+  .stat-label { font-size: 0.85rem; color: rgba(255,255,255,0.85); text-transform: uppercase; letter-spacing: 0.12em; margin-top: 0.4rem; font-weight: 600; }
+
+  /* ─── SECTION ─── */
+  .section { padding: 7rem 2rem; transition: all .3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; }\n  .section:nth-child(odd) { background: linear-gradient(180deg, #FFFFFF 0%, rgba(0,128,0,0.02) 100%); }
+  .section-inner { max-width: 1300px; margin: 0 auto; }
+  .section-header { margin-bottom: 4rem; text-align: center; animation: fadeUp .6s ease-out; }
+  .section-tag {
+    font-family: 'DM Mono', monospace; font-size: 0.8rem; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--gold); margin-bottom: 1.25rem;
+    display: inline-flex; align-items: center; gap: 0.75rem; justify-content: center; width: 100%;
+    animation: slideInRight .6s ease-out; font-weight: 700;
+  }
+  .section-tag::before { content: ''; width: 10px; height: 10px; border-radius: 50%; background: var(--gold); }
+  .section-tag::after { content: ''; width: 10px; height: 10px; border-radius: 50%; background: var(--gold); }
+  .section-header h2 { font-family: 'Playfair Display', serif; font-size: clamp(2.2rem, 4.5vw, 3rem); font-weight: 800; color: var(--text); transition: all .3s cubic-bezier(0.4, 0, 0.2, 1); margin-bottom: 1.5rem; }
+  .section-header:hover h2 { color: var(--gold); transform: translateX(4px); }
+  .section-header p { color: var(--muted); margin-top: 1.5rem; max-width: 680px; line-height: 1.8; font-size: 1.05rem; margin-left: auto; margin-right: auto; }
+
+  /* ─── CARDS ─── */
+  .grid { display: grid; gap: 2.5rem; animation: fadeUp .6s ease-out both; }
+  .grid-3 { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+  .grid-2 { grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); }
+  .card {
+    background: var(--white); border-radius: 16px;
+    border: 1.5px solid rgba(0,128,0,0.08);
+    overflow: hidden; transition: all .4s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer; position: relative;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.07);
+  }
+  .card::after { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(0,128,0,0.12) 0%, transparent 100%); opacity: 0; transition: opacity .4s; }
+  .card:hover { transform: translateY(-14px); box-shadow: 0 32px 64px rgba(0,128,0,0.3); border-color: rgba(0,128,0,0.3); }
+  .card:hover::after { opacity: 1; }
+  .card-img {
+    width: 100%; height: 240px; object-fit: cover;
+    background: linear-gradient(135deg, #008000 0%, #00AA00 100%);
+    display: flex; align-items: center; justify-content: center;
+    color: rgba(255,255,255,0.5); font-size: 4rem;
+    transition: all .5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .card:hover .card-img { transform: scale(1.1) rotate(-2deg); }
+  .card-body { padding: 1.5rem; }
+  .card-meta { font-size: .78rem; color: var(--muted); margin-bottom: .5rem; display: flex; gap: .75rem; }
+  .card-title { font-family: 'Playfair Display', serif; font-size: 1.15rem; font-weight: 700; margin-bottom: 0.65rem; line-height: 1.45; color: var(--text); }
+  .card-excerpt { font-size: 0.9rem; color: var(--muted); line-height: 1.65; }
+  .tag {
+    display: inline-block; background: rgba(0,128,0,0.15);
+    color: #008000; font-size: 0.75rem; font-weight: 700;
+    padding: 0.3rem 0.8rem; border-radius: 6px; letter-spacing: 0.05em; text-transform: uppercase;
+  }
+
+  /* ─── ACHIEVEMENT CARD ─── */
+  .ach-card {
+    background: var(--white); border-radius: 16px; padding: 2.25rem;
+    border: 1.5px solid rgba(0,128,0,0.08); display: flex; gap: 1.75rem;
+    transition: all .4s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer;
+    position: relative; overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.07);
+  }
+  .ach-card::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(0,128,0,0.1) 0%, transparent 100%); opacity: 0; transition: opacity .4s; }
+  .ach-card:hover { transform: translateY(-12px) scale(1.01); box-shadow: 0 32px 64px rgba(0,128,0,0.28); border-color: rgba(0,128,0,0.3); }
+  .ach-card:hover::before { opacity: 1; }
+  .ach-icon {
+    width: 80px; height: 80px; min-width: 80px; border-radius: 14px;
+    background: linear-gradient(135deg, var(--gold-light) 0%, #FFFF00 100%);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2.2rem; color: #000000;
+    transition: all .3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 10px 28px rgba(255,255,0,0.35);
+  }
+  .ach-card:hover .ach-icon { transform: scale(1.15) rotate(-10deg); box-shadow: 0 14px 40px rgba(255,255,0,0.45); }
+  .ach-year { font-family: 'DM Mono', monospace; font-size: .75rem; color: var(--gold); font-weight: 500; margin-bottom: .3rem; }
+  .ach-title { font-weight: 700; margin-bottom: 0.45rem; line-height: 1.45; color: var(--text); font-size: 1.05rem; }
+  .ach-desc { font-size: 0.9rem; color: var(--muted); line-height: 1.65; }
+
+  /* ─── ABOUT ─── */
+  .about-split { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center; animation: fadeUp .7s ease-out; }
+  .about-visual {
+    background: linear-gradient(135deg, var(--gold) 0%, #005d00 50%, #00AA00 100%); border-radius: 20px; padding: 3.75rem;
+    display: flex; flex-direction: column; gap: 2.25rem;
+    box-shadow: 0 24px 72px rgba(0,128,0,0.35);
+    position: relative;
+    overflow: hidden;
+  }
+  .about-visual::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 100% 0%, rgba(255,255,255,0.2) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .about-quote {
+    font-family: 'Playfair Display', serif; font-size: 1.55rem; color: var(--white);
+    line-height: 1.6; border-left: 4px solid rgba(255,255,0,0.8); padding-left: 1.5rem; font-weight: 700;
+  }
+  .about-detail { color: rgba(255,255,255,0.85); font-size: .9rem; line-height: 1.7; }
+  .values-list { display: flex; flex-direction: column; gap: .75rem; margin-top: 1.5rem; }
+  .value-item { display: flex; align-items: flex-start; gap: .75rem; }
+  .value-dot { width: 8px; height: 8px; min-width: 8px; background: var(--gold); border-radius: 50%; margin-top: .35rem; }
+
+  /* ─── STRUKTUR ORGANISASI ─── */
+  .struktur-section { animation: fadeUp .7s ease-out; }
+  .struktur-card { transition: all .3s cubic-bezier(0.4, 0, 0.2, 1); }
+  .struktur-card:hover { transform: translateY(-4px); box-shadow: 0 12px 36px rgba(0,128,0,0.15); }
+  .bidang-card { background: var(--white); padding: 1.75rem; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); transition: all .3s cubic-bezier(0.4, 0, 0.2, 1); }
+  .bidang-card:hover { box-shadow: 0 12px 36px rgba(0,128,0,0.12); transform: translateY(-2px); }
+
+  /* ─── CONTACT ─── */
+  .contact-grid { display: grid; grid-template-columns: 1fr 1.4fr; gap: 4rem; animation: fadeUp .7s ease-out; }
+  .contact-info { display: flex; flex-direction: column; gap: 1.5rem; }
+  .contact-item { display: flex; gap: 1.25rem; align-items: flex-start; transition: all .3s cubic-bezier(0.4, 0, 0.2, 1); }
+  .contact-item:hover { transform: translateX(6px); }
+  .contact-icon {
+    width: 50px; height: 50px; min-width: 50px; border-radius: 12px;
+    background: linear-gradient(135deg, var(--gold), #00AA00); color: var(--white);
+    display: flex; align-items: center; justify-content: center; font-size: 1.25rem;
+    transition: all .3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 6px 18px rgba(0,128,0,0.3);
+  }
+  .contact-item:hover .contact-icon { transform: scale(1.18) rotate(-12deg); box-shadow: 0 10px 28px rgba(0,128,0,0.4); }
+  .contact-form { background: var(--white); border-radius: 18px; padding: 2.75rem; border: 1.5px solid rgba(0,128,0,0.08); box-shadow: 0 12px 36px rgba(0,0,0,0.08); transition: all .3s; }
+  .contact-form:hover { box-shadow: 0 18px 48px rgba(0,128,0,0.15); transform: translateY(-4px); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .form-group { display: flex; flex-direction: column; gap: .4rem; margin-bottom: 1rem; }
+  .form-group label { font-size: .85rem; font-weight: 500; color: var(--text); }
+  /* ─── INPUT FORMS ─── */
+  .form-group input, .form-group textarea, .form-group select {
+    padding: 0.85rem 1.2rem; border: 2px solid #E0E0E0; border-radius: 10px;
+    font-family: 'DM Sans', sans-serif; font-size: 0.95rem; color: var(--text);
+    background: #FAFBFF; transition: all .3s cubic-bezier(0.4, 0, 0.2, 1);
+    resize: vertical; font-weight: 500;
+  }
+  .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+    outline: none; border-color: var(--gold); background: var(--white);
+    box-shadow: 0 0 0 5px rgba(0,128,0,0.12); transform: scale(1.01);
+  }
+  .form-group input::placeholder, .form-group textarea::placeholder {
+    color: #9CA3AF; transition: color .3s;
+  }
+
+  /* ─── FOOTER ─── */
+  footer {
+    background: linear-gradient(135deg, #008000 0%, #005d00 50%, #006400 100%); color: var(--white);
+    padding: 2.5rem 1.5rem 1.5rem; text-align: center;
+    border-top: 2px solid rgba(0,128,0,0.15); transition: all .3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+  }
+  footer::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 100% 100% at 50% 50%, rgba(255,255,255,0.05) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  footer:hover { background: linear-gradient(135deg, #006400 0%, #008000 100%); }
+  footer .brand { font-family: 'Playfair Display', serif; color: var(--white); font-size: 1.2rem; margin-bottom: .5rem; transition: all .3s; }
+  footer:hover .brand { transform: scale(1.05); }
+  footer small { display: block; margin-top: 1.5rem; font-size: .78rem; opacity: .8; }
+
+  /* ─── DETAIL PAGE ─── */
+  .detail-hero {
+    background: linear-gradient(135deg, #F8F9FA 0%, #FFFFFF 100%); padding: 4.5rem 2rem 3.5rem;
+    text-align: center; transition: all .3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .detail-hero:hover { background: linear-gradient(135deg, #FFFFFF 0%, #F8F9FA 100%); }
+  .detail-hero h1 { font-family: 'Playfair Display', serif; color: #2F2F2F; font-size: clamp(1.6rem, 3vw, 2.5rem); max-width: 800px; margin: 0 auto 1rem; }
+  .detail-hero .meta { color: var(--gold); font-size: .9rem; }
+  .detail-content { max-width: 760px; margin: 0 auto; padding: 3rem 2rem; }
+  .detail-content p { line-height: 1.8; color: var(--text); margin-bottom: 1.25rem; }
+  .detail-img {
+    width: 100%; height: 360px; background: linear-gradient(135deg, #E8F5E9 0%, #F1F8F6 100%);
+    border-radius: 16px; margin-bottom: 2rem; display: flex; align-items: center; justify-content: center;
+    font-size: 5rem; color: rgba(0,128,0,0.15);
+  }
+  .back-btn {
+    display: inline-flex; align-items: center; gap: .5rem;
+    color: var(--gold); cursor: pointer; font-weight: 500; margin-bottom: 2rem;
+    background: none; border: none; font-family: 'DM Sans', sans-serif;
+    font-size: .95rem; transition: gap .2s;
+  }
+  .back-btn:hover { gap: .75rem; }
+
+  /* ═══════════════════════════════════════
+     ADMIN DASHBOARD
+  ═══════════════════════════════════════ */
+  .admin-shell { display: flex; min-height: 100vh; background: #F5F7F6; }
+  .admin-sidebar {
+    width: 240px; min-width: 240px;
+    background: #1a1a2e; display: flex; flex-direction: column;
+    position: sticky; top: 0; height: 100vh; overflow-y: auto;
+    border-right: 1px solid rgba(0,128,0,0.1);
+  }
+  .sidebar-brand {
+    padding: 1.5rem 1.25rem;
+    border-bottom: 1px solid rgba(0,128,0,0.1);
+  }
+  .sidebar-brand .logo { font-family: 'Playfair Display', serif; color: var(--gold-light); font-size: 1.1rem; font-weight: 800; letter-spacing: 0.02em; }
+  .sidebar-brand .sub { color: rgba(255,255,255,0.5); font-size: 0.75rem; margin-top: 0.25rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
+  .sidebar-nav { padding: .75rem 0; flex: 1; }
+  .sidebar-section { padding: 0.65rem 1.25rem 0.35rem; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.45); font-weight: 700; margin-top: 0.75rem; }
+  .sidebar-link {
+    display: flex; align-items: center; gap: 0.85rem;
+    padding: 0.75rem 1.25rem; color: rgba(255,255,255,0.75);
+    cursor: pointer; transition: all .3s cubic-bezier(0.4, 0, 0.2, 1); font-size: 0.9rem; font-weight: 500;
+    border-left: 3px solid transparent; position: relative;
+  }
+  .sidebar-link:hover { background: rgba(0,128,0,0.15); color: rgba(255,255,255,0.98); transform: translateX(4px); }
+  .sidebar-link.active { background: rgba(0,128,0,0.25); color: var(--gold-light); border-left-color: var(--gold-light); }
+  .sidebar-link .icon { width: 18px; text-align: center; transition: all .3s cubic-bezier(0.4, 0, 0.2, 1); }
+  .sidebar-link:hover .icon { transform: scale(1.2); }
+  .sidebar-footer { padding: 1rem 1.25rem; border-top: 1px solid rgba(0,128,0,0.1); }
+  .logout-btn {
+    width: 100%; padding: 0.75rem 1rem; background: rgba(220,38,38,0.15);
+    border: 1.5px solid rgba(220,38,38,0.35); color: #ff6b7a;
+    border-radius: 10px; cursor: pointer; font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 0.6rem;
+    transition: all .2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .logout-btn:hover { background: rgba(220,38,38,0.25); border-color: rgba(220,38,38,0.5); color: #ff8a95; transform: translateY(-2px); }
+
+  .admin-main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+  .admin-topbar {
+    background: var(--white); padding: 1.25rem 2rem;
+    border-bottom: 1.5px solid rgba(0,128,0,0.08);
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 10; box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  }
+  .topbar-title { font-weight: 700; font-size: 1.15rem; color: var(--text); }
+  .topbar-user { display: flex; align-items: center; gap: 0.9rem; font-size: 0.9rem; color: var(--muted); font-weight: 500; }
+  .avatar { width: 38px; height: 38px; background: linear-gradient(135deg, var(--gold), var(--gold-light)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; color: #000000; font-size: 0.9rem; }
+  .admin-content { padding: 2rem; flex: 1; }
+  .admin-panel { display: none; }
+  .admin-panel.active { display: block; }
+
+  /* STATS */
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.25rem; margin-bottom: 2rem; }
+  .stat-card {
+    background: var(--white); border-radius: 14px; padding: 1.75rem;
+    border: 1.5px solid rgba(0,128,0,0.1); border-left: 5px solid var(--gold);
+    display: flex; flex-direction: column; gap: 0.6rem;
+    transition: all .3s cubic-bezier(0.4, 0, 0.2, 1); cursor: default; position: relative; overflow: hidden;
+  }
+  .stat-card::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(0,128,0,0.05) 0%, transparent 100%); opacity: 0; transition: opacity .3s; }
+  .stat-card:hover { transform: translateY(-6px); box-shadow: 0 12px 32px rgba(0,128,0,0.12); border-left-width: 6px; }
+  .stat-card:hover::before { opacity: 1; }
+  .stat-card .label { font-size: .8rem; color: var(--muted); font-weight: 500; }
+  .stat-card .value { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 700; color: var(--gold); transition: all .3s; }
+  .stat-card:hover .value { transform: scale(1.08); }
+  .stat-card .trend { font-size: 0.8rem; color: var(--success); font-weight: 700; text-transform: uppercase; }
+  .stat-card .icon { font-size: 1.75rem; margin-bottom: 0.35rem; transition: all .3s cubic-bezier(0.4, 0, 0.2, 1); }
+  .stat-card:hover .icon { transform: scale(1.2) rotate(8deg); }
+
+  /* TABLE */
+  .table-card { background: var(--white); border-radius: 14px; border: 1.5px solid rgba(0,128,0,0.08); overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.06); }
+  .table-header { padding: 1.5rem 1.75rem; border-bottom: 1.5px solid rgba(0,128,0,0.08); display: flex; align-items: center; justify-content: space-between; }
+  .table-header h3 { font-weight: 700; font-size: 1rem; color: var(--text); }
+  table { width: 100%; border-collapse: collapse; }
+  th { background: #FAFBFF; padding: 0.85rem 1.35rem; text-align: left; font-size: 0.8rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; border-bottom: 1.5px solid rgba(0,128,0,0.08); }
+  td { padding: 1rem 1.35rem; font-size: 0.9rem; border-bottom: 1px solid #f5f5f5; vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #fafbff; }
+  .td-img { width: 44px; height: 44px; border-radius: 8px; background: linear-gradient(135deg, var(--gold), var(--gold-light)); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; color: #000000; font-weight: 700; }
+  .td-title { font-weight: 700; color: var(--text); font-size: 0.95rem; }
+  .td-sub { font-size: 0.8rem; color: var(--muted); margin-top: 0.2rem; }
+  .status-badge {
+    display: inline-block; padding: 0.35rem 0.85rem; border-radius: 99px;
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+    transition: all .2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .status-badge:hover { transform: scale(1.05); }
+  .badge-green { background: #dffaf2; color: #0a6741; }
+  .badge-yellow { background: #fef9c3; color: #a16207; }
+  .action-btns { display: flex; gap: .5rem; }
+  .btn-icon {
+    width: 36px; height: 36px; border: 1.5px solid #D0D0D0; background: var(--white);
+    border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-size: 0.95rem; transition: all .2s cubic-bezier(0.4, 0, 0.2, 1); font-weight: 600;
+  }
+  .btn-icon:hover { background: #f0f2f7; transform: scale(1.1) translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+  .btn-icon.delete:hover { background: #fee2e2; border-color: #fca5a5; }
+  .btn-icon.edit:hover { background: #eff6ff; border-color: #93c5fd; }
+
+  /* MODAL */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(4px); z-index: 1000;
+    display: none; align-items: center; justify-content: center; padding: 2rem;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--white); border-radius: 18px; width: 100%; max-width: 580px;
+    max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    animation: modalIn .3s ease;
+  }
+  .modal-head { padding: 1.75rem; border-bottom: 1.5px solid rgba(0,128,0,0.08); display: flex; align-items: center; justify-content: space-between; }
+  .modal-head h3 { font-weight: 700; color: var(--text); font-size: 1.15rem; }
+  .modal-close { width: 36px; height: 36px; border: none; background: #EEF2FF; border-radius: 10px; cursor: pointer; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; transition: all .2s cubic-bezier(0.4, 0, 0.2, 1); }
+  .modal-close:hover { background: rgba(0,128,0,0.2); transform: rotate(90deg) scale(1.15); color: var(--gold); }
+  .modal-body { padding: 1.75rem; }
+  .modal-foot { padding: 1.25rem 1.75rem; border-top: 1px solid var(--border); display: flex; gap: .75rem; justify-content: flex-end; }
+  .btn-sm { padding: 0.65rem 1.4rem; font-size: 0.9rem; border-radius: 10px; font-weight: 650; border: none; cursor: pointer; transition: all .2s; font-family: 'DM Sans', sans-serif; }
+  .btn-gold { background: linear-gradient(135deg, var(--gold-light) 0%, #FFFF00 100%); color: #000000; box-shadow: 0 6px 18px rgba(255,255,0,0.3); font-weight: 700; }\n  .btn-gold:hover { background: linear-gradient(135deg, #FFFF00 0%, var(--gold-light) 100%); box-shadow: 0 10px 28px rgba(255,255,0,0.4); transform: translateY(-2px); }\n  .btn-ghost { background: #f0f2f7; color: var(--text); font-weight: 600; }\n  .btn-ghost:hover { background: #e5e7eb; transform: translateY(-2px); }\n  .btn-danger { background: #fee2e2; color: var(--danger); font-weight: 600; }\n  .btn-danger:hover { background: #fecaca; transform: translateY(-2px); }
+
+  /* IMAGE UPLOAD */
+  .upload-zone {
+    border: 2.5px dashed rgba(0,128,0,0.3); border-radius: 12px; padding: 2.25rem;
+    text-align: center; cursor: pointer; transition: all .3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: rgba(0,128,0,0.02);
+  }
+  .upload-zone:hover { border-color: var(--gold); background: rgba(0,128,0,0.08); transform: scale(1.02); }
+  .upload-zone .upload-icon { font-size: 2rem; margin-bottom: .5rem; }
+  .upload-zone p { font-size: .85rem; color: var(--muted); }
+
+  /* LOGIN */
+  .login-screen {
+    min-height: 100vh; background: linear-gradient(135deg, var(--gold) 0%, #005d00 50%, #00AA00 100%);
+    display: flex; align-items: center; justify-content: center; padding: 2rem;
+  }
+  .login-card {
+    background: var(--white); border-radius: 20px; padding: 3.25rem;
+    width: 100%; max-width: 440px; box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    animation: fadeUp .6s ease; border: 1.5px solid rgba(0,128,0,0.08);
+  }
+  .login-card .logo { font-family: 'Playfair Display', serif; color: var(--gold); font-size: 1.4rem; font-weight: 700; margin-bottom: .25rem; }
+  .login-card .sub { color: var(--muted); font-size: .88rem; margin-bottom: 2rem; }
+  .alert { padding: .75rem 1rem; border-radius: 8px; font-size: .85rem; margin-bottom: 1rem; }
+  .alert-error { background: #fee2e2; color: var(--danger); border: 1px solid #fecaca; }
+  .alert-success { background: #dcfce7; color: var(--success); border: 1px solid #bbf7d0; }
+
+  /* TOAST */
+  .toast-container { position: fixed; bottom: 2rem; right: 2rem; z-index: 9999; display: flex; flex-direction: column; gap: .5rem; }
+  .toast {
+    background: var(--navy); color: var(--text); padding: .75rem 1.25rem;
+    border-radius: 10px; font-size: .88rem; font-weight: 500;
+    box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: .75rem;
+    animation: slideIn .3s ease; transition: all .3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-left: 3px solid var(--gold);
+  }
+  .toast:hover { transform: translateX(-6px); box-shadow: 0 12px 36px rgba(0,128,0,0.25); }
+  .toast.error { border-left-color: var(--danger); }
+  .toast.success { border-left-color: var(--success); }
+
+  /* ANIMATIONS – Enhance – */
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(25px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes slideInRight { from { opacity: 0; transform: translateX(-25px); } to { opacity: 1; transform: translateX(0); } }
+  @keyframes slideInLeft { from { opacity: 0; transform: translateX(25px); } to { opacity: 1; transform: translateX(0); } }
+  @keyframes scaleIn { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.65; } }
+  @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes modalIn { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
+  @keyframes slideIn { from { opacity: 0; transform: translateX(100px); } to { opacity: 1; transform: translateX(0); } }
+  .card { animation: fadeUp .6s ease-out both; }
+  .card:nth-child(2) { animation-delay: .1s; }
+  .card:nth-child(3) { animation-delay: .2s; }
+  .card:nth-child(n+4) { animation-delay: calc(.1s * (var(--index, 3) - 2)); }
+
+  /* PAGINATION */
+  .pagination { display: flex; gap: .5rem; justify-content: center; margin-top: 3rem; }
+  .page-btn {
+    width: 38px; height: 38px; border: 1px solid var(--border);
+    background: var(--white); border-radius: 8px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; font-size: .88rem;
+    transition: all .2s; color: var(--text);
+  }
+  .page-btn:hover { border-color: var(--gold); color: var(--gold); background: rgba(0,128,0,0.08); }
+  .page-btn.active { background: var(--gold); color: var(--white); border-color: var(--gold); }
+
+  /* LOADING SKELETON */
+  .skeleton { background: linear-gradient(90deg, #f0f2f7 25%, #e5e7eb 50%, #f0f2f7 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 6px; }
+  @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    .nav-toggle { display: flex; }
+    .nav-links {
+      display: none; flex-direction: column; width: 100%; gap: 0; position: absolute; top: 64px; left: 0; right: 0;
+      background: rgba(255,255,255,0.98); backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(0,128,0,0.15);
+      padding: 1rem 0; box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      z-index: 99;
+      max-height: calc(100vh - 64px); overflow-y: auto;
+    }
+    .nav-links.active { display: flex; }
+    .nav-links a {
+      padding: 1rem 1.5rem; border-radius: 0; font-size: 1rem; border-bottom: 1px solid rgba(0,128,0,0.08);
+    }
+    .nav-links a::after { display: none; }
+    .nav-links a:hover { background: rgba(0,128,0,0.1); }
+    .nav-links a.nav-cta {
+      margin: 0.5rem 1.5rem; width: calc(100% - 3rem); text-align: center; border-bottom: none;
+    }
+    .about-split, .contact-grid, .form-row { grid-template-columns: 1fr; }
+    .stats-row { gap: 1.5rem; flex-wrap: wrap; }
+    .admin-sidebar { display: none; }
+    .section { padding: 3rem 1.5rem; }
+    .hero { padding: 4rem 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════
+     PUBLIC PORTAL
+══════════════════════════════════ -->
+<div id="public-site" class="view active">
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="nav-brand" onclick="showPage('home')">
+      <img src="https://raw.githubusercontent.com/vikrialhusna221-lang/vaalh_0/main/53_20251214_104522_0000.png" alt="Logo" style="height: 40px; width: auto;">
+      <span>PR IPM SMA MUHAMMADIYAH 1 METRO</span>
+    </div>
+    <button class="nav-toggle" id="nav-toggle" onclick="toggleMobileMenu()">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="nav-links" id="nav-links">
+      <a onclick="showPage('home'); closeMobileMenu()" id="nav-home" class="active">Beranda</a>
+      <a onclick="showPage('news'); closeMobileMenu()" id="nav-news">Berita</a>
+      <a onclick="showPage('achievements'); closeMobileMenu()" id="nav-achievements">Prestasi</a>
+      <a onclick="showPage('about'); closeMobileMenu()" id="nav-about">Tentang</a>
+      <a onclick="showPage('struktur'); closeMobileMenu()" id="nav-struktur">Struktur</a>
+      <a onclick="showPage('contact'); closeMobileMenu()" id="nav-contact">Kontak</a>
+      <a onclick="showPage('login'); closeMobileMenu()" class="nav-cta">Admin ↗</a>
+    </div>
+  </nav>
+
+  <!-- HOME PAGE -->
+  <div id="page-home" class="view active">
+    <section class="hero">
+      <h1>Ikatan Pelajar<br><em>Muhammadiyah</em></h1>
+      <p>IPM adalah organisasi pelajar di bawah naungan Muhammadiyah yang berfokus pada pembinaan karakter, kepemimpinan, dan pengembangan potensi pelajar untuk masa depan yang lebih baik.</p>
+      <div class="hero-btns">
+        <button type="button" class="btn btn-primary" onclick="showPage('about')">Tentang Kami →</button>
+      </div>
+      <div class="stats-row">
+        <div class="stat-item"><div class="stat-num">--</div><div class="stat-label">Anggota Aktif</div></div>
+        <div class="stat-item"><div class="stat-num">--</div><div class="stat-label">Prestasi</div></div>
+        <div class="stat-item"><div class="stat-num">53</div><div class="stat-label">Tahun Berdiri</div></div>
+        <div class="stat-item"><div class="stat-num">--</div><div class="stat-label">Program</div></div>
+      </div>
+    </section>
+
+    <section class="section" style="background: var(--white);">
+      <div class="section-inner">
+        <div class="section-header">
+          <div class="section-tag">Berita Terbaru</div>
+          <h2>Kabar dari Lapangan</h2>
+          <p>Berita IPM berisi informasi dan dokumentasi kegiatan organisasi seperti kajian, seminar, lomba, bakti sosial, serta agenda mendatang.</p>
+        </div>
+        <div class="grid grid-3" id="home-news-grid"></div>
+        <div style="text-align:center; margin-top:2.5rem;">
+          <button class="btn btn-outline" onclick="showPage('news')">Lihat Semua Berita →</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-inner">
+        <div class="section-header">
+          <div class="section-tag">Pencapaian</div>
+          <h2>Prestasi Unggulan</h2>
+          <p>Prestasi IPM menampilkan pencapaian anggota maupun organisasi dalam bidang akademik dan non akademik, penghargaan, serta keberhasilan program kerja.</p>
+        </div>
+        <div class="grid grid-2" id="home-ach-grid"></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- NEWS LIST PAGE -->
+  <div id="page-news" class="view">
+    <div style="background:linear-gradient(135deg, #F5F7F6, #FFFFFF); padding:3rem 2rem; text-align:center;">
+      <div class="section-tag" style="justify-content:center; color:var(--gold);">Portal Berita</div>
+      <h1 style="font-family:'Playfair Display',serif; color:#2F2F2F; font-size:2.5rem; margin-top:.5rem;">Semua Berita</h1>
+    </div>
+    <section class="section">
+      <div class="section-inner">
+        <div class="grid grid-3" id="news-grid"></div>
+        <div class="pagination" id="news-pagination"></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- NEWS DETAIL PAGE -->
+  <div id="page-news-detail" class="view">
+    <div class="detail-hero">
+      <button class="back-btn" onclick="showPage('news')">← Kembali ke Berita</button>
+      <h1 id="detail-title">Judul Berita</h1>
+      <div class="meta" id="detail-meta"></div>
+    </div>
+    <div class="detail-content">
+      <div class="detail-img" id="detail-img">📰</div>
+      <div id="detail-body"></div>
+    </div>
+  </div>
+
+  <!-- ACHIEVEMENTS PAGE -->
+  <div id="page-achievements" class="view">
+    <div style="background:linear-gradient(135deg, #F5F7F6, #FFFFFF); padding:3rem 2rem; text-align:center;">
+      <div class="section-tag" style="justify-content:center; color:var(--gold);">Hall of Fame</div>
+      <h1 style="font-family:'Playfair Display',serif; color:#2F2F2F; font-size:2.5rem; margin-top:.5rem;">Daftar Prestasi</h1>
+    </div>
+    <section class="section">
+      <div class="section-inner">
+        <div class="grid grid-2" id="ach-grid"></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ABOUT PAGE -->
+  <div id="page-about" class="view">
+    <div style="background:linear-gradient(135deg, #F5F7F6, #FFFFFF); padding:3rem 2rem; text-align:center;">
+      <div class="section-tag" style="justify-content:center; color:var(--gold);">Profil Organisasi</div>
+      <h1 style="font-family:'Playfair Display',serif; color:#2F2F2F; font-size:2.5rem; margin-top:.5rem;">Tentang IPM</h1>
+    </div>
+    <section class="section">
+      <div class="section-inner">
+        <div class="about-split">
+          <div>
+            <div class="section-tag">Tentang IPM</div>
+            <h2 style="font-family:'Playfair Display',serif; font-size:2rem; margin-bottom:1rem;">IPM SMA MUHAMMADIYAH 1 METRO</h2>
+            <p style="color:var(--muted); line-height:1.8; margin-bottom:1.25rem;"><strong>Ikatan Pelajar Muhammadiyah (IPM)</strong> adalah organisasi pelajar di bawah naungan Muhammadiyah yang berfokus pada pembinaan karakter, kepemimpinan, dan pengembangan potensi pelajar. IPM menjadi wadah bagi siswa untuk belajar berorganisasi, berdakwah, serta berkontribusi positif di lingkungan sekolah dan masyarakat.</p>
+            <p style="color:var(--muted); line-height:1.8; margin-bottom:1.5rem;"><strong>Fungsi dan Peran:</strong> IPM berfungsi sebagai wadah aspirasi pelajar, penggerak kegiatan sekolah, media pembelajaran organisasi, serta sarana pembinaan nilai keislaman dan kepemimpinan. Melalui IPM, pelajar dilatih untuk berpikir kritis, bertanggung jawab, dan memiliki kepedulian sosial.</p>
+            <div class="values-list">
+              <div class="value-item"><div class="value-dot"></div><div><strong>Kajian Keislaman</strong> — Memperdalam pemahaman nilai-nilai Islam dan wawasan keislaman.</div></div>
+              <div class="value-item"><div class="value-dot"></div><div><strong>Kepemimpinan</strong> — Mengembangkan kemampuan memimpin dan berpikir strategis.</div></div>
+              <div class="value-item"><div class="value-dot"></div><div><strong>Sosial &amp; Dakwah</strong> — Memberikan kontribusi nyata kepada masyarakat dan berdakwah dengan bijak.</div></div>
+              <div class="value-item"><div class="value-dot"></div><div><strong>Pengembangan Diri</strong> — Meningkatkan potensi akademik dan non akademik setiap anggota.</div></div>
+            </div>
+          </div>
+          <div class="about-visual">
+            <div class="about-quote">"Membangun pelajar yang berkarakter, beriman, dan berdedikasi untuk Indonesia yang lebih baik."</div>
+            <div class="about-detail">PR IPM SMA MUHAMMADIYAH 1 METRO berkomitmen untuk mengembangkan potensi setiap pelajar melalui program kajian, pelatihan kepemimpinan, kegiatan sosial, literasi, dan kewirausahaan yang dirancang untuk membangun karakter yang kuat dan kepedulian sosial yang mendalam.</div>
+            <div style="display:flex; gap:2rem; margin-top:.5rem;">
+              <div><div style="font-family:'Playfair Display',serif; font-size:1.75rem; color:var(--gold); font-weight:700;">--</div><div style="color:rgba(255,255,255,0.5); font-size:.8rem;">Anggota</div></div>
+              <div><div style="font-family:'Playfair Display',serif; font-size:1.75rem; color:var(--gold); font-weight:700;">--</div><div style="color:rgba(255,255,255,0.5); font-size:.8rem;">Kota</div></div>
+              <div><div style="font-family:'Playfair Display',serif; font-size:1.75rem; color:var(--gold); font-weight:700;">--</div><div style="color:rgba(255,255,255,0.5); font-size:.8rem;">Berdiri</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- STRUKTUR PAGE -->
+  <div id="page-struktur" class="view">
+    <div style="background:linear-gradient(135deg, #F5F7F6, #FFFFFF); padding:3rem 2rem; text-align:center;">
+      <div class="section-tag" style="justify-content:center; color:var(--gold);">Organisasi</div>
+      <h1 style="font-family:'Playfair Display',serif; color:#2F2F2F; font-size:2.5rem; margin-top:.5rem;">Struktur Organisasi</h1>
+      <p style="color:var(--muted); font-size:1.05rem; margin-top:1rem;">Tim Kerja IPM SMA MUHAMMADIYAH 1 METRO Tahun 2026-2027</p>
+    </div>
+    <section class="section">
+      <div class="section-inner">
+        <!-- PEMBINA -->
+        <div class="struktur-section">
+          <h2 style="font-family:'Playfair Display',serif; font-size:1.8rem; color:var(--gold); margin-bottom:1.5rem; border-bottom:2px solid var(--gold); padding-bottom:1rem;">PEMBINA</h2>
+          <div class="struktur-card" style="text-align:center; background:linear-gradient(135deg, rgba(0,128,0,0.08), rgba(255,255,0,0.05)); padding:2rem; border-radius:12px; border-left:4px solid var(--gold);">
+            <h3 style="font-size:1.3rem; color:#2F2F2F; margin-bottom:.5rem;">Nurmalia Hadi S. Si.</h3>
+          </div>
+        </div>
+
+        <!-- STRUKTUR INTI -->
+        <div class="struktur-section" style="margin-top:3rem;">
+          <h2 style="font-family:'Playfair Display',serif; font-size:1.8rem; color:var(--gold); margin-bottom:1.5rem; border-bottom:2px solid var(--gold); padding-bottom:1rem;">PENGURUS INTI</h2>
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.5rem;">
+            <div class="struktur-card" style="background:linear-gradient(135deg, rgba(0,128,0,0.08), rgba(255,255,0,0.05)); padding:1.5rem; border-radius:12px; border-left:4px solid var(--gold);">
+              <div style="font-size:.9rem; color:var(--muted); margin-bottom:.5rem; font-weight:600; text-transform:uppercase;">Ketua Umum</div>
+              <h3 style="font-size:1.2rem; color:#2F2F2F;">Hafis Alfatrah</h3>
+            </div>
+            <div class="struktur-card" style="background:linear-gradient(135deg, rgba(0,128,0,0.08), rgba(255,255,0,0.05)); padding:1.5rem; border-radius:12px; border-left:4px solid var(--gold);">
+              <div style="font-size:.9rem; color:var(--muted); margin-bottom:.5rem; font-weight:600; text-transform:uppercase;">Sekretaris Umum</div>
+              <h3 style="font-size:1.2rem; color:#2F2F2F;">Merryn Berlian Isnaini</h3>
+            </div>
+            <div class="struktur-card" style="background:linear-gradient(135deg, rgba(0,128,0,0.08), rgba(255,255,0,0.05)); padding:1.5rem; border-radius:12px; border-left:4px solid var(--gold);">
+              <div style="font-size:.9rem; color:var(--muted); margin-bottom:.5rem; font-weight:600; text-transform:uppercase;">Bendahara</div>
+              <h3 style="font-size:1.2rem; color:#2F2F2F;">Esa Putri Almadina</h3>
+            </div>
+          </div>
+        </div>
+
+        <!-- BIDANG-BIDANG -->
+        <div class="struktur-section" style="margin-top:3rem;">
+          <h2 style="font-family:'Playfair Display',serif; font-size:1.8rem; color:var(--gold); margin-bottom:2rem; border-bottom:2px solid var(--gold); padding-bottom:1rem;">BIDANG-BIDANG</h2>
+          
+          <!-- Bidang Perkaderan -->
+          <div class="bidang-card" style="margin-bottom:2.5rem;">
+            <h3 style="font-size:1.3rem; color:#2F2F2F; margin-bottom:1rem; padding-bottom:.75rem; border-bottom:2px solid var(--gold-light);">🔹 Bidang Perkaderan</h3>
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(250px, 1fr)); gap:1rem;">
+              <div style="background:rgba(0,128,0,0.04); padding:1rem; border-radius:8px; border-left:3px solid var(--gold);">
+                <div style="font-size:.85rem; color:var(--muted); margin-bottom:.3rem;"><strong>Ketua</strong></div>
+                <p style="margin:0; color:#2F2F2F;">M. Romi Nazarrudin</p>
+              </div>
+              <div style="background:rgba(0,128,0,0.04); padding:1rem; border-radius:8px; border-left:3px solid var(--gold);">
+                <div style="font-size:.85rem; color:var(--muted); margin-bottom:.3rem;"><strong>Sekretaris</strong></div>
+                <p style="margin:0; color:#2F2F2F;">Nabila Zaskiya Chandra</p>
+              </div>
+            </div>
+            <div style="margin-top:1rem; padding:1rem; background:rgba(255,255,0,0.08); border-radius:8px;">
+              <div style="font-size:.9rem; color:var(--muted); font-weight:600; margin-bottom:.75rem;">Anggota:</div>
+              <ul style="margin:0; padding-left:1.5rem; font-size:.9rem; color:#2F2F2F;">
+                <li>Dzaki Tristan Aji</li>
+                <li>Tia Eka Yuniarsih</li>
+                <li>Kalica Nazwa Safitri</li>
+                <li>Clara Wahyuning Tyas</li>
+                <li>Nasywa Diva Zahra</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Bidang KDI -->
+          <div class="bidang-card" style="margin-bottom:2.5rem;">
+            <h3 style="font-size:1.3rem; color:#2F2F2F; margin-bottom:1rem; padding-bottom:.75rem; border-bottom:2px solid var(--gold-light);">🔹 Bidang KDI (Kajian Dakwah Islam)</h3>
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(250px, 1fr)); gap:1rem;">
+              <div style="background:rgba(0,128,0,0.04); padding:1rem; border-radius:8px; border-left:3px solid var(--gold);">
+                <div style="font-size:.85rem; color:var(--muted); margin-bottom:.3rem;"><strong>Ketua</strong></div>
+                <p style="margin:0; color:#2F2F2F;">Fahmi Arifuddin Herliyanto</p>
+              </div>
+              <div style="background:rgba(0,128,0,0.04); padding:1rem; border-radius:8px; border-left:3px solid var(--gold);">
+                <div style="font-size:.85rem; color:var(--muted); margin-bottom:.3rem;"><strong>Sekretaris</strong></div>
+                <p style="margin:0; color:#2F2F2F;">Azizah Hanifah Ulhak</p>
+              </div>
+            </div>
+            <div style="margin-top:1rem; padding:1rem; background:rgba(255,255,0,0.08); border-radius:8px;">
+              <div style="font-size:.9rem; color:var(--muted); font-weight:600; margin-bottom:.75rem;">Anggota:</div>
+              <ul style="margin:0; padding-left:1.5rem; font-size:.9rem; color:#2F2F2F;">
+                <li>Nadhira Arthalitha Rasyid</li>
+                <li>Qurota Ayun Permata Ningrum</li>
+                <li>Muhammad Galang Putra</li>
+                <li>Rayhan Firadaus Putra</li>
+                <li>Annisa Azmi Fatonah</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Bidang PIP -->
+          <div class="bidang-card" style="margin-bottom:2.5rem;">
+            <h3 style="font-size:1.3rem; color:#2F2F2F; margin-bottom:1rem; padding-bottom:.75rem; border-bottom:2px solid var(--gold-light);">🔹 Bidang PIP (Pengkajian Ilmu Pengetahuan)</h3>
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(250px, 1fr)); gap:1rem;">
+              <div style="background:rgba(0,128,0,0.04); padding:1rem; border-radius:8px; border-left:3px solid var(--gold);">
+                <div style="font-size:.85rem; color:var(--muted); margin-bottom:.3rem;"><strong>Ketua</strong></div>
+                <p style="margin:0; color:#2F2F2F;">Vikri Al Husna</p>
+              </div>
+              <div style="background:rgba(0,128,0,0.04); padding:1rem; border-radius:8px; border-left:3px solid var(--gold);">
+                <div style="font-size:.85rem; color:var(--muted); margin-bottom:.3rem;"><strong>Sekretaris</strong></div>
+                <p style="margin:0; color:#2F2F2F;">Zahra Khuzaifah</p>
+              </div>
+            </div>
+            <div style="margin-top:1rem; padding:1rem; background:rgba(255,255,0,0.08); border-radius:8px;">
+              <div style="font-size:.9rem; color:var(--muted); font-weight:600; margin-bottom:.75rem;">Anggota:</div>
+              <ul style="margin:0; padding-left:1.5rem; font-size:.9rem; color:#2F2F2F;">
+                <li>Windi Antika</li>
+                <li>Deva Lia Fajria</li>
+                <li>Khanza Zabirah</li>
+                <li>Andika Zuhriyanto</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Bidang ASBO -->
+          <div class="bidang-card" style="margin-bottom:2.5rem;">
+            <h3 style="font-size:1.3rem; color:#2F2F2F; margin-bottom:1rem; padding-bottom:.75rem; border-bottom:2px solid var(--gold-light);">🔹 Bidang ASBO (Apresiasi Seni Budaya dan Olahraga)</h3>
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(250px, 1fr)); gap:1rem;">
+              <div style="background:rgba(0,128,0,0.04); padding:1rem; border-radius:8px; border-left:3px solid var(--gold);">
+                <div style="font-size:.85rem; color:var(--muted); margin-bottom:.3rem;"><strong>Ketua</strong></div>
+                <p style="margin:0; color:#2F2F2F;">Zahwa Alya Aneira</p>
+              </div>
+              <div style="background:rgba(0,128,0,0.04); padding:1rem; border-radius:8px; border-left:3px solid var(--gold);">
+                <div style="font-size:.85rem; color:var(--muted); margin-bottom:.3rem;"><strong>Sekretaris</strong></div>
+                <p style="margin:0; color:#2F2F2F;">Sinta Bella Rahma Dini</p>
+              </div>
+            </div>
+            <div style="margin-top:1rem; padding:1rem; background:rgba(255,255,0,0.08); border-radius:8px;">
+              <div style="font-size:.9rem; color:var(--muted); font-weight:600; margin-bottom:.75rem;">Anggota:</div>
+              <ul style="margin:0; padding-left:1.5rem; font-size:.9rem; color:#2F2F2F;">
+                <li>Rizki Vetra Alfarezi</li>
+                <li>Silviana Putri</li>
+                <li>Eka Sri Utami</li>
+                <li>Jesika Nafin</li>
+                <li>Putri Raisa Nabila</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Bidang Advokasi -->
+          <div class="bidang-card" style="margin-bottom:2.5rem;">
+            <h3 style="font-size:1.3rem; color:#2F2F2F; margin-bottom:1rem; padding-bottom:.75rem; border-bottom:2px solid var(--gold-light);">🔹 Bidang Advokasi</h3>
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(250px, 1fr)); gap:1rem;">
+              <div style="background:rgba(0,128,0,0.04); padding:1rem; border-radius:8px; border-left:3px solid var(--gold);">
+                <div style="font-size:.85rem; color:var(--muted); margin-bottom:.3rem;"><strong>Ketua</strong></div>
+                <p style="margin:0; color:#2F2F2F;">Afifah Zahra Indriyani</p>
+              </div>
+              <div style="background:rgba(0,128,0,0.04); padding:1rem; border-radius:8px; border-left:3px solid var(--gold);">
+                <div style="font-size:.85rem; color:var(--muted); margin-bottom:.3rem;"><strong>Sekretaris</strong></div>
+                <p style="margin:0; color:#2F2F2F;">Nur Fatihah</p>
+              </div>
+            </div>
+            <div style="margin-top:1rem; padding:1rem; background:rgba(255,255,0,0.08); border-radius:8px;">
+              <div style="font-size:.9rem; color:var(--muted); font-weight:600; margin-bottom:.75rem;">Anggota:</div>
+              <ul style="margin:0; padding-left:1.5rem; font-size:.9rem; color:#2F2F2F;">
+                <li>Dinda Cantika Putri</li>
+                <li>Fitria Rahma Septika</li>
+                <li>Vatikah Nurul Utami</li>
+                <li>Azkia Ikrimatuuz Zahra</li>
+                <li>Shanaz Nadya Safwa</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Bidang Kewirausahaan -->
+          <div class="bidang-card">
+            <h3 style="font-size:1.3rem; color:#2F2F2F; margin-bottom:1rem; padding-bottom:.75rem; border-bottom:2px solid var(--gold-light);">🔹 Bidang PKKWU (Pengembangan Kreatifitas dan Kewirausahaan)</h3>
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(250px, 1fr)); gap:1rem;">
+              <div style="background:rgba(0,128,0,0.04); padding:1rem; border-radius:8px; border-left:3px solid var(--gold);">
+                <div style="font-size:.85rem; color:var(--muted); margin-bottom:.3rem;"><strong>Ketua</strong></div>
+                <p style="margin:0; color:#2F2F2F;">Zharotu Fitri</p>
+              </div>
+              <div style="background:rgba(0,128,0,0.04); padding:1rem; border-radius:8px; border-left:3px solid var(--gold);">
+                <div style="font-size:.85rem; color:var(--muted); margin-bottom:.3rem;"><strong>Sekretaris</strong></div>
+                <p style="margin:0; color:#2F2F2F;">Naifa Kinasih</p>
+              </div>
+            </div>
+            <div style="margin-top:1rem; padding:1rem; background:rgba(255,255,0,0.08); border-radius:8px;">
+              <div style="font-size:.9rem; color:var(--muted); font-weight:600; margin-bottom:.75rem;">Anggota:</div>
+              <ul style="margin:0; padding-left:1.5rem; font-size:.9rem; color:#2F2F2F;">
+                <li>Salwa Aqilah Putri</li>
+                <li>Azzahra Nur Rohma</li>
+                <li>Fiona Inka Safitri</li>
+                <li>Rasya Khoirunnisa</li>
+                <li>Talitha Nur Azizah</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- CONTACT PAGE -->
+  <div id="page-contact" class="view">
+    <div style="background:linear-gradient(135deg, #F5F7F6, #FFFFFF); padding:3rem 2rem; text-align:center;">
+      <div class="section-tag" style="justify-content:center; color:var(--gold);">Hubungi Kami</div>
+      <h1 style="font-family:'Playfair Display',serif; color:#2F2F2F; font-size:2.5rem; margin-top:.5rem;">Mari Terhubung</h1>
+    </div>
+    <section class="section">
+      <div class="section-inner">
+        <div class="contact-grid">
+          <div class="contact-info">
+            <h3 style="font-family:'Playfair Display',serif; font-size:1.5rem; margin-bottom:.5rem;">Hubungi IPM SMA MUHAMMADIYAH 1 METRO</h3>
+            <p style="color:var(--muted); line-height:1.7; margin-bottom:1.5rem;">Punya pertanyaan tentang IPM, ingin bergabung, atau ingin berkolaborasi? Jangan ragu untuk menghubungi kami melalui berbagai channel komunikasi di bawah ini.</p>
+            <div class="contact-item"><div class="contact-icon">📍</div><div><strong>Alamat</strong><br><a href="https://maps.app.goo.gl/A8YR7mbXjcGiUbUs5" target="_blank" style="color:var(--gold); text-decoration:none; font-weight:500;">Jl. Khairbras No. 65, Ganjar Asri, Kec. Metro Barat, Kota Metro, Lampung.</a></div></div>
+            <div class="contact-item"><div class="contact-icon">📧</div><div><strong>Email</strong><br><a href="mailto:ipmsmamuh1metro@gmail.com" style="color:var(--gold); text-decoration:none; font-weight:500;">ipmsmamuh1metro@gmail.com</a></div></div>
+            <div class="contact-item"><div class="contact-icon">💬</div><div><strong>WhatsApp</strong><br><a href="https://wa.me/6285184459363" target="_blank" style="color:var(--gold); text-decoration:none; font-weight:500;">+6285184459363</a></div></div>
+            <div class="contact-item"><div class="contact-icon">📱</div><div><strong>Instagram</strong><br><div style="margin-top:.5rem;">
+              <p style="color:var(--muted); font-size:.9rem; margin-bottom:.3rem;"><a href="https://www.instagram.com/pripm_smamuhimetro?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" style="color:var(--gold); text-decoration:none;">@pripm_smamuhimetro</a></p>
+              <p style="color:var(--muted); font-size:.9rem;"><a href="https://www.instagram.com/ipeeeeem_1?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" style="color:var(--gold); text-decoration:none;">@ipeeeeem_1</a></p>
+            </div></div></div>
+          </div>
+          <div class="contact-form">
+            <h3 style="font-weight:600; margin-bottom:1.5rem; color:var(--text);">Kirim Pesan</h3>
+            <div class="form-row">
+              <div class="form-group"><label>Nama Lengkap</label><input type="text" id="contact-name" placeholder="siswa"></div>
+              <div class="form-group"><label>Email</label><input type="email" id="contact-email" placeholder="siswa@gmail.com"></div>
+            </div>
+            <div class="form-group"><label>Subjek</label><input type="text" id="contact-subject" placeholder="saya ingin bertanya"></div>
+            <div class="form-group"><label>Pesan</label><textarea id="contact-message" rows="5" placeholder="Tulis pesan Anda di sini..."></textarea></div>
+            <button class="btn btn-primary" onclick="sendWhatsApp()">Kirim Pesan →</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div style="max-width: 800px; margin: 0 auto;">
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1rem; text-align: left;">
+        <div>
+          <div style="display: flex; align-items: center; gap: .5rem; margin-bottom: .75rem;">
+            <img src="https://raw.githubusercontent.com/vikrialhusna221-lang/vaalh_0/main/53_20251214_104522_0000.png" alt="Logo" style="height: 40px; width: auto;">
+            <span class="brand" style="margin: 0; font-size: 0.95rem;">PR IPM SMA MUHAMMADIYAH 1 METRO</span>
+          </div>
+          <p style="font-size: .8rem; line-height: 1.5;">IPM adalah organisasi pelajar fokus pada pembinaan karakter, kepemimpinan, dan pengembangan potensi pelajar.</p>
+        </div>
+        <div>
+          <h4 style="color: var(--white); margin-bottom: .75rem; font-weight: 600; font-size: .95rem;">Hubungi Kami</h4>
+          <div style="font-size: .8rem; line-height: 1.6;">
+            <p style="margin-bottom: .4rem;"><strong>📍 Alamat:</strong><br><a href="https://maps.app.goo.gl/A8YR7mbXjcGiUbUs5" target="_blank" style="color: var(--white); text-decoration: none; opacity: 0.9;">Jl. Khairbras No. 65, Metro, Lampung</a></p>
+            <p style="margin-bottom: .4rem;"><strong>📧 Email:</strong><br><a href="mailto:ipmsmamuh1metro@gmail.com" style="color: var(--white); text-decoration: none; opacity: 0.9;">ipmsmamuh1metro@gmail.com</a></p>
+            <p style="margin-bottom: .4rem;"><strong>💬 WhatsApp:</strong><br><a href="https://wa.me/6285184459363" target="_blank" style="color: var(--white); text-decoration: none; opacity: 0.9;">+62 851 8445 9363</a></p>
+          </div>
+        </div>
+        <div>
+          <h4 style="color: var(--white); margin-bottom: .75rem; font-weight: 600; font-size: .95rem;">Ikuti Kami</h4>
+          <div style="font-size: .8rem; line-height: 1.6;">
+            <p style="margin-bottom: .4rem;"><a href="https://www.instagram.com/pripm_smamuhimetro?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" style="color: var(--white); text-decoration: none; opacity: 0.9;">📱 @pripm_smamuhimetro</a></p>
+            <p style="margin-bottom: .4rem;"><a href="https://www.instagram.com/ipeeeeem_1?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" style="color: var(--white); text-decoration: none; opacity: 0.9;">📱 @ipeeeeem_1</a></p>
+          </div>
+        </div>
+      </div>
+      <div style="border-top: 1px solid rgba(255,255,255,0.25); padding-top: .75rem; text-align: center;">
+        <small style="opacity: 0.8; font-size: 0.8rem;">©PIP PR IPM SMA MUHAMMADIYAH 1 METRO</small>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<!-- ══════════════════════════════════
+     ADMIN LOGIN
+══════════════════════════════════ -->
+<div id="page-login" class="view">
+  <div class="login-screen">
+    <div class="login-card">
+      <div class="logo">✦ IPM SMA MUHAMMADIYAH 1 METRO</div>
+      <div class="sub">Admin Dashboard Masuk untuk melanjutkan</div>
+      <div id="login-error" class="alert alert-error" style="display:none;"></div>
+      <div class="form-group"><label>admin</label><input type="text" id="login-email" placeholder="admin" value=""></div>
+      <div class="form-group"><label>Password</label><input type="password" id="login-pass" placeholder="Masukkan password" value=""></div>
+      <button class="btn btn-primary" style="width:100%; justify-content:center; margin-top:.5rem;" onclick="doLogin()">Masuk ke Dashboard →</button>
+      <button onclick="showPage('home')" style="width:100%; margin-top:.75rem; background:none; border:none; color:var(--muted); cursor:pointer; font-size:.85rem;">← Kembali ke Portal</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     ADMIN DASHBOARD
+══════════════════════════════════ -->
+<div id="admin-dashboard" class="view">
+  <div class="admin-shell">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-brand">
+        <div class="logo">✦ IPM SMA MUHAMMADIYAH 1 METRO</div>
+        <div class="sub">Admin Panel</div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="sidebar-section">Utama</div>
+        <div class="sidebar-link active" onclick="switchPanel('dashboard', this)"><span class="icon">📊</span> Dashboard</div>
+        <div class="sidebar-section">Konten</div>
+        <div class="sidebar-link" onclick="switchPanel('news-admin', this)"><span class="icon">📰</span> Kelola Berita</div>
+        <div class="sidebar-link" onclick="switchPanel('ach-admin', this)"><span class="icon">🏆</span> Kelola Prestasi</div>
+        <div class="sidebar-section">Sistem</div>
+        <div class="sidebar-link" onclick="showPage('home')"><span class="icon">🌐</span> Lihat Portal</div>
+      </nav>
+      <div class="sidebar-footer">
+        <button class="logout-btn" onclick="doLogout()">⏻ Logout</button>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="admin-main">
+      <div class="admin-topbar">
+        <div class="topbar-title" id="topbar-title">Dashboard</div>
+        <div class="topbar-user">
+          <span>vikri al husna</span>
+          <div class="avatar">V</div>
+        </div>
+      </div>
+
+      <div class="admin-content">
+
+        <!-- DASHBOARD PANEL -->
+        <div class="admin-panel active" id="panel-dashboard">
+          <div class="stats-grid">
+            <div class="stat-card"><div class="icon">📰</div><div class="label">Total Berita</div><div class="value" id="stat-news">-</div><div class="trend">↑ 2 bulan ini</div></div>
+            <div class="stat-card"><div class="icon">🏆</div><div class="label">Total Prestasi</div><div class="value" id="stat-ach">-</div><div class="trend">↑ 1 baru</div></div>
+            <div class="stat-card"><div class="icon">💬</div><div class="label">Pesan Masuk</div><div class="value">-</div><div class="trend">3 belum dibaca</div></div>
+          </div>
+
+          <div class="table-card">
+            <div class="table-header"><h3>Berita Terbaru</h3></div>
+            <table id="dash-news-table">
+              <thead><tr><th>Judul</th><th>Tanggal</th><th>Status</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- NEWS ADMIN PANEL -->
+        <div class="admin-panel" id="panel-news-admin">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.5rem;">
+            <h2 style="font-family:'Playfair Display',serif; color:var(--text);">Kelola Berita</h2>
+            <button class="btn-sm btn-gold" onclick="openNewsModal()">+ Tambah Berita</button>
+          </div>
+          <div class="table-card">
+            <table id="news-admin-table">
+              <thead><tr><th></th><th>Judul</th><th>Tanggal</th><th>Status</th><th>Aksi</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ACHIEVEMENT ADMIN PANEL -->
+        <div class="admin-panel" id="panel-ach-admin">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.5rem;">
+            <h2 style="font-family:'Playfair Display',serif; color:var(--text);">Kelola Prestasi</h2>
+            <button class="btn-sm btn-gold" onclick="openAchModal()">+ Tambah Prestasi</button>
+          </div>
+          <div class="table-card">
+            <table id="ach-admin-table">
+              <thead><tr><th></th><th>Judul</th><th>Tahun</th><th>Deskripsi</th><th>Aksi</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     MODALS
+══════════════════════════════════ -->
+<!-- News Modal -->
+<div class="modal-overlay" id="modal-news">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="news-modal-title">Tambah Berita</h3>
+      <button class="modal-close" onclick="closeModal('modal-news')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="news-edit-id">
+      <div class="form-group"><label>Judul Berita *</label><input type="text" id="news-form-title" placeholder="Masukkan judul berita..."></div>
+      <div class="form-group"><label>Konten *</label><textarea id="news-form-content" rows="6" placeholder="Tulis isi berita di sini..."></textarea></div>
+      <div class="form-group">
+        <label>Upload Gambar</label>
+        <div class="upload-zone" onclick="document.getElementById('news-img-input').click()">
+          <div class="upload-icon">🖼️</div>
+          <p>Klik atau drag &amp; drop gambar<br><small style="color:var(--muted)">PNG, JPG, max 5MB</small></p>
+          <input type="file" id="news-img-input" accept="image/*" style="display:none" onchange="previewImg(this,'news-img-preview')">
+        </div>
+        <img id="news-img-preview" style="display:none; width:100%; border-radius:8px; margin-top:.5rem; max-height:180px; object-fit:cover;">
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-sm btn-ghost" onclick="closeModal('modal-news')">Batal</button>
+      <button class="btn-sm btn-gold" onclick="saveNews()">Simpan Berita</button>
+    </div>
+  </div>
+</div>
+
+<!-- Achievement Modal -->
+<div class="modal-overlay" id="modal-ach">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="ach-modal-title">Tambah Prestasi</h3>
+      <button class="modal-close" onclick="closeModal('modal-ach')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="ach-edit-id">
+      <div class="form-group"><label>Judul Prestasi *</label><input type="text" id="ach-form-title" placeholder="Juara 1 Kompetisi Nasional..."></div>
+      <div class="form-group"><label>Deskripsi *</label><textarea id="ach-form-desc" rows="4" placeholder="Deskripsi pencapaian..."></textarea></div>
+      <div class="form-group"><label>Tahun *</label><input type="number" id="ach-form-year" placeholder="2024" min="2000" max="2030"></div>
+      <div class="form-group">
+        <label>Upload Gambar</label>
+        <div class="upload-zone" onclick="document.getElementById('ach-img-input').click()">
+          <div class="upload-icon">🏆</div>
+          <p>Klik untuk upload gambar prestasi</p>
+          <input type="file" id="ach-img-input" accept="image/*" style="display:none" onchange="previewImg(this,'ach-img-preview')">
+        </div>
+        <img id="ach-img-preview" style="display:none; width:100%; border-radius:8px; margin-top:.5rem; max-height:180px; object-fit:cover;">
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-sm btn-ghost" onclick="closeModal('modal-ach')">Batal</button>
+      <button class="btn-sm btn-gold" onclick="saveAch()">Simpan Prestasi</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirm Modal -->
+<div class="modal-overlay" id="modal-delete">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-head">
+      <h3>Konfirmasi Hapus</h3>
+      <button class="modal-close" onclick="closeModal('modal-delete')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p id="delete-msg" style="color:var(--muted); line-height:1.6;"></p>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-sm btn-ghost" onclick="closeModal('modal-delete')">Batal</button>
+      <button class="btn-sm btn-danger" onclick="confirmDelete()">Ya, Hapus</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- ══════════════════════════════════
+     JAVASCRIPT — APP STATE & LOGIC
+══════════════════════════════════ -->
+<script>
+// ── DATA STORE (simulates database / REST API response) ──
+const MOCK_USERS = [{ email: 'vikri al husna', password: '56964321', name: 'Admin User', role: 'admin' }];
+
+let state = {
+  isLoggedIn: false,
+  currentView: 'public',
+  currentPage: 'home',
+  newsPage: 1,
+  newsPerPage: 6,
+  pendingDelete: null,
+  pendingDeleteType: null,
+  news: [
+    { id: 1, title: '-', content: '-', image: '👥', created_at: '2026-1-1' },
+    { id: 2, title: '-', content: '-', image: '🎤', created_at: '2026-1-1' },
+    { id: 3, title: '-', content: '-', image: '📚', created_at: '2026-1-1' },
+    { id: 4, title: '-', content: '-', image: '🌿', created_at: '2026-1-1' },
+    { id: 5, title: '-', content: '-', image: '🤝', created_at: '2026-1-1' },
+    { id: 6, title: '-', content: '-', image: '🎭', created_at: '2026-1-1' },
+    { id: 7, title: '-', content: '-', image: '💻', created_at: '2026-1-1' },
+    { id: 8, title: '-', content: '-', image: '🏫', created_at: '2026-1-1' },
+  ],
+  achievements: [
+    { id: 1, title: '-', description: '-', image: '🥇', year: 2026 },
+    { id: 2, title: '-', description: '-', image: '🏆', year: 2026 },
+    { id: 3, title: '-', description: '-', image: '📄', year: 2026 },
+    { id: 4, title: '-', description: '-', image: '🎖️', year: 2026 },
+    { id: 5, title: '-', description: '-', image: '✅', year: 2026 },
+    { id: 6, title: '-', description: '-', image: '⭐', year: 2026 },
+  ]
+};
+
+let nextNewsId = 9;
+let nextAchId = 7;
+
+// ── MOBILE MENU TOGGLE ──
+function toggleMobileMenu() {
+  const navLinks = document.getElementById('nav-links');
+  const navToggle = document.getElementById('nav-toggle');
+  navLinks.classList.toggle('active');
+  navToggle.classList.toggle('active');
+}
+
+function closeMobileMenu() {
+  const navLinks = document.getElementById('nav-links');
+  const navToggle = document.getElementById('nav-toggle');
+  navLinks.classList.remove('active');
+  navToggle.classList.remove('active');
+}
+
+// Close menu when clicking outside
+document.addEventListener('click', function(e) {
+  const navbar = document.querySelector('.navbar');
+  if (!navbar.contains(e.target)) {
+    closeMobileMenu();
+  }
+});
+
+// ── NAVIGATION ──
+function showPage(page) {
+  if (page === 'login') {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById('page-login').classList.add('active');
+    return;
+  }
+  if (page === 'admin') {
+    if (!state.isLoggedIn) { showPage('login'); return; }
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById('admin-dashboard').classList.add('active');
+    refreshAdminData();
+    return;
+  }
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('public-site').classList.add('active');
+
+  document.querySelectorAll('[id^="page-"]').forEach(p => p.classList.remove('active'));
+  const target = document.getElementById('page-' + page);
+  if (target) target.classList.add('active');
+
+  document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+  const navEl = document.getElementById('nav-' + page);
+  if (navEl) navEl.classList.add('active');
+
+  closeMobileMenu();
+  state.currentPage = page;
+
+  if (page === 'home') renderHome();
+  if (page === 'news') renderNewsList();
+  if (page === 'achievements') renderAchievements();
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function showNewsDetail(id) {
+  const n = state.news.find(x => x.id === id);
+  if (!n) return;
+  document.getElementById('detail-title').textContent = n.title;
+  document.getElementById('detail-meta').textContent = '📅 ' + formatDate(n.created_at);
+  document.getElementById('detail-img').textContent = n.image;
+  document.getElementById('detail-body').innerHTML = n.content.split('\n\n').map(p => `<p>${p}</p>`).join('');
+  document.querySelectorAll('[id^="page-"]').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-news-detail').classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── RENDER HELPERS ──
+function formatDate(d) {
+  return new Date(d).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+function renderHome() {
+  // News grid
+  const grid = document.getElementById('home-news-grid');
+  grid.innerHTML = state.news.slice(0, 3).map(n => `
+    <div class="card" onclick="showNewsDetail(${n.id})">
+      <div class="card-img">${n.image}</div>
+      <div class="card-body">
+        <div class="card-meta"><span>${formatDate(n.created_at)}</span><span class="tag">Berita</span></div>
+        <div class="card-title">${n.title}</div>
+        <div class="card-excerpt">${n.content.substring(0, 100)}...</div>
+      </div>
+    </div>`).join('');
+
+  // Achievements
+  const ag = document.getElementById('home-ach-grid');
+  ag.innerHTML = state.achievements.slice(0, 4).map(a => `
+    <div class="ach-card">
+      <div class="ach-icon">${a.image}</div>
+      <div>
+        <div class="ach-year">${a.year}</div>
+        <div class="ach-title">${a.title}</div>
+        <div class="ach-desc">${a.description}</div>
+      </div>
+    </div>`).join('');
+}
+
+function renderNewsList() {
+  const start = (state.newsPage - 1) * state.newsPerPage;
+  const paginated = state.news.slice(start, start + state.newsPerPage);
+  const grid = document.getElementById('news-grid');
+  grid.innerHTML = paginated.map(n => `
+    <div class="card" onclick="showNewsDetail(${n.id})">
+      <div class="card-img">${n.image}</div>
+      <div class="card-body">
+        <div class="card-meta"><span>${formatDate(n.created_at)}</span><span class="tag">Berita</span></div>
+        <div class="card-title">${n.title}</div>
+        <div class="card-excerpt">${n.content.substring(0, 110)}...</div>
+      </div>
+    </div>`).join('');
+
+  // Pagination
+  const pages = Math.ceil(state.news.length / state.newsPerPage);
+  const pg = document.getElementById('news-pagination');
+  pg.innerHTML = Array.from({length: pages}, (_, i) => i+1).map(p =>
+    `<button class="page-btn ${p === state.newsPage ? 'active' : ''}" onclick="setNewsPage(${p})">${p}</button>`
+  ).join('');
+}
+
+function setNewsPage(p) { state.newsPage = p; renderNewsList(); window.scrollTo({top: 200, behavior:'smooth'}); }
+
+function renderAchievements() {
+  document.getElementById('ach-grid').innerHTML = state.achievements.map(a => `
+    <div class="ach-card">
+      <div class="ach-icon">${a.image}</div>
+      <div>
+        <div class="ach-year">${a.year}</div>
+        <div class="ach-title">${a.title}</div>
+        <div class="ach-desc">${a.description}</div>
+      </div>
+    </div>`).join('');
+}
+
+// ── AUTH ──
+function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  const errEl = document.getElementById('login-error');
+  const user = MOCK_USERS.find(u => u.email === email && u.password === pass);
+  if (!user) {
+    errEl.textContent = 'Email atau password salah. Silakan coba lagi.';
+    errEl.style.display = 'block';
+    return;
+  }
+  errEl.style.display = 'none';
+  state.isLoggedIn = true;
+  showPage('admin');
+  showToast('Selamat datang, ' + user.name + '!', 'success');
+}
+
+function doLogout() {
+  state.isLoggedIn = false;
+  showToast('Anda telah logout.', 'success');
+  showPage('home');
+}
+
+// ── ADMIN PANEL SWITCH ──
+function switchPanel(name, el) {
+  document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  el.classList.add('active');
+  const titles = { 'dashboard': 'Dashboard', 'news-admin': 'Kelola Berita', 'ach-admin': 'Kelola Prestasi' };
+  document.getElementById('topbar-title').textContent = titles[name] || name;
+  if (name === 'news-admin') renderAdminNews();
+  if (name === 'ach-admin') renderAdminAch();
+  if (name === 'dashboard') refreshAdminData();
+}
+
+function refreshAdminData() {
+  document.getElementById('stat-news').textContent = state.news.length;
+  document.getElementById('stat-ach').textContent = state.achievements.length;
+  const tbody = document.querySelector('#dash-news-table tbody');
+  tbody.innerHTML = state.news.slice(0, 5).map(n => `
+    <tr><td><div class="td-title">${n.title}</div></td>
+    <td style="color:var(--muted)">${formatDate(n.created_at)}</td>
+    <td><span class="status-badge badge-green">Terbit</span></td></tr>`).join('');
+}
+
+function renderAdminNews() {
+  const tbody = document.querySelector('#news-admin-table tbody');
+  tbody.innerHTML = state.news.map(n => `
+    <tr>
+      <td><div class="td-img">${n.image}</div></td>
+      <td><div class="td-title">${n.title}</div><div class="td-sub">${formatDate(n.created_at)}</div></td>
+      <td style="color:var(--muted);font-size:.82rem">${formatDate(n.created_at)}</td>
+      <td><span class="status-badge badge-green">Terbit</span></td>
+      <td><div class="action-btns">
+        <button class="btn-icon edit" title="Edit" onclick="openNewsModal(${n.id})">✏️</button>
+        <button class="btn-icon delete" title="Hapus" onclick="openDelete('news',${n.id},'${n.title.replace(/'/g,"\\'")}')">🗑️</button>
+      </div></td>
+    </tr>`).join('');
+}
+
+function renderAdminAch() {
+  const tbody = document.querySelector('#ach-admin-table tbody');
+  tbody.innerHTML = state.achievements.map(a => `
+    <tr>
+      <td><div class="td-img">${a.image}</div></td>
+      <td><div class="td-title">${a.title}</div></td>
+      <td style="font-family:'DM Mono',monospace;font-size:.82rem">${a.year}</td>
+      <td style="color:var(--muted);font-size:.82rem;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${a.description}</td>
+      <td><div class="action-btns">
+        <button class="btn-icon edit" title="Edit" onclick="openAchModal(${a.id})">✏️</button>
+        <button class="btn-icon delete" title="Hapus" onclick="openDelete('ach',${a.id},'${a.title.replace(/'/g,"\\'")}')">🗑️</button>
+      </div></td>
+    </tr>`).join('');
+}
+
+// ── CRUD NEWS ──
+function openNewsModal(id) {
+  const modal = document.getElementById('modal-news');
+  if (id) {
+    const n = state.news.find(x => x.id === id);
+    if (!n) { showToast('Berita tidak ditemukan.', 'error'); return; }
+    document.getElementById('news-modal-title').textContent = 'Edit Berita';
+    document.getElementById('news-edit-id').value = id;
+    document.getElementById('news-form-title').value = n.title;
+    document.getElementById('news-form-content').value = n.content;
+  } else {
+    document.getElementById('news-modal-title').textContent = 'Tambah Berita';
+    document.getElementById('news-edit-id').value = '';
+    document.getElementById('news-form-title').value = '';
+    document.getElementById('news-form-content').value = '';
+    document.getElementById('news-img-preview').style.display = 'none';
+    document.getElementById('news-img-input').value = '';
+  }
+  modal.classList.add('open');
+}
+
+function saveNews() {
+  const title = document.getElementById('news-form-title').value.trim();
+  const content = document.getElementById('news-form-content').value.trim();
+  if (!title || !content) { showToast('Judul dan konten wajib diisi.', 'error'); return; }
+  const editId = document.getElementById('news-edit-id').value;
+  if (editId) {
+    const n = state.news.find(x => x.id === +editId);
+    if (!n) { showToast('Berita tidak ditemukan.', 'error'); return; }
+    n.title = title; n.content = content;
+    showToast('Berita berhasil diperbarui!', 'success');
+  } else {
+    state.news.unshift({ id: nextNewsId++, title, content, image: '📰', created_at: new Date().toISOString().slice(0,10) });
+    showToast('Berita berhasil ditambahkan!', 'success');
+  }
+  document.getElementById('news-img-input').value = '';
+  document.getElementById('news-img-preview').style.display = 'none';
+  closeModal('modal-news');
+  renderAdminNews();
+  refreshAdminData();
+}
+
+// ── CRUD ACHIEVEMENTS ──
+function openAchModal(id) {
+  if (id) {
+    const a = state.achievements.find(x => x.id === id);
+    if (!a) { showToast('Prestasi tidak ditemukan.', 'error'); return; }
+    document.getElementById('ach-modal-title').textContent = 'Edit Prestasi';
+    document.getElementById('ach-edit-id').value = id;
+    document.getElementById('ach-form-title').value = a.title;
+    document.getElementById('ach-form-desc').value = a.description;
+    document.getElementById('ach-form-year').value = a.year;
+  } else {
+    document.getElementById('ach-modal-title').textContent = 'Tambah Prestasi';
+    document.getElementById('ach-edit-id').value = '';
+    document.getElementById('ach-form-title').value = '';
+    document.getElementById('ach-form-desc').value = '';
+    document.getElementById('ach-form-year').value = new Date().getFullYear();
+    document.getElementById('ach-img-preview').style.display = 'none';
+    document.getElementById('ach-img-input').value = '';
+  }
+  document.getElementById('modal-ach').classList.add('open');
+}
+
+function saveAch() {
+  const title = document.getElementById('ach-form-title').value.trim();
+  const desc = document.getElementById('ach-form-desc').value.trim();
+  const year = +document.getElementById('ach-form-year').value;
+  if (!title || !desc || !year) { showToast('Semua field wajib diisi.', 'error'); return; }
+  const editId = document.getElementById('ach-edit-id').value;
+  if (editId) {
+    const a = state.achievements.find(x => x.id === +editId);
+    if (!a) { showToast('Prestasi tidak ditemukan.', 'error'); return; }
+    a.title = title; a.description = desc; a.year = year;
+    showToast('Prestasi berhasil diperbarui!', 'success');
+  } else {
+    state.achievements.unshift({ id: nextAchId++, title, description: desc, image: '🏆', year });
+    showToast('Prestasi berhasil ditambahkan!', 'success');
+  }
+  document.getElementById('ach-img-input').value = '';
+  document.getElementById('ach-img-preview').style.display = 'none';
+  closeModal('modal-ach');
+  renderAdminAch();
+  refreshAdminData();
+}
+
+// ── DELETE ──
+function openDelete(type, id, name) {
+  state.pendingDelete = id;
+  state.pendingDeleteType = type;
+  document.getElementById('delete-msg').textContent = `Yakin ingin menghapus "${name}"? Tindakan ini tidak dapat dibatalkan.`;
+  document.getElementById('modal-delete').classList.add('open');
+}
+
+function confirmDelete() {
+  if (state.pendingDeleteType === 'news') {
+    state.news = state.news.filter(n => n.id !== state.pendingDelete);
+    renderAdminNews(); showToast('Berita dihapus.', 'success');
+  } else {
+    state.achievements = state.achievements.filter(a => a.id !== state.pendingDelete);
+    renderAdminAch(); showToast('Prestasi dihapus.', 'success');
+  }
+  refreshAdminData();
+  closeModal('modal-delete');
+}
+
+// ── MODALS ──
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); }));
+
+// ── IMAGE PREVIEW ──
+function previewImg(input, previewId) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = document.getElementById(previewId);
+    img.src = e.target.result;
+    img.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+// ── WHATSAPP MESSAGE ──
+function sendWhatsApp() {
+  const name = document.getElementById('contact-name').value.trim();
+  const email = document.getElementById('contact-email').value.trim();
+  const subject = document.getElementById('contact-subject').value.trim();
+  const message = document.getElementById('contact-message').value.trim();
+  
+  if (!name || !email || !subject || !message) {
+    showToast('Semua field harus diisi terlebih dahulu.', 'error');
+    return;
+  }
+  
+  const whatsappNumber = '6285184459363';
+  const whatsappMessage = `Halo IPM SMA MUHAMMADIYAH 1 METRO,\n\nNama: ${name}\nEmail: ${email}\nSubjek: ${subject}\n\nPesan:\n${message}`;
+  const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`;
+  
+  window.open(whatsappUrl, '_blank');
+  
+  document.getElementById('contact-name').value = '';
+  document.getElementById('contact-email').value = '';
+  document.getElementById('contact-subject').value = '';
+  document.getElementById('contact-message').value = '';
+  
+  showToast('Membuka WhatsApp untuk mengirim pesan...', 'success');
+}
+
+// ── TOAST ──
+function showToast(msg, type = 'info') {
+  const c = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  const icons = { success: '✓', error: '✕', info: 'ℹ' };
+  t.innerHTML = `<span>${icons[type]||'ℹ'}</span><span>${msg}</span>`;
+  c.appendChild(t);
+  setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateX(20px)'; t.style.transition = 'all .3s'; setTimeout(() => t.remove(), 300); }, 3000);
+}
+
+// ── INTERACTIVE ENHANCEMENTS ──
+// Add ripple effect to buttons
+document.querySelectorAll('.btn').forEach(btn => {
+  btn.addEventListener('click', function(e) {
+    const ripple = document.createElement('span');
+    const rect = this.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    ripple.style.width = ripple.style.height = '20px';
+    ripple.style.left = x + 'px';
+    ripple.style.top = y + 'px';
+    ripple.style.background = 'rgba(255,255,255,0.5)';
+    ripple.style.borderRadius = '50%';
+    ripple.style.position = 'absolute';
+    ripple.style.pointerEvents = 'none';
+    ripple.style.transform = 'scale(1)';
+    ripple.style.animation = 'expand .6s ease-out';
+    this.style.position = 'relative';
+    this.appendChild(ripple);
+    setTimeout(() => ripple.remove(), 600);
+  });
+});
+
+// Add expand animation to stylesheet
+const style = document.createElement('style');
+style.textContent = '@keyframes expand { to { transform: scale(4); opacity: 0; } }';
+document.head.appendChild(style);
+
+// Smooth scroll behavior
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  anchor.addEventListener('click', function (e) {
+    e.preventDefault();
+    const target = document.querySelector(this.getAttribute('href'));
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+
+// Lazy load animations for cards
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.style.animation = 'fadeUp 0.6s ease-out forwards';
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.card, .ach-card').forEach(card => {
+  card.style.opacity = '0';
+  observer.observe(card);
+});
+
+// Add hover scale to images
+document.querySelectorAll('.card-img').forEach(img => {
+  img.style.transition = 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+  const parent = img.closest('.card');
+  if (parent) {
+    parent.addEventListener('mouseenter', () => img.style.transform = 'scale(1.1)');
+    parent.addEventListener('mouseleave', () => img.style.transform = 'scale(1)');
+  }
+});
+
+// ── INIT ──
+renderHome();
+</script>
+</body>
+</html>
