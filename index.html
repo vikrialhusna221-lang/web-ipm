@@ -876,14 +876,17 @@
   .calendar-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.5rem; margin-bottom: 1rem; }
   .calendar-weekday { text-align: center; font-weight: 700; color: var(--gold); font-size: 0.85rem; padding: 0.75rem 0; text-transform: uppercase; }
   .calendar-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.5rem; }
-  .calendar-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: 8px; cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: all .2s; border: 1.5px solid transparent; }
+  .calendar-day { aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 8px; cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: all .2s; border: 1.5px solid transparent; }
   .calendar-day.empty { background: #F5F7F6; color: var(--muted); cursor: default; }
   .calendar-day.other { background: #F5F7F6; color: var(--muted); }
   .calendar-day.today { background: linear-gradient(135deg, var(--gold-light) 0%, #FFFF00 100%); color: #000000; font-weight: 750; box-shadow: 0 4px 12px rgba(255,255,0,0.3); }
   .calendar-day.selected { background: rgba(0,128,0,0.15); border-color: var(--gold); }
   .calendar-day:hover:not(.empty) { background: rgba(0,128,0,0.12); transform: scale(1.05); }
-  .calendar-day.has-event { position: relative; }
+  .calendar-day.has-event { position: relative; background: rgba(0,128,0, 0.08); border: 1.5px solid rgba(0,128,0, 0.25); flex-direction: column; gap: 2px; }
   .calendar-day.has-event::after { content: ''; position: absolute; bottom: 3px; width: 6px; height: 6px; background: var(--gold); border-radius: 50%; }
+  .calendar-day .day-number { font-weight: 700; font-size: 0.95rem; }
+  .calendar-day .event-indicator { display: flex; gap: 1px; justify-content: center; align-items: center; }
+  .calendar-day.day-number-only { flex-direction: column; }
 
   /* EVENT CALENDAR */
   .events-list { margin-top: 2rem; }
@@ -2597,6 +2600,23 @@ async function loadAllData() {
     state.events       = events       || [];
     state.programs     = programs     || [];
     
+    // Load calendar events dari localStorage
+    const calendarEvents = JSON.parse(localStorage.getItem('calendarEvents') || '[]');
+    state.calendarEvents = calendarEvents;
+    console.log('📅 Calendar events dari localStorage:', calendarEvents);
+    
+    // Load backup data jika ada
+    const backupNews = JSON.parse(localStorage.getItem('backupNews') || '[]');
+    const backupAch = JSON.parse(localStorage.getItem('backupAchievements') || '[]');
+    if (backupNews.length > 0) {
+      console.log('💾 Merging backup news...');
+      state.news = [...state.news, ...backupNews.filter(bn => !state.news.some(n => n.id === bn.id))];
+    }
+    if (backupAch.length > 0) {
+      console.log('💾 Merging backup achievements...');
+      state.achievements = [...state.achievements, ...backupAch.filter(ba => !state.achievements.some(a => a.id === ba.id))];
+    }
+    
     // Sinkronisasi members dari Supabase ke localStorage
     if (members && members.length > 0) {
       console.log('💾 Menyinkronisasi members dari Supabase...');
@@ -2605,10 +2625,11 @@ async function loadAllData() {
     
     console.log('✅ State news:', state.news);
     console.log('✅ State achievements:', state.achievements);
+    console.log('✅ State calendar events:', state.calendarEvents);
     console.log('✅ Members sudah disinkronisasi');
     
     renderHome();
-    console.log('✅ Semua data berhasil dimuat dari Supabase');
+    console.log('✅ Semua data berhasil dimuat dari Supabase & localStorage');
   } catch (err) {
     console.error('❌ Gagal memuat data dari Supabase:', err);
     showToast('⚠️ Data akan menggunakan cache lokal. Periksa koneksi internet atau konfigurasi Supabase.', 'warning');
@@ -4000,20 +4021,37 @@ function renderAdminCalendar() {
   
   // Days of month
   const today = new Date();
+  const calendarEvents = state.calendarEvents || JSON.parse(localStorage.getItem('calendarEvents') || '[]');
+  
   for (let day = 1; day <= daysInMonth; day++) {
     const dayDiv = document.createElement('div');
     dayDiv.className = 'calendar-day';
-    dayDiv.textContent = day;
     
     const currentDate = new Date(year, month, day);
-    if (currentDate.toDateString() === today.toDateString()) {
-      dayDiv.classList.add('today');
+    const dateString = currentDate.toISOString().split('T')[0];
+    
+    // Check for events on this day
+    const hasEvent = calendarEvents.some(e => e.date === dateString);
+    const eventCount = calendarEvents.filter(e => e.date === dateString).length;
+    
+    // Create day content
+    if (hasEvent) {
+      dayDiv.innerHTML = `
+        <div class="day-number">${day}</div>
+        <div class="event-indicator" style="font-size:0.7rem; margin-top:2px;">
+          <span style="display:inline-block; width:4px; height:4px; background:#008000; border-radius:50%; margin:0 1px;"></span>
+          ${eventCount > 1 ? `<span style="display:inline-block; width:4px; height:4px; background:#008000; border-radius:50%; margin:0 1px;"></span>` : ''}
+          ${eventCount > 2 ? `<span style="display:inline-block; width:4px; height:4px; background:#008000; border-radius:50%; margin:0 1px;"></span>` : ''}
+        </div>
+      `;
+      dayDiv.classList.add('has-event');
+    } else {
+      dayDiv.textContent = day;
+      dayDiv.classList.add('day-number-only');
     }
     
-    // Check for events
-    const hasEvent = state.events.some(e => new Date(e.date).toDateString() === currentDate.toDateString());
-    if (hasEvent) {
-      dayDiv.classList.add('has-event');
+    if (currentDate.toDateString() === today.toDateString()) {
+      dayDiv.classList.add('today');
     }
     
     dayDiv.addEventListener('click', () => {
@@ -4042,13 +4080,16 @@ function addCalendarEvent() {
   
   const event = { id: Date.now().toString(), date, name: title, description: desc };
   
-  if (!state.events) state.events = [];
-  state.events.push(event);
+  if (!state.calendarEvents) state.calendarEvents = [];
+  state.calendarEvents.push(event);
   
   // Save to localStorage
   let calendarEvents = JSON.parse(localStorage.getItem('calendarEvents') || '[]');
   calendarEvents.push(event);
   localStorage.setItem('calendarEvents', JSON.stringify(calendarEvents));
+  
+  console.log('✅ Calendar event added:', event);
+  console.log('📅 Total events:', calendarEvents.length);
   
   // Clear form
   document.getElementById('calendar-event-date').value = '';
@@ -4058,6 +4099,7 @@ function addCalendarEvent() {
   alert('✅ Acara berhasil ditandai pada kalender');
   
   // Refresh calendar display
+  renderAdminCalendar();
   const today = new Date();
   renderAdminCalendarEvents(today.getFullYear(), today.getMonth(), today.getDate());
 }
@@ -4066,9 +4108,12 @@ function renderAdminCalendarEvents(year, month, day) {
   const selectedDate = new Date(year, month, day);
   const eventsList = document.getElementById('admin-calendar-events');
   
-  const dayEvents = state.events.filter(e => new Date(e.date).toDateString() === selectedDate.toDateString());
+  // Check both Supabase events and localStorage calendar events
+  const supabaseEvents = state.events.filter(e => new Date(e.date).toDateString() === selectedDate.toDateString());
+  const calendarEvents = (state.calendarEvents || []).filter(e => e.date === selectedDate.toISOString().split('T')[0]);
+  const allEvents = [...supabaseEvents, ...calendarEvents];
   
-  eventsList.innerHTML = dayEvents.length > 0 ? dayEvents.map(e => `
+  eventsList.innerHTML = allEvents.length > 0 ? allEvents.map(e => `
     <div class="event-item">
       <div class="event-name">${e.name}</div>
       <div class="event-desc">${e.description || '-'}</div>
