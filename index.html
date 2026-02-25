@@ -1734,6 +1734,10 @@
 const SUPABASE_URL = 'https://sbipkblxezdrkmsnlwol.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_o1VZBWT9rIj8j-FEUNN7Tg_vmV7gqLo';
 
+// ── IMGBB CONFIG (untuk upload gambar) ──
+// Daftar gratis di https://imgbb.com lalu ambil API key di https://api.imgbb.com
+const IMGBB_KEY = '418d7080e6fdc60ff511e1eb0bb1f7f6';
+
 const SB_HEADERS = {
   'apikey': SUPABASE_KEY,
   'Authorization': `Bearer ${SUPABASE_KEY}`,
@@ -1965,11 +1969,11 @@ function renderHome() {
   const grid = document.getElementById('home-news-grid');
   grid.innerHTML = state.news.slice(0, 3).map(n => `
     <div class="card" onclick="showNewsDetail(${n.id})">
-      <div class="card-img">${n.image}</div>
+      ${renderImg(n.image, "📰")}
       <div class="card-body">
         <div class="card-meta"><span>${formatDate(n.created_at)}</span><span class="tag">Berita</span></div>
         <div class="card-title">${n.title}</div>
-        <div class="card-excerpt">${n.content.substring(0, 100)}...</div>
+        <div class="card-excerpt">${n.content.substring(0, 100)}...
       </div>
     </div>`).join('');
 
@@ -1977,7 +1981,7 @@ function renderHome() {
   const ag = document.getElementById('home-ach-grid');
   ag.innerHTML = state.achievements.slice(0, 4).map(a => `
     <div class="ach-card">
-      <div class="ach-icon">${a.image}</div>
+      ${renderAchImg(a.image, "🏆")}
       <div>
         <div class="ach-year">${a.year}</div>
         <div class="ach-title">${a.title}</div>
@@ -1992,11 +1996,11 @@ function renderNewsList() {
   const grid = document.getElementById('news-grid');
   grid.innerHTML = paginated.map(n => `
     <div class="card" onclick="showNewsDetail(${n.id})">
-      <div class="card-img">${n.image}</div>
+      ${renderImg(n.image, "📰")}
       <div class="card-body">
         <div class="card-meta"><span>${formatDate(n.created_at)}</span><span class="tag">Berita</span></div>
         <div class="card-title">${n.title}</div>
-        <div class="card-excerpt">${n.content.substring(0, 110)}...</div>
+        <div class="card-excerpt">${n.content.substring(0, 110)}...
       </div>
     </div>`).join('');
 
@@ -2013,7 +2017,7 @@ function setNewsPage(p) { state.newsPage = p; renderNewsList(); window.scrollTo(
 function renderAchievements() {
   document.getElementById('ach-grid').innerHTML = state.achievements.map(a => `
     <div class="ach-card">
-      <div class="ach-icon">${a.image}</div>
+      ${renderAchImg(a.image, "🏆")}
       <div>
         <div class="ach-year">${a.year}</div>
         <div class="ach-title">${a.title}</div>
@@ -2242,7 +2246,7 @@ function renderAdminNews() {
   const tbody = document.querySelector('#news-admin-table tbody');
   tbody.innerHTML = state.news.map(n => `
     <tr>
-      <td><div class="td-img">${n.image}</div></td>
+      <td>${renderThumb(n.image, "📰")}</td>
       <td><div class="td-title">${n.title}</div><div class="td-sub">${formatDate(n.created_at)}</div></td>
       <td style="color:var(--muted);font-size:.82rem">${formatDate(n.created_at)}</td>
       <td><span class="status-badge badge-green">Terbit</span></td>
@@ -2257,7 +2261,7 @@ function renderAdminAch() {
   const tbody = document.querySelector('#ach-admin-table tbody');
   tbody.innerHTML = state.achievements.map(a => `
     <tr>
-      <td><div class="td-img">${a.image}</div></td>
+      <td>${renderThumb(a.image, "🏆")}</td>
       <td><div class="td-title">${a.title}</div></td>
       <td style="font-family:'DM Mono',monospace;font-size:.82rem">${a.year}</td>
       <td style="color:var(--muted);font-size:.82rem;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${a.description}</td>
@@ -2332,25 +2336,69 @@ function openNewsModal(id) {
   modal.classList.add('open');
 }
 
+// ── IMGBB UPLOAD ──
+async function uploadToImgBB(file) {
+  const formData = new FormData();
+  formData.append('image', file);
+  const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, {
+    method: 'POST',
+    body: formData
+  });
+  const data = await res.json();
+  if (!data.success) throw new Error('Upload ImgBB gagal: ' + (data.error?.message || 'Unknown error'));
+  return data.data.url; // URL gambar permanen
+}
+
+// ── IMAGE RENDER HELPERS ──
+function renderImg(src, fallback) {
+  if (src && src.startsWith('http')) {
+    return `<img src="${src}" style="width:100%;height:200px;object-fit:cover;border-radius:12px 12px 0 0;display:block;" onerror="this.outerHTML='<div class=\'card-img\'>${fallback}</div>'">`;
+  }
+  return `<div class="card-img">${src || fallback}</div>`;
+}
+
+function renderAchImg(src, fallback) {
+  if (src && src.startsWith('http')) {
+    return `<img src="${src}" style="width:60px;height:60px;object-fit:cover;border-radius:10px;flex-shrink:0;" onerror="this.outerHTML='<div class=\'ach-icon\'>${fallback}</div>'">`;
+  }
+  return `<div class="ach-icon">${src || fallback}</div>`;
+}
+
+function renderThumb(src, fallback) {
+  if (src && src.startsWith('http')) {
+    return `<img src="${src}" style="width:44px;height:44px;object-fit:cover;border-radius:8px;" onerror="this.outerHTML='<div class=\'td-img\'>${fallback}</div>'">`;
+  }
+  return `<div class="td-img">${src || fallback}</div>`;
+}
+
 async function saveNews() {
   const title = document.getElementById('news-form-title').value.trim();
   const content = document.getElementById('news-form-content').value.trim();
   if (!title || !content) { showToast('Judul dan konten wajib diisi.', 'error'); return; }
   const editId = document.getElementById('news-edit-id').value;
   const btn = document.querySelector('#modal-news .btn-primary');
+  const fileInput = document.getElementById('news-img-input');
+  const file = fileInput.files[0];
   if (btn) setButtonLoading(btn, true);
   try {
+    let imageUrl = null;
+    if (file) {
+      showToast('⏳ Mengupload gambar...', 'info');
+      imageUrl = await uploadToImgBB(file);
+    }
     if (editId) {
-      const updated = await sbUpdate('news', +editId, { title, content });
+      const payload = { title, content };
+      if (imageUrl) payload.image = imageUrl;
+      const updated = await sbUpdate('news', +editId, payload);
       const idx = state.news.findIndex(x => x.id === +editId);
       if (idx > -1 && updated[0]) state.news[idx] = updated[0];
-      showToast('Berita berhasil diperbarui!', 'success');
+      showToast('✅ Berita berhasil diperbarui!', 'success');
     } else {
-      const inserted = await sbInsert('news', { title, content, image: '📰', created_at: new Date().toISOString() });
+      const inserted = await sbInsert('news', { title, content, image: imageUrl || '📰', created_at: new Date().toISOString() });
       if (inserted[0]) state.news.unshift(inserted[0]);
-      showToast('Berita berhasil ditambahkan!', 'success');
+      showToast('✅ Berita berhasil ditambahkan!', 'success');
     }
-    document.getElementById('news-img-input').value = '';
+    fileInput.value = '';
     document.getElementById('news-img-preview').style.display = 'none';
     closeModal('modal-news');
     renderAdminNews();
@@ -2392,19 +2440,28 @@ async function saveAch() {
   if (!title || !desc || !year) { showToast('Semua field wajib diisi.', 'error'); return; }
   const editId = document.getElementById('ach-edit-id').value;
   const btn = document.querySelector('#modal-ach .btn-primary');
+  const fileInput = document.getElementById('ach-img-input');
+  const file = fileInput.files[0];
   if (btn) setButtonLoading(btn, true);
   try {
+    let imageUrl = null;
+    if (file) {
+      showToast('⏳ Mengupload gambar...', 'info');
+      imageUrl = await uploadToImgBB(file);
+    }
     if (editId) {
-      const updated = await sbUpdate('achievements', +editId, { title, description: desc, year });
+      const payload = { title, description: desc, year };
+      if (imageUrl) payload.image = imageUrl;
+      const updated = await sbUpdate('achievements', +editId, payload);
       const idx = state.achievements.findIndex(x => x.id === +editId);
       if (idx > -1 && updated[0]) state.achievements[idx] = updated[0];
-      showToast('Prestasi berhasil diperbarui!', 'success');
+      showToast('✅ Prestasi berhasil diperbarui!', 'success');
     } else {
-      const inserted = await sbInsert('achievements', { title, description: desc, image: '🏆', year });
+      const inserted = await sbInsert('achievements', { title, description: desc, image: imageUrl || '🏆', year });
       if (inserted[0]) state.achievements.unshift(inserted[0]);
-      showToast('Prestasi berhasil ditambahkan!', 'success');
+      showToast('✅ Prestasi berhasil ditambahkan!', 'success');
     }
-    document.getElementById('ach-img-input').value = '';
+    fileInput.value = '';
     document.getElementById('ach-img-preview').style.display = 'none';
     closeModal('modal-ach');
     renderAdminAch();
