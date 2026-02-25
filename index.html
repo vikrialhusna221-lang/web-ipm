@@ -2477,10 +2477,7 @@ async function sbFetch(table, options = {}) {
   const { filter = '', order = 'id.desc' } = options;
   const url = `${SUPABASE_URL}/rest/v1/${table}?order=${order}${filter ? '&' + filter : ''}`;
   const res = await fetch(url, { headers: SB_HEADERS });
-  if (!res.ok) {
-    const errBody = await res.text();
-    throw new Error(`Gagal fetch ${table} (${res.status}): ${errBody}`);
-  }
+  if (!res.ok) throw new Error(`Gagal fetch ${table}: ${res.status}`);
   return res.json();
 }
 
@@ -2490,10 +2487,7 @@ async function sbInsert(table, data) {
     headers: SB_HEADERS,
     body: JSON.stringify(data)
   });
-  if (!res.ok) {
-    const errBody = await res.text();
-    throw new Error(`Gagal insert ke ${table} (${res.status}): ${errBody}`);
-  }
+  if (!res.ok) throw new Error(`Gagal insert ke ${table}: ${res.status}`);
   return res.json();
 }
 
@@ -2503,41 +2497,17 @@ async function sbUpdate(table, id, data) {
     headers: SB_HEADERS,
     body: JSON.stringify(data)
   });
-  if (!res.ok) {
-    const errBody = await res.text();
-    throw new Error(`Gagal update ${table} (${res.status}): ${errBody}`);
-  }
+  if (!res.ok) throw new Error(`Gagal update ${table}: ${res.status}`);
   return res.json();
 }
 
 async function sbDelete(table, id) {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`, {
     method: 'DELETE',
-    headers: { ...SB_HEADERS, 'Prefer': 'return=minimal' }
+    headers: SB_HEADERS
   });
-  if (!res.ok) {
-    const errBody = await res.text();
-    throw new Error(`Gagal hapus dari ${table} (${res.status}): ${errBody}`);
-  }
+  if (!res.ok) throw new Error(`Gagal hapus dari ${table}: ${res.status}`);
   return true;
-}
-
-// ── CEK KONEKSI SUPABASE ──
-async function checkSupabaseConnection() {
-  try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/news?limit=1`, { headers: SB_HEADERS });
-    if (res.ok) {
-      console.log('✅ Supabase terhubung!');
-      return true;
-    } else {
-      const err = await res.text();
-      console.error('❌ Supabase error:', res.status, err);
-      return false;
-    }
-  } catch(e) {
-    console.error('❌ Supabase tidak terhubung:', e);
-    return false;
-  }
 }
 
 // ── AUTH (tetap pakai data lokal untuk keamanan) ──
@@ -2609,53 +2579,39 @@ let state = {
 async function loadAllData() {
   showLoadingOverlay(true);
   try {
-    const ok = await checkSupabaseConnection();
-    if (!ok) {
-      showToast('❌ Tidak dapat terhubung ke Supabase. Periksa URL & API Key.', 'error');
-      showLoadingOverlay(false);
-      return;
-    }
-
-    const results = await Promise.allSettled([
-      sbFetch('news'),
-      sbFetch('achievements'),
-      sbFetch('events', { order: 'date.asc' }),
-      sbFetch('programs'),
-      sbFetch('dokumentasi'),
-      sbFetch('edukasi'),
-      sbFetch('members'),
-      sbFetch('org_info')
+    console.log('📥 Mengambil data dari Supabase...');
+    const [news, achievements, events, programs, members] = await Promise.all([
+      sbFetch('news').catch(e => { console.warn('⚠️ Gagal load news:', e); return []; }),
+      sbFetch('achievements').catch(e => { console.warn('⚠️ Gagal load achievements:', e); return []; }),
+      sbFetch('events', { order: 'date.asc' }).catch(e => { console.warn('⚠️ Gagal load events:', e); return []; }),
+      sbFetch('programs').catch(e => { console.warn('⚠️ Gagal load programs:', e); return []; }),
+      sbFetch('members').catch(e => { console.warn('⚠️ Gagal load members:', e); return []; })
     ]);
-
-    const [news, achievements, events, programs, dokumentasi, edukasi, members, orgInfo] = results.map(r => {
-      if (r.status === 'fulfilled') return r.value || [];
-      console.warn('⚠️ Tabel belum ada atau error:', r.reason?.message);
-      return [];
-    });
-
-    state.news         = news;
-    state.achievements = achievements;
-    state.events       = events;
-    state.programs     = programs;
-    state.dokumentasi  = dokumentasi;
-    state.edukasi      = edukasi;
-    state.members      = members;
-
-    // Load org info ke form jika sudah ada
-    if (orgInfo.length > 0) {
-      const info = orgInfo[0];
-      const el = id => document.getElementById(id);
-      if (info.aktif    && el('info-aktif'))    el('info-aktif').value    = info.aktif;
-      if (info.prestasi && el('info-prestasi')) el('info-prestasi').value = info.prestasi;
-      if (info.tahun    && el('info-tahun'))    el('info-tahun').value    = info.tahun;
-      if (info.program  && el('info-program'))  el('info-program').value  = info.program;
+    
+    console.log('📰 Raw news data:', JSON.stringify(news, null, 2));
+    console.log('🏆 Raw achievements data:', JSON.stringify(achievements, null, 2));
+    console.log('👥 Raw members data:', JSON.stringify(members, null, 2));
+    
+    state.news         = news         || [];
+    state.achievements = achievements || [];
+    state.events       = events       || [];
+    state.programs     = programs     || [];
+    
+    // Sinkronisasi members dari Supabase ke localStorage
+    if (members && members.length > 0) {
+      console.log('💾 Menyinkronisasi members dari Supabase...');
+      localStorage.setItem('members', JSON.stringify(members));
     }
-
+    
+    console.log('✅ State news:', state.news);
+    console.log('✅ State achievements:', state.achievements);
+    console.log('✅ Members sudah disinkronisasi');
+    
     renderHome();
     console.log('✅ Semua data berhasil dimuat dari Supabase');
   } catch (err) {
-    console.error('❌ Gagal memuat data:', err);
-    showToast('❌ Gagal memuat data: ' + err.message, 'error');
+    console.error('❌ Gagal memuat data dari Supabase:', err);
+    showToast('⚠️ Data akan menggunakan cache lokal. Periksa koneksi internet atau konfigurasi Supabase.', 'warning');
   } finally {
     showLoadingOverlay(false);
   }
@@ -3565,21 +3521,25 @@ function doLoginMember() {
     return;
   }
   
-  const members = JSON.parse(localStorage.getItem('members') || '[]');
-  const member = members.find(m => 
+  // Cek data lokal dulu (lebih cepat)
+  let members = JSON.parse(localStorage.getItem('members') || '[]');
+  let member = members.find(m => 
     (m.email.toLowerCase() === email && m.password === password)
   );
   
-  if (!member) {
-    errorDiv.textContent = '❌ Email atau password salah.';
-    errorDiv.style.display = 'block';
+  if (member) {
+    errorDiv.style.display = 'none';
+    localStorage.setItem('currentMember', JSON.stringify(member));
+    alert('✅ Berhasil login sebagai ' + member.fullname);
+    document.getElementById('member-email-login').value = '';
+    document.getElementById('member-pass-login').value = '';
+    showPage('home');
     return;
   }
   
-  errorDiv.style.display = 'none';
-  localStorage.setItem('currentMember', JSON.stringify(member));
-  alert('✅ Berhasil login sebagai ' + member.fullname);
-  showPage('home');
+  // Jika tidak ditemukan di lokal, tampilkan error
+  errorDiv.textContent = '❌ Email atau password salah.';
+  errorDiv.style.display = 'block';
 }
 
 // Show Member Login Modal
@@ -4165,7 +4125,7 @@ function openMemberModal(memberId = null) {
 }
 
 // SAVE MEMBER
-function saveMember() {
+async function saveMember() {
   const fullname = document.getElementById('member-form-fullname').value.trim();
   const email = document.getElementById('member-form-email').value.trim();
   const password = document.getElementById('member-form-password').value.trim();
@@ -4181,39 +4141,76 @@ function saveMember() {
   
   let members = JSON.parse(localStorage.getItem('members') || '[]');
   
-  if (memberId) {
-    // Edit existing member
-    const memberIndex = members.findIndex(m => m.id === memberId);
-    if (memberIndex !== -1) {
-      members[memberIndex] = {
-        ...members[memberIndex],
+  try {
+    if (memberId) {
+      // Edit existing member
+      const memberIndex = members.findIndex(m => m.id === parseInt(memberId));
+      if (memberIndex !== -1) {
+        const updatedMember = {
+          ...members[memberIndex],
+          fullname,
+          email,
+          password,
+          phone,
+          bidang,
+          status
+        };
+        members[memberIndex] = updatedMember;
+        
+        // Try sync to Supabase
+        try {
+          await sbUpdate('members', parseInt(memberId), {
+            fullname,
+            email,
+            password,
+            phone,
+            bidang,
+            status
+          });
+          console.log('✅ Member updated di Supabase');
+        } catch (sbErr) {
+          console.warn('⚠️ Gagal update ke Supabase, data tersimpan lokal:', sbErr);
+        }
+      }
+    } else {
+      // Add new member
+      const newMember = {
+        id: Date.now(),
         fullname,
         email,
         password,
         phone,
         bidang,
-        status
+        status,
+        registered_at: new Date().toISOString().split('T')[0]
       };
+      members.push(newMember);
+      
+      // Try sync to Supabase
+      try {
+        const sbResponse = await sbInsert('members', {
+          fullname,
+          email,
+          password,
+          phone,
+          bidang,
+          status,
+          registered_at: new Date().toISOString().split('T')[0]
+        });
+        console.log('✅ Member ditambah ke Supabase:', sbResponse);
+      } catch (sbErr) {
+        console.warn('⚠️ Gagal simpan ke Supabase, data tersimpan lokal:', sbErr);
+      }
     }
-  } else {
-    // Add new member
-    const newMember = {
-      id: Date.now().toString(),
-      fullname,
-      email,
-      password,
-      phone,
-      bidang,
-      status,
-      registeredAt: new Date().toLocaleDateString('id-ID')
-    };
-    members.push(newMember);
+    
+    localStorage.setItem('members', JSON.stringify(members));
+    alert('✅ Anggota berhasil disimpan (lokal & cloud)');
+    closeModal('modal-member');
+    loadMembersTable();
+  } catch (err) {
+    console.error('❌ Error saat simpan member:', err);
+    alert('❌ Terjadi error saat menyimpan anggota');
   }
-  
-  localStorage.setItem('members', JSON.stringify(members));
-  alert('✅ Anggota berhasil disimpan');
-  closeModal('modal-member');
-  loadMembersTable();
 }
 
 // DELETE MEMBER
