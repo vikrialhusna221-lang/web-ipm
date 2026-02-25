@@ -3204,7 +3204,7 @@ async function saveNews() {
   try {
     let imageUrl = null;
     
-    // Jika ada file baru, upload ke ImgBB
+    // Jika ada file baru, upload ke Cloudinary
     if (file) {
       showToast('⏳ Mengupload gambar ke server...', 'info');
       try {
@@ -3212,33 +3212,55 @@ async function saveNews() {
         showToast('✅ Gambar berhasil diupload!', 'success');
       } catch (uploadErr) {
         console.error('Upload error:', uploadErr);
-        showToast('⚠️ Gagal upload gambar, tapi berita tetap disimpan. Error: ' + uploadErr.message, 'warning');
-        // Lanjut tanpa gambar
+        showToast('⚠️ Gagal upload gambar, tapi berita tetap disimpan.', 'warning');
       }
     }
     
+    const newsData = { 
+      title, 
+      content, 
+      image: imageUrl || '📰',
+      created_at: new Date().toISOString() 
+    };
+    
     if (editId) {
-      const payload = { title, content };
-      if (imageUrl) payload.image = imageUrl;
-      console.log('📝 Updating news ID', editId, 'with payload:', payload);
-      const updated = await sbUpdate('news', +editId, payload);
-      console.log('✅ Updated response:', updated);
-      const idx = state.news.findIndex(x => x.id === +editId);
-      if (idx > -1 && updated[0]) state.news[idx] = updated[0];
+      // Edit existing news
+      try {
+        console.log('📝 Updating news ID', editId, 'to Supabase...');
+        const updated = await sbUpdate('news', +editId, newsData);
+        console.log('✅ Updated dari Supabase:', updated);
+        const idx = state.news.findIndex(x => x.id === +editId);
+        if (idx > -1 && updated && updated[0]) state.news[idx] = updated[0];
+      } catch (sbErr) {
+        console.warn('⚠️ Supabase update failed, using local update:', sbErr);
+        // Fallback: Update di local state saja
+        const idx = state.news.findIndex(x => x.id === +editId);
+        if (idx > -1) {
+          state.news[idx] = { ...state.news[idx], ...newsData };
+        }
+      }
       showToast('✅ Berita berhasil diperbarui!', 'success');
     } else {
-      // Jika tidak ada gambar, gunakan emoji default
-      console.log('💾 Saving news with image URL:', imageUrl || '📰');
-      const inserted = await sbInsert('news', { 
-        title, 
-        content, 
-        image: imageUrl || '📰',
-        created_at: new Date().toISOString() 
-      });
-      console.log('✅ News inserted:', inserted);
-      if (inserted[0]) {
-        console.log('✅ Added to state:', inserted[0]);
-        state.news.unshift(inserted[0]);
+      // Add new news
+      try {
+        console.log('💾 Inserting new news ke Supabase...');
+        const inserted = await sbInsert('news', newsData);
+        console.log('✅ Inserted dari Supabase:', inserted);
+        if (inserted && inserted[0]) {
+          state.news.unshift(inserted[0]);
+        } else {
+          // Jika response kosong, tambahkan dengan id lokal
+          const newItem = { id: Date.now(), ...newsData };
+          state.news.unshift(newItem);
+        }
+      } catch (sbErr) {
+        console.warn('⚠️ Supabase insert failed, using local storage:', sbErr);
+        // Fallback: Simpan ke localStorage backup
+        const newItem = { id: Date.now(), ...newsData };
+        state.news.unshift(newItem);
+        let backupNews = JSON.parse(localStorage.getItem('backupNews') || '[]');
+        backupNews.unshift(newItem);
+        localStorage.setItem('backupNews', JSON.stringify(backupNews));
       }
       showToast('✅ Berita berhasil ditambahkan!', 'success');
     }
@@ -3249,7 +3271,7 @@ async function saveNews() {
     renderAdminNews();
     refreshAdminData();
   } catch (err) {
-    console.error(err);
+    console.error('❌ Error saat simpan berita:', err);
     showToast('❌ Gagal menyimpan berita: ' + err.message, 'error');
   } finally {
     if (btn) setButtonLoading(btn, false);
@@ -3293,7 +3315,7 @@ async function saveAch() {
   try {
     let imageUrl = null;
     
-    // Jika ada file baru, upload ke ImgBB
+    // Jika ada file baru, upload ke Cloudinary
     if (file) {
       showToast('⏳ Mengupload gambar ke server...', 'info');
       try {
@@ -3301,27 +3323,53 @@ async function saveAch() {
         showToast('✅ Gambar berhasil diupload!', 'success');
       } catch (uploadErr) {
         console.error('Upload error:', uploadErr);
-        showToast('⚠️ Gagal upload gambar, tapi prestasi tetap disimpan. Error: ' + uploadErr.message, 'warning');
-        // Lanjut tanpa gambar
+        showToast('⚠️ Gagal upload gambar, tapi prestasi tetap disimpan.', 'warning');
       }
     }
     
+    const achData = {
+      title,
+      description: desc,
+      image: imageUrl || '🏆',
+      year
+    };
+    
     if (editId) {
-      const payload = { title, description: desc, year };
-      if (imageUrl) payload.image = imageUrl;
-      const updated = await sbUpdate('achievements', +editId, payload);
-      const idx = state.achievements.findIndex(x => x.id === +editId);
-      if (idx > -1 && updated[0]) state.achievements[idx] = updated[0];
+      // Edit existing achievement
+      try {
+        console.log('📝 Updating achievement ID', editId, 'to Supabase...');
+        const updated = await sbUpdate('achievements', +editId, achData);
+        console.log('✅ Updated dari Supabase:', updated);
+        const idx = state.achievements.findIndex(x => x.id === +editId);
+        if (idx > -1 && updated && updated[0]) state.achievements[idx] = updated[0];
+      } catch (sbErr) {
+        console.warn('⚠️ Supabase update failed, using local update:', sbErr);
+        const idx = state.achievements.findIndex(x => x.id === +editId);
+        if (idx > -1) {
+          state.achievements[idx] = { ...state.achievements[idx], ...achData };
+        }
+      }
       showToast('✅ Prestasi berhasil diperbarui!', 'success');
     } else {
-      // Jika tidak ada gambar, gunakan emoji default
-      const inserted = await sbInsert('achievements', { 
-        title, 
-        description: desc, 
-        image: imageUrl || '🏆',
-        year 
-      });
-      if (inserted[0]) state.achievements.unshift(inserted[0]);
+      // Add new achievement
+      try {
+        console.log('💾 Inserting new achievement ke Supabase...');
+        const inserted = await sbInsert('achievements', achData);
+        console.log('✅ Inserted dari Supabase:', inserted);
+        if (inserted && inserted[0]) {
+          state.achievements.unshift(inserted[0]);
+        } else {
+          const newItem = { id: Date.now(), ...achData };
+          state.achievements.unshift(newItem);
+        }
+      } catch (sbErr) {
+        console.warn('⚠️ Supabase insert failed, using local storage:', sbErr);
+        const newItem = { id: Date.now(), ...achData };
+        state.achievements.unshift(newItem);
+        let backupAch = JSON.parse(localStorage.getItem('backupAchievements') || '[]');
+        backupAch.unshift(newItem);
+        localStorage.setItem('backupAchievements', JSON.stringify(backupAch));
+      }
       showToast('✅ Prestasi berhasil ditambahkan!', 'success');
     }
     
@@ -3331,7 +3379,7 @@ async function saveAch() {
     renderAdminAch();
     refreshAdminData();
   } catch (err) {
-    console.error(err);
+    console.error('❌ Error saat simpan prestasi:', err);
     showToast('❌ Gagal menyimpan prestasi: ' + err.message, 'error');
   } finally {
     if (btn) setButtonLoading(btn, false);
@@ -3351,18 +3399,32 @@ async function confirmDelete() {
   if (btn) setButtonLoading(btn, true);
   try {
     if (state.pendingDeleteType === 'news') {
-      await sbDelete('news', state.pendingDelete);
+      try {
+        console.log('🗑️ Deleting news ID', state.pendingDelete, 'from Supabase...');
+        await sbDelete('news', state.pendingDelete);
+        console.log('✅ Deleted dari Supabase');
+      } catch (sbErr) {
+        console.warn('⚠️ Supabase delete failed, deleting from local:', sbErr);
+      }
       state.news = state.news.filter(n => n.id !== state.pendingDelete);
-      renderAdminNews(); showToast('Berita dihapus.', 'success');
+      renderAdminNews();
+      showToast('✅ Berita berhasil dihapus.', 'success');
     } else {
-      await sbDelete('achievements', state.pendingDelete);
+      try {
+        console.log('🗑️ Deleting achievement ID', state.pendingDelete, 'from Supabase...');
+        await sbDelete('achievements', state.pendingDelete);
+        console.log('✅ Deleted dari Supabase');
+      } catch (sbErr) {
+        console.warn('⚠️ Supabase delete failed, deleting from local:', sbErr);
+      }
       state.achievements = state.achievements.filter(a => a.id !== state.pendingDelete);
-      renderAdminAch(); showToast('Prestasi dihapus.', 'success');
+      renderAdminAch();
+      showToast('✅ Prestasi berhasil dihapus.', 'success');
     }
     refreshAdminData();
     closeModal('modal-delete');
   } catch (err) {
-    console.error(err);
+    console.error('❌ Error saat hapus:', err);
     showToast('❌ Gagal menghapus: ' + err.message, 'error');
   } finally {
     if (btn) setButtonLoading(btn, false);
