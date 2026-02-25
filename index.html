@@ -2460,7 +2460,7 @@
 //  Dapatkan dari: Supabase Dashboard → Project Settings → API
 // ══════════════════════════════════════════════════════════
 const SUPABASE_URL = 'https://sbipkblxezdrkmsnlwol.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_o1VZBWT9rIj8j-FEUNN7Tg_vmV7gqLo';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNiaXBrYmx4ZXpkcmttc25sd29sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5ODgzMDIsImV4cCI6MjA4NzU2NDMwMn0.eJQgQnMST3EeXtvMEPSANuCtgIpWbByVyTsHqGCLsrw';
 
 // ── CLOUDINARY CONFIG (untuk upload gambar) ──
 // Cloud Name dan Upload Preset dikonfigurasi di fungsi uploadToImgBB (bawah)
@@ -2477,7 +2477,10 @@ async function sbFetch(table, options = {}) {
   const { filter = '', order = 'id.desc' } = options;
   const url = `${SUPABASE_URL}/rest/v1/${table}?order=${order}${filter ? '&' + filter : ''}`;
   const res = await fetch(url, { headers: SB_HEADERS });
-  if (!res.ok) throw new Error(`Gagal fetch ${table}: ${res.status}`);
+  if (!res.ok) {
+    const errBody = await res.text();
+    throw new Error(`Gagal fetch ${table} (${res.status}): ${errBody}`);
+  }
   return res.json();
 }
 
@@ -2487,7 +2490,10 @@ async function sbInsert(table, data) {
     headers: SB_HEADERS,
     body: JSON.stringify(data)
   });
-  if (!res.ok) throw new Error(`Gagal insert ke ${table}: ${res.status}`);
+  if (!res.ok) {
+    const errBody = await res.text();
+    throw new Error(`Gagal insert ke ${table} (${res.status}): ${errBody}`);
+  }
   return res.json();
 }
 
@@ -2497,17 +2503,41 @@ async function sbUpdate(table, id, data) {
     headers: SB_HEADERS,
     body: JSON.stringify(data)
   });
-  if (!res.ok) throw new Error(`Gagal update ${table}: ${res.status}`);
+  if (!res.ok) {
+    const errBody = await res.text();
+    throw new Error(`Gagal update ${table} (${res.status}): ${errBody}`);
+  }
   return res.json();
 }
 
 async function sbDelete(table, id) {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`, {
     method: 'DELETE',
-    headers: SB_HEADERS
+    headers: { ...SB_HEADERS, 'Prefer': 'return=minimal' }
   });
-  if (!res.ok) throw new Error(`Gagal hapus dari ${table}: ${res.status}`);
+  if (!res.ok) {
+    const errBody = await res.text();
+    throw new Error(`Gagal hapus dari ${table} (${res.status}): ${errBody}`);
+  }
   return true;
+}
+
+// ── CEK KONEKSI SUPABASE ──
+async function checkSupabaseConnection() {
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/news?limit=1`, { headers: SB_HEADERS });
+    if (res.ok) {
+      console.log('✅ Supabase terhubung!');
+      return true;
+    } else {
+      const err = await res.text();
+      console.error('❌ Supabase error:', res.status, err);
+      return false;
+    }
+  } catch(e) {
+    console.error('❌ Supabase tidak terhubung:', e);
+    return false;
+  }
 }
 
 // ── AUTH (tetap pakai data lokal untuk keamanan) ──
@@ -2579,30 +2609,53 @@ let state = {
 async function loadAllData() {
   showLoadingOverlay(true);
   try {
-    console.log('📥 Mengambil data dari Supabase...');
-    const [news, achievements, events, programs] = await Promise.all([
+    const ok = await checkSupabaseConnection();
+    if (!ok) {
+      showToast('❌ Tidak dapat terhubung ke Supabase. Periksa URL & API Key.', 'error');
+      showLoadingOverlay(false);
+      return;
+    }
+
+    const results = await Promise.allSettled([
       sbFetch('news'),
       sbFetch('achievements'),
       sbFetch('events', { order: 'date.asc' }),
-      sbFetch('programs')
+      sbFetch('programs'),
+      sbFetch('dokumentasi'),
+      sbFetch('edukasi'),
+      sbFetch('members'),
+      sbFetch('org_info')
     ]);
-    
-    console.log('📰 Raw news data:', JSON.stringify(news, null, 2));
-    console.log('🏆 Raw achievements data:', JSON.stringify(achievements, null, 2));
-    
-    state.news         = news         || [];
-    state.achievements = achievements || [];
-    state.events       = events       || [];
-    state.programs     = programs     || [];
-    
-    console.log('✅ State news:', state.news);
-    console.log('✅ State achievements:', state.achievements);
-    
+
+    const [news, achievements, events, programs, dokumentasi, edukasi, members, orgInfo] = results.map(r => {
+      if (r.status === 'fulfilled') return r.value || [];
+      console.warn('⚠️ Tabel belum ada atau error:', r.reason?.message);
+      return [];
+    });
+
+    state.news         = news;
+    state.achievements = achievements;
+    state.events       = events;
+    state.programs     = programs;
+    state.dokumentasi  = dokumentasi;
+    state.edukasi      = edukasi;
+    state.members      = members;
+
+    // Load org info ke form jika sudah ada
+    if (orgInfo.length > 0) {
+      const info = orgInfo[0];
+      const el = id => document.getElementById(id);
+      if (info.aktif    && el('info-aktif'))    el('info-aktif').value    = info.aktif;
+      if (info.prestasi && el('info-prestasi')) el('info-prestasi').value = info.prestasi;
+      if (info.tahun    && el('info-tahun'))    el('info-tahun').value    = info.tahun;
+      if (info.program  && el('info-program'))  el('info-program').value  = info.program;
+    }
+
     renderHome();
-    console.log('✅ Data berhasil dimuat dari Supabase');
+    console.log('✅ Semua data berhasil dimuat dari Supabase');
   } catch (err) {
-    console.error('❌ Gagal memuat data dari Supabase:', err);
-    showToast('⚠️ Gagal memuat data. Periksa koneksi internet atau konfigurasi Supabase.', 'error');
+    console.error('❌ Gagal memuat data:', err);
+    showToast('❌ Gagal memuat data: ' + err.message, 'error');
   } finally {
     showLoadingOverlay(false);
   }
