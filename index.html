@@ -2356,7 +2356,8 @@ async function uploadToImgBB(file) {
   });
   const data = await res.json();
   if (!data.success) throw new Error('Upload ImgBB gagal: ' + (data.error?.message || 'Unknown error'));
-  return data.data.url; // URL gambar permanen
+  // Gunakan display_url = direct link ke gambar (bukan halaman web)
+  return data.data.display_url || data.data.image?.url || data.data.url;
 }
 
 // ── IMAGE RENDER HELPERS ──
