@@ -1274,7 +1274,7 @@
             <h3 style="font-family:'Playfair Display',serif; font-size:1.5rem; margin-bottom:.5rem;">Hubungi IPM SMA MUHAMMADIYAH 1 METRO</h3>
             <p style="color:var(--muted); line-height:1.7; margin-bottom:1.5rem;">Punya pertanyaan tentang IPM, ingin bergabung, atau ingin berkolaborasi? Jangan ragu untuk menghubungi kami melalui berbagai channel komunikasi di bawah ini.</p>
             <div class="contact-item"><div class="contact-icon">📍</div><div><strong>Alamat</strong><br><a href="https://maps.app.goo.gl/A8YR7mbXjcGiUbUs5" target="_blank" style="color:var(--gold); text-decoration:none; font-weight:500;">Jl. Khairbras No. 65, Ganjar Asri, Kec. Metro Barat, Kota Metro, Lampung.</a></div></div>
-            <div class="contact-item"><div class="contact-icon">📧</div><div><strong>Email</strong><br><a href="mailto:ipmsmamuh1metro@gmail.com" style="color:var(--gold); text-decoration:none; font-weight:500;">ipmsmamuh1metro@gmail.com</a></div></div>
+            <div class="contact-item"><div class="contact-icon">📧</div><div><strong>Email</strong><br><a href="/cdn-cgi/l/email-protection#157c657866787478607d24787061677a557278747c793b767a78" style="color:var(--gold); text-decoration:none; font-weight:500;"><span class="__cf_email__" data-cfemail="b2dbc2dfc1dfd3dfc7da83dfd7c6c0ddf2d5dfd3dbde9cd1dddf">[email&#160;protected]</span></a></div></div>
             <div class="contact-item"><div class="contact-icon">💬</div><div><strong>WhatsApp</strong><br><a href="https://wa.me/6285184459363" target="_blank" style="color:var(--gold); text-decoration:none; font-weight:500;">+6285184459363</a></div></div>
             <div class="contact-item"><div class="contact-icon">📱</div><div><strong>Instagram</strong><br><div style="margin-top:.5rem;">
               <p style="color:var(--muted); font-size:.9rem; margin-bottom:.3rem;"><a href="https://www.instagram.com/pripm_smamuhimetro?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" style="color:var(--gold); text-decoration:none;">@pripm_smamuhimetro</a></p>
@@ -1311,7 +1311,7 @@
           <h4 style="color: var(--white); margin-bottom: .75rem; font-weight: 600; font-size: .95rem;">Hubungi Kami</h4>
           <div style="font-size: .8rem; line-height: 1.6;">
             <p style="margin-bottom: .4rem;"><strong>📍 Alamat:</strong><br><a href="https://maps.app.goo.gl/A8YR7mbXjcGiUbUs5" target="_blank" style="color: var(--white); text-decoration: none; opacity: 0.9;">Jl. Khairbras No. 65, Metro, Lampung</a></p>
-            <p style="margin-bottom: .4rem;"><strong>📧 Email:</strong><br><a href="mailto:ipmsmamuh1metro@gmail.com" style="color: var(--white); text-decoration: none; opacity: 0.9;">ipmsmamuh1metro@gmail.com</a></p>
+            <p style="margin-bottom: .4rem;"><strong>📧 Email:</strong><br><a href="/cdn-cgi/l/email-protection#177e677a647a767a627f267a7263657857707a767e7b3974787a" style="color: var(--white); text-decoration: none; opacity: 0.9;"><span class="__cf_email__" data-cfemail="2148514c524c404c5449104c4455534e61464c40484d0f424e4c">[email&#160;protected]</span></a></p>
             <p style="margin-bottom: .4rem;"><strong>💬 WhatsApp:</strong><br><a href="https://wa.me/6285184459363" target="_blank" style="color: var(--white); text-decoration: none; opacity: 0.9;">+62 851 8445 9363</a></p>
           </div>
         </div>
@@ -1725,8 +1725,61 @@
 <!-- ══════════════════════════════════
      JAVASCRIPT — APP STATE & LOGIC
 ══════════════════════════════════ -->
-<script>
-// ── DATA STORE (simulates database / REST API response) ──
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// ══════════════════════════════════════════════════════════
+//  SUPABASE CONFIGURATION
+//  Ganti SUPABASE_URL dan SUPABASE_KEY dengan milik kamu!
+//  Dapatkan dari: Supabase Dashboard → Project Settings → API
+// ══════════════════════════════════════════════════════════
+const SUPABASE_URL = 'https://sbipkblxezdrkmsnlwol.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_o1VZBWT9rIj8j-FEUNN7Tg_vmV7gqLo';
+
+const SB_HEADERS = {
+  'apikey': SUPABASE_KEY,
+  'Authorization': `Bearer ${SUPABASE_KEY}`,
+  'Content-Type': 'application/json',
+  'Prefer': 'return=representation'
+};
+
+// ── SUPABASE HELPER FUNCTIONS ──
+async function sbFetch(table, options = {}) {
+  const { filter = '', order = 'id.desc' } = options;
+  const url = `${SUPABASE_URL}/rest/v1/${table}?order=${order}${filter ? '&' + filter : ''}`;
+  const res = await fetch(url, { headers: SB_HEADERS });
+  if (!res.ok) throw new Error(`Gagal fetch ${table}: ${res.status}`);
+  return res.json();
+}
+
+async function sbInsert(table, data) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
+    method: 'POST',
+    headers: SB_HEADERS,
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) throw new Error(`Gagal insert ke ${table}: ${res.status}`);
+  return res.json();
+}
+
+async function sbUpdate(table, id, data) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`, {
+    method: 'PATCH',
+    headers: SB_HEADERS,
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) throw new Error(`Gagal update ${table}: ${res.status}`);
+  return res.json();
+}
+
+async function sbDelete(table, id) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`, {
+    method: 'DELETE',
+    headers: SB_HEADERS
+  });
+  if (!res.ok) throw new Error(`Gagal hapus dari ${table}: ${res.status}`);
+  return true;
+}
+
+// ── AUTH (tetap pakai data lokal untuk keamanan) ──
 const MOCK_USERS = [{ email: 'vikri al husna', password: '56964321', name: 'Admin User', role: 'admin' }];
 
 const MOCK_MEMBERS = [
@@ -1784,28 +1837,48 @@ let state = {
   newsPerPage: 6,
   pendingDelete: null,
   pendingDeleteType: null,
-  news: [
-    { id: 1, title: '-', content: '-', image: '👥', created_at: '2026-1-1' },
-    { id: 2, title: '-', content: '-', image: '🎤', created_at: '2026-1-1' },
-    { id: 3, title: '-', content: '-', image: '📚', created_at: '2026-1-1' },
-    { id: 4, title: '-', content: '-', image: '🌿', created_at: '2026-1-1' },
-    { id: 5, title: '-', content: '-', image: '🤝', created_at: '2026-1-1' },
-    { id: 6, title: '-', content: '-', image: '🎭', created_at: '2026-1-1' },
-    { id: 7, title: '-', content: '-', image: '💻', created_at: '2026-1-1' },
-    { id: 8, title: '-', content: '-', image: '🏫', created_at: '2026-1-1' },
-  ],
-  achievements: [
-    { id: 1, title: '-', description: '-', image: '🥇', year: 2026 },
-    { id: 2, title: '-', description: '-', image: '🏆', year: 2026 },
-    { id: 3, title: '-', description: '-', image: '📄', year: 2026 },
-    { id: 4, title: '-', description: '-', image: '🎖️', year: 2026 },
-    { id: 5, title: '-', description: '-', image: '✅', year: 2026 },
-    { id: 6, title: '-', description: '-', image: '⭐', year: 2026 },
-  ]
+  news: [],
+  achievements: [],
+  events: [],
+  programs: [],
+  bidang_data: []
 };
 
-let nextNewsId = 9;
-let nextAchId = 7;
+// ── LOAD DATA FROM SUPABASE ON STARTUP ──
+async function loadAllData() {
+  showLoadingOverlay(true);
+  try {
+    const [news, achievements, events, programs] = await Promise.all([
+      sbFetch('news'),
+      sbFetch('achievements'),
+      sbFetch('events', { order: 'date.asc' }),
+      sbFetch('programs')
+    ]);
+    state.news         = news         || [];
+    state.achievements = achievements || [];
+    state.events       = events       || [];
+    state.programs     = programs     || [];
+    renderHome();
+    console.log('✅ Data berhasil dimuat dari Supabase');
+  } catch (err) {
+    console.error('❌ Gagal memuat data dari Supabase:', err);
+    showToast('⚠️ Gagal memuat data. Periksa koneksi internet atau konfigurasi Supabase.', 'error');
+  } finally {
+    showLoadingOverlay(false);
+  }
+}
+
+function showLoadingOverlay(show) {
+  let overlay = document.getElementById('loading-overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'loading-overlay';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(255,255,255,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1rem;backdrop-filter:blur(4px);';
+    overlay.innerHTML = '<div style="width:50px;height:50px;border:4px solid rgba(0,128,0,0.2);border-top-color:#008000;border-radius:50%;animation:spin 1s linear infinite;"></div><p style="color:#008000;font-weight:600;font-size:1rem;">Memuat data...</p><style>@keyframes spin{to{transform:rotate(360deg)}}</style>';
+    document.body.appendChild(overlay);
+  }
+  overlay.style.display = show ? 'flex' : 'none';
+}
 
 // ── MOBILE MENU TOGGLE ──
 function toggleMobileMenu() {
@@ -2259,25 +2332,35 @@ function openNewsModal(id) {
   modal.classList.add('open');
 }
 
-function saveNews() {
+async function saveNews() {
   const title = document.getElementById('news-form-title').value.trim();
   const content = document.getElementById('news-form-content').value.trim();
   if (!title || !content) { showToast('Judul dan konten wajib diisi.', 'error'); return; }
   const editId = document.getElementById('news-edit-id').value;
-  if (editId) {
-    const n = state.news.find(x => x.id === +editId);
-    if (!n) { showToast('Berita tidak ditemukan.', 'error'); return; }
-    n.title = title; n.content = content;
-    showToast('Berita berhasil diperbarui!', 'success');
-  } else {
-    state.news.unshift({ id: nextNewsId++, title, content, image: '📰', created_at: new Date().toISOString().slice(0,10) });
-    showToast('Berita berhasil ditambahkan!', 'success');
+  const btn = document.querySelector('#modal-news .btn-primary');
+  if (btn) setButtonLoading(btn, true);
+  try {
+    if (editId) {
+      const updated = await sbUpdate('news', +editId, { title, content });
+      const idx = state.news.findIndex(x => x.id === +editId);
+      if (idx > -1 && updated[0]) state.news[idx] = updated[0];
+      showToast('Berita berhasil diperbarui!', 'success');
+    } else {
+      const inserted = await sbInsert('news', { title, content, image: '📰', created_at: new Date().toISOString() });
+      if (inserted[0]) state.news.unshift(inserted[0]);
+      showToast('Berita berhasil ditambahkan!', 'success');
+    }
+    document.getElementById('news-img-input').value = '';
+    document.getElementById('news-img-preview').style.display = 'none';
+    closeModal('modal-news');
+    renderAdminNews();
+    refreshAdminData();
+  } catch (err) {
+    console.error(err);
+    showToast('❌ Gagal menyimpan berita: ' + err.message, 'error');
+  } finally {
+    if (btn) setButtonLoading(btn, false);
   }
-  document.getElementById('news-img-input').value = '';
-  document.getElementById('news-img-preview').style.display = 'none';
-  closeModal('modal-news');
-  renderAdminNews();
-  refreshAdminData();
 }
 
 // ── CRUD ACHIEVEMENTS ──
@@ -2302,26 +2385,36 @@ function openAchModal(id) {
   document.getElementById('modal-ach').classList.add('open');
 }
 
-function saveAch() {
+async function saveAch() {
   const title = document.getElementById('ach-form-title').value.trim();
   const desc = document.getElementById('ach-form-desc').value.trim();
   const year = +document.getElementById('ach-form-year').value;
   if (!title || !desc || !year) { showToast('Semua field wajib diisi.', 'error'); return; }
   const editId = document.getElementById('ach-edit-id').value;
-  if (editId) {
-    const a = state.achievements.find(x => x.id === +editId);
-    if (!a) { showToast('Prestasi tidak ditemukan.', 'error'); return; }
-    a.title = title; a.description = desc; a.year = year;
-    showToast('Prestasi berhasil diperbarui!', 'success');
-  } else {
-    state.achievements.unshift({ id: nextAchId++, title, description: desc, image: '🏆', year });
-    showToast('Prestasi berhasil ditambahkan!', 'success');
+  const btn = document.querySelector('#modal-ach .btn-primary');
+  if (btn) setButtonLoading(btn, true);
+  try {
+    if (editId) {
+      const updated = await sbUpdate('achievements', +editId, { title, description: desc, year });
+      const idx = state.achievements.findIndex(x => x.id === +editId);
+      if (idx > -1 && updated[0]) state.achievements[idx] = updated[0];
+      showToast('Prestasi berhasil diperbarui!', 'success');
+    } else {
+      const inserted = await sbInsert('achievements', { title, description: desc, image: '🏆', year });
+      if (inserted[0]) state.achievements.unshift(inserted[0]);
+      showToast('Prestasi berhasil ditambahkan!', 'success');
+    }
+    document.getElementById('ach-img-input').value = '';
+    document.getElementById('ach-img-preview').style.display = 'none';
+    closeModal('modal-ach');
+    renderAdminAch();
+    refreshAdminData();
+  } catch (err) {
+    console.error(err);
+    showToast('❌ Gagal menyimpan prestasi: ' + err.message, 'error');
+  } finally {
+    if (btn) setButtonLoading(btn, false);
   }
-  document.getElementById('ach-img-input').value = '';
-  document.getElementById('ach-img-preview').style.display = 'none';
-  closeModal('modal-ach');
-  renderAdminAch();
-  refreshAdminData();
 }
 
 // ── DELETE ──
@@ -2332,16 +2425,27 @@ function openDelete(type, id, name) {
   document.getElementById('modal-delete').classList.add('open');
 }
 
-function confirmDelete() {
-  if (state.pendingDeleteType === 'news') {
-    state.news = state.news.filter(n => n.id !== state.pendingDelete);
-    renderAdminNews(); showToast('Berita dihapus.', 'success');
-  } else {
-    state.achievements = state.achievements.filter(a => a.id !== state.pendingDelete);
-    renderAdminAch(); showToast('Prestasi dihapus.', 'success');
+async function confirmDelete() {
+  const btn = document.querySelector('#modal-delete .btn-danger');
+  if (btn) setButtonLoading(btn, true);
+  try {
+    if (state.pendingDeleteType === 'news') {
+      await sbDelete('news', state.pendingDelete);
+      state.news = state.news.filter(n => n.id !== state.pendingDelete);
+      renderAdminNews(); showToast('Berita dihapus.', 'success');
+    } else {
+      await sbDelete('achievements', state.pendingDelete);
+      state.achievements = state.achievements.filter(a => a.id !== state.pendingDelete);
+      renderAdminAch(); showToast('Prestasi dihapus.', 'success');
+    }
+    refreshAdminData();
+    closeModal('modal-delete');
+  } catch (err) {
+    console.error(err);
+    showToast('❌ Gagal menghapus: ' + err.message, 'error');
+  } finally {
+    if (btn) setButtonLoading(btn, false);
   }
-  refreshAdminData();
-  closeModal('modal-delete');
 }
 
 // ── MODALS ──
@@ -2924,79 +3028,49 @@ function renderAdminCalendarEvents(year, month, day) {
   `).join('') : '<p style="color:var(--muted); padding:1rem;">Tidak ada acara pada hari ini.</p>';
 }
 
-// Sample data for states (Add to state object at top)
-state.events = [
-  { date: '2026-02-23', name: 'Kajian Rutin KDI', description: 'Kajian Islam mingguan' },
-  { date: '2026-02-28', name: 'Pembinaan Calon', description: 'Program perkaderan IPM' },
-  { date: '2026-03-07', name: 'Seminar Nasional', description: 'Seminar dengan pembicara tamu' },
-  { date: '2026-03-14', name: 'Bakti Sosial', description: 'Program pengabdian masyarakat' },
-  { date: '2026-03-20', name: 'Lomba ASBO', description: 'Perlombaan seni budaya dan olahraga' },
-];
-
-state.programs = [
-  { bidang: 'Perkaderan', name: 'Pembinaan Calon IPM', description: 'Program pembinaan untuk calon anggota IPM baru', status: 'Aktif', date: 'Feb 2026', responsible: 'M. Romi Nazarrudin' },
-  { bidang: 'KDI', name: 'Kajian Dakwah Islam', description: 'Pelaksanaan kajian Islam setiap minggu untuk menambah wawasan keislaman', status: 'Aktif', date: 'Setiap Jumat', responsible: 'Fahmi Arifuddin' },
-  { bidang: 'PIP', name: 'Workshop Teknologi', description: 'Pelatihan teknologi dan inovasi untuk pengembangan kompetensi', status: 'Aktif', date: 'Mar 2026', responsible: 'Vikri Al Husna' },
-  { bidang: 'ASBO', name: 'Lomba Seni Budaya', description: 'Penyelenggaraan lomba dan apresiasi seni budaya pelajar', status: 'Aktif', date: 'Mar 2026', responsible: 'Zahwa Alya Aneira' },
-  { bidang: 'Advokasi', name: 'Program Advokasi Sosial', description: 'Program advokasi untuk isu-isu sosial di lingkungan sekolah', status: 'Pending', date: 'Mar 2026', responsible: 'Afifah Zahra' },
-  { bidang: 'PKKWU', name: 'Pelatihan Wirausaha', description: 'Program pengembangan keterampilan wirausaha untuk siswa', status: 'Aktif', date: 'Apr 2026', responsible: 'Zharotu Fitri' },
-];
-
+// ── Static bidang_data (tidak berubah, hardcoded) ──
 state.bidang_data = [
   {
-    name: 'Bidang Perkaderan',
-    icon: '🔹',
+    name: 'Bidang Perkaderan', icon: '🔹',
     description: 'Bidang yang menangani proses pembinaan dan pengembangan kader IPM dengan fokus pada pembentukan karakter dan kepemimpinan.',
-    leader: 'M. Romi Nazarrudin',
-    secretary: 'Nabila Zaskiya Chandra',
+    leader: 'M. Romi Nazarrudin', secretary: 'Nabila Zaskiya Chandra',
     members: ['Dzaki Tristan Aji', 'Tia Eka Yuniarsih', 'Kalica Nazwa Safitri', 'Clara Wahyuning Tyas', 'Nasywa Diva Zahra']
   },
   {
-    name: 'Bidang KDI (Kajian Dakwah Islam)',
-    icon: '📖',
+    name: 'Bidang KDI (Kajian Dakwah Islam)', icon: '📖',
     description: 'Bidang yang bertanggung jawab atas pelaksanaan kajian dakwah Islam dan pengembangan wawasan keislaman anggota.',
-    leader: 'Fahmi Arifuddin Herliyanto',
-    secretary: 'Azizah Hanifah Ulhak',
+    leader: 'Fahmi Arifuddin Herliyanto', secretary: 'Azizah Hanifah Ulhak',
     members: ['Nadhira Arthalitha Rasyid', 'Qurota Ayun Permata Ningrum', 'Muhammad Galang Putra', 'Rayhan Firadaus Putra', 'Annisa Azmi Fatonah']
   },
   {
-    name: 'Bidang PIP (Pengkajian Ilmu Pengetahuan)',
-    icon: '🔬',
+    name: 'Bidang PIP (Pengkajian Ilmu Pengetahuan)', icon: '🔬',
     description: 'Bidang yang mengelola program pengkajian ilmu pengetahuan, teknologi, dan inovasi untuk pengembangan kompetensi akademik.',
-    leader: 'Vikri Al Husna',
-    secretary: 'Zahra Khuzaifah',
+    leader: 'Vikri Al Husna', secretary: 'Zahra Khuzaifah',
     members: ['Windi Antika', 'Deva Lia Fajria', 'Khanza Zabirah', 'Andika Zuhriyanto']
   },
   {
-    name: 'Bidang ASBO (Apresiasi Seni Budaya dan Olahraga)',
-    icon: '🎭',
+    name: 'Bidang ASBO (Apresiasi Seni Budaya dan Olahraga)', icon: '🎭',
     description: 'Bidang yang mengembangkan apresiasi seni budaya dan olahraga sebagai bagian dari pembinaan holistik anggota.',
-    leader: 'Zahwa Alya Aneira',
-    secretary: 'Sinta Bella Rahma Dini',
+    leader: 'Zahwa Alya Aneira', secretary: 'Sinta Bella Rahma Dini',
     members: ['Rizki Vetra Alfarezi', 'Silviana Putri', 'Eka Sri Utami', 'Jesika Nafin', 'Putri Raisa Nabila']
   },
   {
-    name: 'Bidang Advokasi',
-    icon: '⚖️',
+    name: 'Bidang Advokasi', icon: '⚖️',
     description: 'Bidang yang menangani advokasi isu-isu sosial dan lingkungan untuk meningkatkan kepedulian anggota terhadap masyarakat.',
-    leader: 'Afifah Zahra Indriyani',
-    secretary: 'Nur Fatihah',
+    leader: 'Afifah Zahra Indriyani', secretary: 'Nur Fatihah',
     members: ['Dinda Cantika Putri', 'Fitria Rahma Septika', 'Vatikah Nurul Utami', 'Azkia Ikrimatuuz Zahra', 'Shanaz Nadya Safwa']
   },
   {
-    name: 'Bidang PKKWU (Pengembangan Kreatifitas dan Kewirausahaan)',
-    icon: '💼',
-    description: 'Bidang yang mengembangkan kreatifitas dan kewirausahaan melalui program pelatihan dan pendampingan usaha.',
-    leader: 'Zharotu Fitri',
-    secretary: 'Naifa Kinasih',
+    name: 'Bidang PKKWU (Pengembangan Kreatifitas dan Kewirausahaan)', icon: '💼',
+    description: 'Bidang yang mengembangkan kreativitas dan jiwa kewirausahaan anggota IPM untuk persiapan masa depan.',
+    leader: 'Zharotu Fitri', secretary: 'Naifa Kinasih',
     members: ['Salwa Aqilah Putri', 'Azzahra Nur Rohma', 'Fiona Inka Safitri', 'Rasya Khoirunnisa', 'Talitha Nur Azizah']
   }
 ];
 
-state.currentMember = null;
+// ── INIT: Load semua data dari Supabase saat halaman dibuka ──
+window.addEventListener('DOMContentLoaded', loadAllData);
 
-// ── INIT ──
-renderHome();
 </script>
 </body>
 </html>
