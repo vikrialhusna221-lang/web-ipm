@@ -2070,7 +2070,10 @@
         <div class="admin-panel" id="panel-manage-members">
           <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.5rem;">
             <h2 style="font-family:'Playfair Display',serif; color:var(--text);">Kelola Anggota</h2>
-            <input type="text" id="member-search" placeholder="Cari anggota..." style="padding:0.65rem 1rem; border:1.5px solid var(--border); border-radius:10px; font-size:0.9rem;">
+            <div style="display:flex; gap:1rem; align-items:center;">
+              <input type="text" id="member-search" placeholder="Cari anggota..." style="padding:0.65rem 1rem; border:1.5px solid var(--border); border-radius:10px; font-size:0.9rem;">
+              <button class="btn-sm btn-gold" onclick="openMemberModal()">+ Tambah Anggota</button>
+            </div>
           </div>
           <div class="table-card">
             <table id="manage-members-table">
@@ -2230,6 +2233,62 @@
     <div class="modal-foot">
       <button class="btn-sm btn-ghost" onclick="closeModal('modal-edukasi')">Batal</button>
       <button class="btn-sm btn-gold" onclick="saveEdukasi()">Simpan Materi</button>
+    </div>
+  </div>
+</div>
+
+<!-- Member Modal -->
+<div class="modal-overlay" id="modal-member">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="member-modal-title">Tambah Anggota Baru</h3>
+      <button class="modal-close" onclick="closeModal('modal-member')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="member-edit-id">
+      <div class="form-group">
+        <label>Nama Lengkap *</label>
+        <input type="text" id="member-form-fullname" placeholder="Masukkan nama lengkap...">
+      </div>
+      <div class="form-group">
+        <label>Email *</label>
+        <input type="email" id="member-form-email" placeholder="nama@email.com">
+      </div>
+      <div class="form-group">
+        <label>Password *</label>
+        <input type="password" id="member-form-password" placeholder="Masukkan password" required>
+        <button type="button" class="password-toggle" onclick="togglePasswordVisibility('member-form-password')" style="position:absolute; right:15px; top:50%; transform:translateY(-50%); border:none; background:none; cursor:pointer; font-size:1rem;">👁️</button>
+      </div>
+      <div class="form-group">
+        <label>Nomor HP *</label>
+        <input type="tel" id="member-form-phone" placeholder="08xx-xxxx-xxxx">
+      </div>
+      <div class="form-group">
+        <label>Bidang *</label>
+        <select id="member-form-bidang" style="width:100%; padding:0.75rem; border:1.5px solid var(--border); border-radius:8px; font-family:'DM Sans',sans-serif;">
+          <option value="">Pilih Bidang</option>
+          <option value="ketua-umum">Ketua Umum</option>
+          <option value="sekertaris-umum">Sekertaris Umum</option>
+          <option value="bendahara-umum">Bendahara Umum</option>
+          <option value="guest">Guest</option>
+          <option value="ketua-bidang">Ketua Bidang</option>
+          <option value="sekertaris-bidang">Sekertaris Bidang</option>
+          <option value="anggota-bidang">Anggota Bidang</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Status *</label>
+        <select id="member-form-status" style="width:100%; padding:0.75rem; border:1.5px solid var(--border); border-radius:8px; font-family:'DM Sans',sans-serif;">
+          <option value="">Pilih Status</option>
+          <option value="aktif">Aktif</option>
+          <option value="nonaktif">Nonaktif</option>
+          <option value="alumni">Alumni</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-sm btn-ghost" onclick="closeModal('modal-member')">Batal</button>
+      <button class="btn-sm btn-gold" onclick="saveMember()">Simpan Anggota</button>
     </div>
   </div>
 </div>
@@ -2520,132 +2579,40 @@ let state = {
 async function loadAllData() {
   showLoadingOverlay(true);
   try {
-    console.log('📥 Mengambil data dari Supabase...');
-    const [news, achievements, events, programs] = await Promise.all([
+    const [news, achievements, events, programs, dokumentasi, edukasi, members, orgInfo] = await Promise.all([
       sbFetch('news'),
       sbFetch('achievements'),
       sbFetch('events', { order: 'date.asc' }),
-      sbFetch('programs')
+      sbFetch('programs'),
+      sbFetch('dokumentasi').catch(()=>[]),
+      sbFetch('edukasi').catch(()=>[]),
+      sbFetch('members').catch(()=>[]),
+      sbFetch('org_info').catch(()=>[])
     ]);
-    
-    console.log('📰 Raw news data:', JSON.stringify(news, null, 2));
-    console.log('🏆 Raw achievements data:', JSON.stringify(achievements, null, 2));
-    
     state.news         = news         || [];
     state.achievements = achievements || [];
     state.events       = events       || [];
     state.programs     = programs     || [];
-    
-    console.log('✅ State news:', state.news);
-    console.log('✅ State achievements:', state.achievements);
-    
-    renderHome();
-    console.log('✅ Data berhasil dimuat dari Supabase');
+    state.dokumentasi  = dokumentasi  || [];
+    state.edukasi      = edukasi      || [];
+    state.members      = members      || [];
 
-    // Aktifkan Realtime setelah data pertama berhasil dimuat
-    initRealtime();
+    // Load org info ke form
+    if (orgInfo && orgInfo.length > 0) {
+      const info = orgInfo[0];
+      const el = id => document.getElementById(id);
+      if (info.aktif    && el('info-aktif'))    el('info-aktif').value    = info.aktif;
+      if (info.prestasi && el('info-prestasi')) el('info-prestasi').value = info.prestasi;
+      if (info.tahun    && el('info-tahun'))    el('info-tahun').value    = info.tahun;
+      if (info.program  && el('info-program'))  el('info-program').value  = info.program;
+    }
+    renderHome();
   } catch (err) {
-    console.error('❌ Gagal memuat data dari Supabase:', err);
-    showToast('⚠️ Gagal memuat data. Periksa koneksi internet atau konfigurasi Supabase.', 'error');
+    console.error('❌ Gagal memuat data:', err);
+    showToast('⚠️ Gagal memuat data. Periksa koneksi atau konfigurasi Supabase.', 'error');
   } finally {
     showLoadingOverlay(false);
   }
-}
-
-// ── SUPABASE REALTIME ──
-// Auto-refresh data ketika ada perubahan di Supabase (INSERT/UPDATE/DELETE)
-function initRealtime() {
-  const realtimeUrl = SUPABASE_URL.replace('https://', 'wss://') + '/realtime/v1/websocket?apikey=' + SUPABASE_KEY + '&vsn=1.0.0';
-  let ws;
-  let heartbeatInterval;
-  let reconnectTimeout;
-  let ref = 1;
-
-  function connect() {
-    try {
-      ws = new WebSocket(realtimeUrl);
-
-      ws.onopen = () => {
-        console.log('🔴 Realtime terhubung');
-        ref = 1;
-
-        // Subscribe ke semua tabel
-        ['news', 'achievements', 'events', 'programs'].forEach(table => {
-          ws.send(JSON.stringify({
-            topic: `realtime:public:${table}`,
-            event: 'phx_join',
-            payload: { config: { broadcast: { self: true }, presence: { key: '' }, postgres_changes: [{ event: '*', schema: 'public', table }] } },
-            ref: String(ref++)
-          }));
-        });
-
-        // Heartbeat setiap 30 detik
-        heartbeatInterval = setInterval(() => {
-          if (ws.readyState === WebSocket.OPEN) {
-            ws.send(JSON.stringify({ topic: 'phoenix', event: 'heartbeat', payload: {}, ref: String(ref++) }));
-          }
-        }, 30000);
-      };
-
-      ws.onmessage = async (e) => {
-        try {
-          const msg = JSON.parse(e.data);
-          if (msg.event !== 'postgres_changes') return;
-
-          const change = msg.payload?.data;
-          if (!change) return;
-
-          const { table, eventType } = change;
-          console.log(`🔄 Realtime: ${eventType} pada tabel ${table}`);
-
-          // Refresh data tabel yang berubah
-          if (table === 'news') {
-            state.news = await sbFetch('news');
-            renderHome();
-            if (state.currentPage === 'news') renderNewsList();
-            renderAdminNews();
-            renderMemberNews();
-            showToast('🔄 Berita diperbarui secara realtime', 'success');
-          } else if (table === 'achievements') {
-            state.achievements = await sbFetch('achievements');
-            renderHome();
-            if (state.currentPage === 'achievements') renderAchievements();
-            renderAdminAch();
-            renderMemberAchievements();
-            showToast('🔄 Prestasi diperbarui secara realtime', 'success');
-          } else if (table === 'events') {
-            state.events = await sbFetch('events', { order: 'date.asc' });
-            renderCalendar();
-            renderAdminCalendar();
-            renderMemberCalendar();
-          } else if (table === 'programs') {
-            state.programs = await sbFetch('programs');
-            renderMemberPrograms();
-          }
-
-          // Update statistik dashboard
-          refreshAdminData();
-        } catch (err) {
-          console.warn('⚠️ Error parsing realtime message:', err);
-        }
-      };
-
-      ws.onclose = () => {
-        console.log('🔌 Realtime terputus, mencoba reconnect dalam 5 detik...');
-        clearInterval(heartbeatInterval);
-        reconnectTimeout = setTimeout(connect, 5000);
-      };
-
-      ws.onerror = (err) => {
-        console.warn('⚠️ Realtime error:', err);
-      };
-
-    } catch (err) {
-      console.warn('⚠️ Gagal inisialisasi Realtime:', err);
-    }
-  }
-
-  connect();
 }
 
 function showLoadingOverlay(show) {
@@ -3542,33 +3509,19 @@ document.querySelectorAll('.card-img').forEach(img => {
 
 // Member Login
 function doLoginMember() {
-  const username = document.getElementById('member-username').value.trim().toLowerCase();
-  const password = document.getElementById('member-pass').value.trim();
+  const email = document.getElementById('member-email-login').value.trim().toLowerCase();
+  const password = document.getElementById('member-pass-login').value.trim();
   const errorDiv = document.getElementById('member-error');
-  
-  if (!username || !password) {
-    errorDiv.textContent = 'Username dan password wajib diisi.';
-    errorDiv.style.display = 'block';
-    return;
-  }
-  
-  const member = MOCK_MEMBERS.find(m => 
-    (m.username.toLowerCase() === username && m.password === password)
-  );
-  
-  if (!member) {
-    errorDiv.textContent = 'Username atau password salah.';
-    errorDiv.style.display = 'block';
-    return;
-  }
-  
-  errorDiv.style.display = 'none';
-  state.currentMember = member;
-  state.currentMember.avatar = member.name.charAt(0).toUpperCase();
-  
-  showPage('member-dashboard');
-  initMemberDashboard();
-  showToast('Berhasil login sebagai ' + member.name, 'success');
+  if (!email || !password) { errorDiv.textContent = '📝 Email dan Password wajib diisi!'; errorDiv.style.display = 'block'; return; }
+  try {
+    const members = await sbFetch('members', { filter: `email=eq.${encodeURIComponent(email)}` });
+    const member = (members||[]).find(m => m.email.toLowerCase() === email && m.password === password);
+    if (!member) { errorDiv.textContent = '❌ Email atau password salah.'; errorDiv.style.display = 'block'; return; }
+    errorDiv.style.display = 'none';
+    localStorage.setItem('currentMember', JSON.stringify(member));
+    showToast('✅ Berhasil login sebagai ' + member.fullname, 'success');
+    showPage('home');
+  } catch(err) { errorDiv.textContent = '❌ Gagal login: ' + err.message; errorDiv.style.display = 'block'; }
 }
 
 // Show Member Login Modal
@@ -3987,36 +3940,23 @@ function renderAdminCalendar() {
 }
 
 // ADD CALENDAR EVENT (Admin can mark event)
-function addCalendarEvent() {
+async function addCalendarEvent() {
   const date = document.getElementById('calendar-event-date').value;
   const title = document.getElementById('calendar-event-title').value;
   const desc = document.getElementById('calendar-event-desc').value;
-  
-  if (!date || !title) {
-    alert('⚠️ Tanggal dan nama acara wajib diisi');
-    return;
-  }
-  
-  const event = { id: Date.now().toString(), date, name: title, description: desc };
-  
-  if (!state.events) state.events = [];
-  state.events.push(event);
-  
-  // Save to localStorage
-  let calendarEvents = JSON.parse(localStorage.getItem('calendarEvents') || '[]');
-  calendarEvents.push(event);
-  localStorage.setItem('calendarEvents', JSON.stringify(calendarEvents));
-  
-  // Clear form
-  document.getElementById('calendar-event-date').value = '';
-  document.getElementById('calendar-event-title').value = '';
-  document.getElementById('calendar-event-desc').value = '';
-  
-  alert('✅ Acara berhasil ditandai pada kalender');
-  
-  // Refresh calendar display
-  const today = new Date();
-  renderAdminCalendarEvents(today.getFullYear(), today.getMonth(), today.getDate());
+  if (!date || !title) { showToast('⚠️ Tanggal dan nama acara wajib diisi', 'error'); return; }
+  try {
+    const inserted = await sbInsert('events', { date, name: title, description: desc });
+    if (!state.events) state.events = [];
+    if (inserted[0]) state.events.push(inserted[0]);
+    state.events.sort((a,b) => new Date(a.date)-new Date(b.date));
+    document.getElementById('calendar-event-date').value = '';
+    document.getElementById('calendar-event-title').value = '';
+    document.getElementById('calendar-event-desc').value = '';
+    showToast('✅ Acara berhasil ditambahkan!', 'success');
+    renderAdminCalendar();
+    renderPublicCalendar();
+  } catch(err) { showToast('❌ Gagal menyimpan acara: ' + err.message, 'error'); }
 }
 
 function renderAdminCalendarEvents(year, month, day) {
@@ -4078,92 +4018,7 @@ state.bidang_data = [
 // ═══════════════════════════════════════════════════════════════════════════════
 
 // MEMBER TAB SWITCHING
-function showMemberTab(tab) {
-  document.getElementById('member-login-content').style.display = tab === 'login' ? 'block' : 'none';
-  document.getElementById('member-register-content').style.display = tab === 'register' ? 'block' : 'none';
-  document.getElementById('member-otp-content').style.display = 'none';
-  
-  document.getElementById('member-login-tab').classList.toggle('active', tab === 'login');
-  document.getElementById('member-register-tab').classList.toggle('active', tab === 'register');
-  
-  if (tab === 'login') {
-    document.getElementById('member-login-tab').style.borderBottomColor = 'var(--gold)';
-    document.getElementById('member-register-tab').style.borderBottomColor = 'transparent';
-  } else {
-    document.getElementById('member-login-tab').style.borderBottomColor = 'transparent';
-    document.getElementById('member-register-tab').style.borderBottomColor = 'var(--gold)';
-  }
-}
 
-// GOOGLE OAUTH LOGIN
-function loginWithGoogle() {
-  alert('🔐 Fitur Login Google akan terintegrasi dengan Google OAuth API.\n\nUntuk saat ini, silakan gunakan email + password untuk login.');
-}
-
-// GOOGLE OAUTH REGISTER
-function registerWithGoogle() {
-  alert('📧 Fitur Registrasi Google akan membuka proses verifikasi email.\n\nUntuk saat ini, email placeholder digunakan untuk demo.');
-  const fullname = document.getElementById('member-fullname').value;
-  const email = document.getElementById('member-email-register').value;
-  
-  if (!fullname || !email) {
-    alert('Mohon isi nama dan email terlebih dahulu');
-    return;
-  }
-  
-  // Generate OTP
-  const otp = Math.floor(100000 + Math.random() * 900000).toString();
-  localStorage.setItem('pendingOTP', JSON.stringify({email, otp, fullname, timestamp: Date.now()}));
-  
-  document.getElementById('otp-email').textContent = email;
-  document.getElementById('member-login-content').style.display = 'none';
-  document.getElementById('member-register-content').style.display = 'none';
-  document.getElementById('member-otp-content').style.display = 'block';
-  
-  console.log('📨 OTP dikirim:', otp);
-}
-
-// VERIFY OTP
-function verifyOTP() {
-  const inputOTP = document.getElementById('member-otp').value;
-  const pending = JSON.parse(localStorage.getItem('pendingOTP') || '{}');
-  
-  if (inputOTP !== pending.otp) {
-    document.getElementById('member-otp-error').textContent = '❌ Kode OTP tidak valid';
-    document.getElementById('member-otp-error').style.display = 'block';
-    return;
-  }
-  
-  // OTP valid - register member
-  const newMember = {
-    id: Date.now().toString(),
-    fullname: pending.fullname,
-    email: pending.email,
-    phone: document.getElementById('member-phone').value,
-    bidang: document.getElementById('member-bidang').value,
-    registeredAt: new Date().toLocaleDateString('id-ID'),
-    status: 'aktif'
-  };
-  
-  let members = JSON.parse(localStorage.getItem('members') || '[]');
-  members.push(newMember);
-  localStorage.setItem('members', JSON.stringify(members));
-  localStorage.removeItem('pendingOTP');
-  
-  alert('✅ Registrasi berhasil! Silakan login dengan email dan password.');
-  showMemberTab('login');
-  document.getElementById('member-otp').value = '';
-}
-
-// RESEND OTP
-function resendOTP() {
-  alert('📨 OTP baru telah dikirim ke email Anda');
-  const otp = Math.floor(100000 + Math.random() * 900000).toString();
-  const pending = JSON.parse(localStorage.getItem('pendingOTP') || '{}');
-  pending.otp = otp;
-  localStorage.setItem('pendingOTP', JSON.stringify(pending));
-  console.log('📨 OTP baru:', otp);
-}
 
 // SHARE TO SOCIAL MEDIA
 function shareToSocial(platform) {
@@ -4187,46 +4042,114 @@ function shareToSocial(platform) {
 }
 
 // MANAGE MEMBERS - Load Data
-function loadMembersTable() {
-  const members = JSON.parse(localStorage.getItem('members') || '[]');
-  const tbody = document.querySelector('#manage-members-table tbody');
-  tbody.innerHTML = '';
+async function loadMembersTable() {
+  try {
+    const members = await sbFetch('members');
+    state.members = members || [];
+    const tbody = document.querySelector('#manage-members-table tbody');
+    if (!tbody) return;
+    tbody.innerHTML = state.members.length === 0
+      ? '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:2rem;">Belum ada anggota terdaftar.</td></tr>'
+      : state.members.map(m => `
+        <tr>
+          <td><strong>${m.fullname}</strong></td>
+          <td>${m.email}</td>
+          <td>${m.bidang || '-'}</td>
+          <td>${m.registered_at ? new Date(m.registered_at).toLocaleDateString('id-ID') : '-'}</td>
+          <td><span class="status-badge ${m.status==='aktif'?'badge-green':'badge-yellow'}">${m.status||'aktif'}</span></td>
+          <td style="display:flex; gap:0.5rem;">
+            <button class="btn-icon edit" onclick="openMemberModal(${m.id})">✏️</button>
+            <button class="btn-icon delete" onclick="deleteMember(${m.id})">🗑️</button>
+          </td>
+        </tr>`).join('');
+  } catch(err) { console.error('Gagal load members:', err); }
+}
+
+// OPEN MEMBER MODAL
+function openMemberModal(memberId = null) {
+  document.getElementById('member-edit-id').value = '';
+  document.getElementById('member-form-fullname').value = '';
+  document.getElementById('member-form-email').value = '';
+  document.getElementById('member-form-password').value = '';
+  document.getElementById('member-form-phone').value = '';
+  document.getElementById('member-form-bidang').value = '';
+  document.getElementById('member-form-status').value = '';
   
-  members.forEach(member => {
-    const row = tbody.insertRow();
-    row.innerHTML = `
-      <td><strong>${member.fullname}</strong></td>
-      <td>${member.email}</td>
-      <td>${member.bidang}</td>
-      <td>${member.registeredAt}</td>
-      <td><span style="background:var(--success); color:white; padding:0.25rem 0.75rem; border-radius:20px; font-size:0.8rem;">${member.status}</span></td>
-      <td><button class="btn-sm btn-danger" onclick="deleteMember('${member.id}')">Hapus</button></td>
-    `;
-  });
+  if (memberId) {
+    const member = (state.members || []).find(m => m.id === memberId);
+    if (member) {
+      document.getElementById('member-modal-title').textContent = 'Edit Anggota';
+      document.getElementById('member-edit-id').value = memberId;
+      document.getElementById('member-form-fullname').value = member.fullname;
+      document.getElementById('member-form-email').value = member.email;
+      document.getElementById('member-form-password').value = member.password || '';
+      document.getElementById('member-form-phone').value = member.phone || '';
+      document.getElementById('member-form-bidang').value = member.bidang || '';
+      document.getElementById('member-form-status').value = member.status || 'aktif';
+    }
+  } else {
+    document.getElementById('member-modal-title').textContent = 'Tambah Anggota Baru';
+  }
+  document.getElementById('modal-member').classList.add('open');
+}
+
+// SAVE MEMBER
+async function saveMember() {
+  const fullname = document.getElementById('member-form-fullname').value.trim();
+  const email = document.getElementById('member-form-email').value.trim();
+  const password = document.getElementById('member-form-password').value.trim();
+  const phone = document.getElementById('member-form-phone').value.trim();
+  const bidang = document.getElementById('member-form-bidang').value;
+  const status = document.getElementById('member-form-status').value;
+  const memberId = document.getElementById('member-edit-id').value;
+  if (!fullname || !email || !password || !phone || !bidang || !status) {
+    showToast('⚠️ Semua field harus diisi', 'error'); return;
+  }
+  try {
+    if (memberId) {
+      const updated = await sbUpdate('members', +memberId, { fullname, email, password, phone, bidang, status });
+      const idx = (state.members||[]).findIndex(m => m.id === +memberId);
+      if (idx > -1 && updated[0]) state.members[idx] = updated[0];
+      showToast('✅ Anggota berhasil diperbarui!', 'success');
+    } else {
+      const inserted = await sbInsert('members', { fullname, email, password, phone, bidang, status, registered_at: new Date().toISOString() });
+      if (!state.members) state.members = [];
+      if (inserted[0]) state.members.unshift(inserted[0]);
+      showToast('✅ Anggota berhasil ditambahkan!', 'success');
+    }
+    closeModal('modal-member');
+    loadMembersTable();
+  } catch(err) { showToast('❌ Gagal menyimpan anggota: ' + err.message, 'error'); }
 }
 
 // DELETE MEMBER
-function deleteMember(id) {
+async function deleteMember(id) {
   if (!confirm('Apakah Anda yakin ingin menghapus anggota ini?')) return;
-  let members = JSON.parse(localStorage.getItem('members') || '[]');
-  members = members.filter(m => m.id !== id);
-  localStorage.setItem('members', JSON.stringify(members));
-  loadMembersTable();
+  try {
+    await sbDelete('members', id);
+    state.members = (state.members||[]).filter(m => m.id !== id);
+    showToast('✅ Anggota dihapus.', 'success');
+    loadMembersTable();
+  } catch(err) { showToast('❌ Gagal menghapus: ' + err.message, 'error'); }
 }
 
 // INFO DATA MANAGEMENT
-function saveInfoData(field) {
+async function saveInfoData(field) {
   const values = {
     aktif: document.getElementById('info-aktif')?.value,
     prestasi: document.getElementById('info-prestasi')?.value,
     tahun: document.getElementById('info-tahun')?.value,
     program: document.getElementById('info-program')?.value
   };
-  
-  let infoData = JSON.parse(localStorage.getItem('organizationInfo') || '{}');
-  infoData[field] = values[field];
-  localStorage.setItem('organizationInfo', JSON.stringify(infoData));
-  alert('✅ Data ' + field + ' berhasil disimpan');
+  try {
+    const existing = await sbFetch('org_info');
+    if (existing && existing.length > 0) {
+      await sbUpdate('org_info', existing[0].id, { [field]: values[field] });
+    } else {
+      await sbInsert('org_info', { [field]: values[field] });
+    }
+    showToast('✅ Data ' + field + ' berhasil disimpan!', 'success');
+  } catch(err) { showToast('❌ Gagal menyimpan: ' + err.message, 'error'); }
 }
 
 // EDUKASI MANAGEMENT
@@ -4240,69 +4163,63 @@ function openEdukasiModal() {
   document.getElementById('modal-edukasi').classList.add('open');
 }
 
-function saveEdukasi() {
+async function saveEdukasi() {
   const title = document.getElementById('edukasi-form-title').value;
   const cat = document.getElementById('edukasi-form-cat').value;
   const desc = document.getElementById('edukasi-form-desc').value;
   const date = document.getElementById('edukasi-form-date').value;
-  
-  if (!title || !cat || !desc || !date) {
-    alert('⚠️ Mohon isi semua field');
-    return;
-  }
-  
-  const edukasi = {
-    id: Date.now().toString(),
-    title, category: cat, description: desc, date
-  };
-  
-  let edukasiList = JSON.parse(localStorage.getItem('edukasi') || '[]');
-  edukasiList.push(edukasi);
-  localStorage.setItem('edukasi', JSON.stringify(edukasiList));
-  
-  alert('✅ Materi edukasi berhasil ditambahkan');
-  closeModal('modal-edukasi');
-  loadEdukasiTable();
+  if (!title || !cat || !desc || !date) { showToast('⚠️ Mohon isi semua field', 'error'); return; }
+  try {
+    const inserted = await sbInsert('edukasi', { title, category: cat, description: desc, date });
+    if (!state.edukasi) state.edukasi = [];
+    if (inserted[0]) state.edukasi.unshift(inserted[0]);
+    showToast('✅ Materi edukasi berhasil ditambahkan!', 'success');
+    closeModal('modal-edukasi');
+    loadEdukasiTable();
+  } catch(err) { showToast('❌ Gagal menyimpan: ' + err.message, 'error'); }
 }
 
-function loadEdukasiTable() {
-  const edukasi = JSON.parse(localStorage.getItem('edukasi') || '[]');
-  const tbody = document.querySelector('#edukasi-admin-table tbody');
-  if (tbody) {
-    tbody.innerHTML = '';
-    edukasi.forEach(item => {
-      const row = tbody.insertRow();
-      row.innerHTML = `
-        <td></td>
-        <td>${item.title}</td>
-        <td>${item.category}</td>
-        <td>${item.date}</td>
-        <td><button class="btn-sm btn-danger" onclick="deleteEdukasi('${item.id}')">Hapus</button></td>
-      `;
-    });
-  }
-  
-  // Load di public page
-  const eduGrid = document.getElementById('edukasi-grid');
-  if (eduGrid) {
-    eduGrid.innerHTML = edukasi.map(item => `
-      <div class="card" style="background:var(--white); border:1.5px solid rgba(0,128,0,0.1); border-radius:12px; padding:1.5rem; transition:all .3s;">
-        <div style="font-size:2.5rem; margin-bottom:1rem;">📚</div>
-        <h3 style="font-weight:700; color:var(--text); margin-bottom:0.5rem;">${item.title}</h3>
-        <span style="background:rgba(0,128,0,0.1); color:var(--gold); padding:0.25rem 0.75rem; border-radius:20px; font-size:0.8rem; font-weight:600;">${item.category}</span>
-        <p style="color:var(--muted); margin-top:0.75rem; font-size:0.9rem; line-height:1.6;">${item.description}</p>
-        <div style="color:var(--muted); font-size:0.85rem; margin-top:1rem;">📅 ${item.date}</div>
-      </div>
-    `).join('');
-  }
+async function loadEdukasiTable() {
+  try {
+    const edukasi = await sbFetch('edukasi');
+    state.edukasi = edukasi || [];
+    const tbody = document.querySelector('#edukasi-admin-table tbody');
+    if (tbody) {
+      tbody.innerHTML = state.edukasi.length === 0
+        ? '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:2rem;">Belum ada materi edukasi.</td></tr>'
+        : state.edukasi.map(item => `
+          <tr>
+            <td>📚</td>
+            <td>${item.title}</td>
+            <td>${item.category}</td>
+            <td>${item.date || '-'}</td>
+            <td><button class="btn-icon delete" onclick="deleteEdukasi(${item.id})">🗑️</button></td>
+          </tr>`).join('');
+    }
+    const eduGrid = document.getElementById('edukasi-grid');
+    if (eduGrid) {
+      eduGrid.innerHTML = state.edukasi.length === 0
+        ? '<p style="color:var(--muted);text-align:center;padding:2rem;">Belum ada materi edukasi.</p>'
+        : state.edukasi.map(item => `
+          <div class="card" style="background:var(--white);border:1.5px solid rgba(0,128,0,0.1);border-radius:12px;padding:1.5rem;transition:all .3s;">
+            <div style="font-size:2.5rem;margin-bottom:1rem;">📚</div>
+            <h3 style="font-weight:700;color:var(--text);margin-bottom:0.5rem;">${item.title}</h3>
+            <span style="background:rgba(0,128,0,0.1);color:var(--gold);padding:0.25rem 0.75rem;border-radius:20px;font-size:0.8rem;font-weight:600;">${item.category}</span>
+            <p style="color:var(--muted);margin-top:0.75rem;font-size:0.9rem;line-height:1.6;">${item.description||''}</p>
+            <div style="color:var(--muted);font-size:0.85rem;margin-top:1rem;">📅 ${item.date||'-'}</div>
+          </div>`).join('');
+    }
+  } catch(err) { console.error('Gagal load edukasi:', err); }
 }
 
-function deleteEdukasi(id) {
+async function deleteEdukasi(id) {
   if (!confirm('Hapus materi ini?')) return;
-  let edukasi = JSON.parse(localStorage.getItem('edukasi') || '[]');
-  edukasi = edukasi.filter(e => e.id !== id);
-  localStorage.setItem('edukasi', JSON.stringify(edukasi));
-  loadEdukasiTable();
+  try {
+    await sbDelete('edukasi', id);
+    state.edukasi = (state.edukasi||[]).filter(e => e.id !== id);
+    showToast('✅ Materi dihapus.', 'success');
+    loadEdukasiTable();
+  } catch(err) { showToast('❌ Gagal menghapus: ' + err.message, 'error'); }
 }
 
 // DOKUMENTASI MANAGEMENT
@@ -4315,67 +4232,80 @@ function openDokumentasiModal() {
   document.getElementById('modal-dokumentasi').classList.add('open');
 }
 
-function saveDokumentasi() {
+async function saveDokumentasi() {
   const title = document.getElementById('dokumentasi-form-title').value;
   const url = document.getElementById('dokumentasi-form-url').value;
   const cat = document.getElementById('dokumentasi-form-cat').value;
   const desc = document.getElementById('dokumentasi-form-desc').value;
-  
-  if (!title || !url || !cat) {
-    alert('⚠️ Mohon isi field wajib');
-    return;
-  }
-  
-  const dok = { id: Date.now().toString(), title, url, category: cat, description: desc };
-  let dokList = JSON.parse(localStorage.getItem('dokumentasi') || '[]');
-  dokList.push(dok);
-  localStorage.setItem('dokumentasi', JSON.stringify(dokList));
-  
-  alert('✅ Link dokumentasi berhasil ditambahkan');
-  closeModal('modal-dokumentasi');
-  loadDokumentasiTable();
+  const editId = document.getElementById('dokumentasi-edit-id').value;
+  if (!title || !url || !cat) { showToast('⚠️ Mohon isi field wajib', 'error'); return; }
+  try {
+    if (editId) {
+      const updated = await sbUpdate('dokumentasi', +editId, { title, url, category: cat, description: desc });
+      const idx = (state.dokumentasi||[]).findIndex(x => x.id === +editId);
+      if (idx > -1 && updated[0]) state.dokumentasi[idx] = updated[0];
+      showToast('✅ Dokumentasi diperbarui!', 'success');
+    } else {
+      const inserted = await sbInsert('dokumentasi', { title, url, category: cat, description: desc });
+      if (!state.dokumentasi) state.dokumentasi = [];
+      if (inserted[0]) state.dokumentasi.unshift(inserted[0]);
+      showToast('✅ Dokumentasi ditambahkan!', 'success');
+    }
+    closeModal('modal-dokumentasi');
+    loadDokumentasiTable();
+    loadPublicDokumentasi();
+  } catch(err) { showToast('❌ Gagal menyimpan: ' + err.message, 'error'); }
 }
 
-function loadDokumentasiTable() {
-  const dok = JSON.parse(localStorage.getItem('dokumentasi') || '[]');
-  const tbody = document.querySelector('#dokumentasi-admin-table tbody');
-  if (tbody) {
-    tbody.innerHTML = '';
-    dok.forEach(item => {
-      const row = tbody.insertRow();
-      row.innerHTML = `
-        <td>${item.title}</td>
-        <td><a href="${item.url}" target="_blank" style="color:var(--gold);">Buka Link →</a></td>
-        <td>${item.category}</td>
-        <td><button class="btn-sm btn-danger" onclick="deleteDokumentasi('${item.id}')">Hapus</button></td>
-      `;
-    });
-  }
+async function loadDokumentasiTable() {
+  try {
+    const dok = await sbFetch('dokumentasi');
+    state.dokumentasi = dok || [];
+    const tbody = document.querySelector('#dokumentasi-admin-table tbody');
+    if (tbody) {
+      tbody.innerHTML = state.dokumentasi.length === 0
+        ? '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:2rem;">Belum ada dokumentasi.</td></tr>'
+        : state.dokumentasi.map(item => `
+          <tr>
+            <td>${item.title}</td>
+            <td><a href="${item.url}" target="_blank" style="color:var(--gold);">Buka Link →</a></td>
+            <td>${item.category}</td>
+            <td><div class="action-btns">
+              <button class="btn-icon delete" onclick="deleteDokumentasi(${item.id})">🗑️</button>
+            </div></td>
+          </tr>`).join('');
+    }
+  } catch(err) { console.error('Gagal load dokumentasi:', err); }
 }
 
-function deleteDokumentasi(id) {
+async function deleteDokumentasi(id) {
   if (!confirm('Hapus dokumentasi ini?')) return;
-  let dok = JSON.parse(localStorage.getItem('dokumentasi') || '[]');
-  dok = dok.filter(d => d.id !== id);
-  localStorage.setItem('dokumentasi', JSON.stringify(dok));
-  loadDokumentasiTable();
+  try {
+    await sbDelete('dokumentasi', id);
+    state.dokumentasi = (state.dokumentasi||[]).filter(d => d.id !== id);
+    showToast('✅ Dokumentasi dihapus.', 'success');
+    loadDokumentasiTable();
+    loadPublicDokumentasi();
+  } catch(err) { showToast('❌ Gagal menghapus: ' + err.message, 'error'); }
 }
 
 // PUBLIC DOKUMENTASI PAGE
-function loadPublicDokumentasi() {
-  const dok = JSON.parse(localStorage.getItem('dokumentasi') || '[]');
-  const tbody = document.querySelector('#dokumentasi-public-tbody');
-  if (tbody) {
-    tbody.innerHTML = '';
-    dok.forEach(item => {
-      const row = tbody.insertRow();
-      row.innerHTML = `
-        <td><strong>${item.title}</strong></td>
-        <td><span style="background:rgba(0,128,0,0.1); padding:0.25rem 0.75rem; border-radius:20px; font-size:0.85rem;">${item.category}</span></td>
-        <td><a href="${item.url}" target="_blank" class="btn-sm" style="background:var(--gold); color:#000; text-decoration:none;">Akses →</a></td>
-      `;
-    });
-  }
+async function loadPublicDokumentasi() {
+  try {
+    if (!state.dokumentasi) state.dokumentasi = await sbFetch('dokumentasi').catch(()=>[]);
+    const dok = state.dokumentasi || [];
+    const tbody = document.querySelector('#dokumentasi-public-tbody');
+    if (tbody) {
+      tbody.innerHTML = dok.length === 0
+        ? '<tr><td colspan="3" style="text-align:center;color:var(--muted);padding:2rem;">Belum ada dokumentasi.</td></tr>'
+        : dok.map(item => `
+          <tr>
+            <td><strong>${item.title}</strong><br><span style="font-size:0.82rem;color:var(--muted);">${item.description||''}</span></td>
+            <td><span style="background:rgba(0,128,0,0.1);padding:0.25rem 0.75rem;border-radius:20px;font-size:0.85rem;">${item.category}</span></td>
+            <td><a href="${item.url}" target="_blank" style="background:var(--gold);color:#000;text-decoration:none;padding:0.4rem 1rem;border-radius:8px;font-weight:600;font-size:0.85rem;">Akses →</a></td>
+          </tr>`).join('');
+    }
+  } catch(err) { console.error('Gagal load public dokumentasi:', err); }
 }
 
 // PUBLIC CALENDAR
@@ -4395,47 +4325,38 @@ function renderPublicCalendar() {
   const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
   const monthEl = document.getElementById('public-calendar-month');
   if (monthEl) monthEl.textContent = monthNames[state.calendarMonth] + ' ' + state.calendarYear;
-  
+
   const daysEl = document.getElementById('public-calendar-days');
   const eventsEl = document.getElementById('public-calendar-events');
-  
+
   if (daysEl && eventsEl) {
     const firstDay = new Date(state.calendarYear, state.calendarMonth, 1).getDay();
     const daysInMonth = new Date(state.calendarYear, state.calendarMonth + 1, 0).getDate();
-    
     let html = '';
     for (let i = 0; i < firstDay; i++) html += '<div class="calendar-day empty"></div>';
     for (let day = 1; day <= daysInMonth; day++) html += `<div class="calendar-day">${day}</div>`;
     daysEl.innerHTML = html;
-    
-    const events = JSON.parse(localStorage.getItem('calendarEvents') || '[]');
-    eventsEl.innerHTML = events.map(e => `<div class="event-item"><div class="event-date">${e.date}</div><div class="event-name">${e.title}</div></div>`).join('');
+
+    const events = state.events || [];
+    const monthEvents = events.filter(e => {
+      const d = new Date(e.date);
+      return d.getMonth() === state.calendarMonth && d.getFullYear() === state.calendarYear;
+    });
+    eventsEl.innerHTML = monthEvents.length === 0
+      ? '<p style="color:var(--muted);">Belum ada acara bulan ini.</p>'
+      : monthEvents.map(e => `<div class="event-item"><div class="event-date">${e.date}</div><div class="event-name">${e.name}</div></div>`).join('');
+
   }
 }
 
 // INIT: Load semua data dari Supabase saat halaman dibuka ──
-window.addEventListener('DOMContentLoaded', () => {
-  loadAllData();
-  loadPublicDokumentasi();
+window.addEventListener('DOMContentLoaded', async () => {
+  await loadAllData();
   renderPublicCalendar();
-  
-  // Load calendar events from localStorage
-  const calendarEvents = JSON.parse(localStorage.getItem('calendarEvents') || '[]');
-  if (calendarEvents.length > 0) {
-    state.events = calendarEvents;
-  }
-  
-  // Load organization info
-  const orgInfo = JSON.parse(localStorage.getItem('organizationInfo') || '{}');
-  if (orgInfo.aktif) document.getElementById('info-aktif').value = orgInfo.aktif;
-  if (orgInfo.prestasi) document.getElementById('info-prestasi').value = orgInfo.prestasi;
-  if (orgInfo.tahun) document.getElementById('info-tahun').value = orgInfo.tahun;
-  if (orgInfo.program) document.getElementById('info-program').value = orgInfo.program;
-  
-  // Load members and tables
-  loadMembersTable();
+  loadPublicDokumentasi();
   loadEdukasiTable();
   loadDokumentasiTable();
+  loadMembersTable();
 });
 
 </script>
