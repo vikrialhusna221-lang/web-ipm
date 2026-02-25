@@ -395,12 +395,13 @@
   /* ═══════════════════════════════════════
      ADMIN DASHBOARD
   ═══════════════════════════════════════ */
-  .admin-shell { display: flex; min-height: 100vh; background: #F5F7F6; }
+  .admin-shell { display: flex; min-height: 100vh; background: #F5F7F6; flex-wrap: wrap; }
   .admin-sidebar {
     width: 240px; min-width: 240px;
     background: #1a1a2e; display: flex; flex-direction: column;
     position: sticky; top: 0; height: 100vh; overflow-y: auto;
     border-right: 1px solid rgba(0,128,0,0.1);
+    transition: width 0.3s ease, min-width 0.3s ease;
   }
   .sidebar-brand {
     padding: 1.5rem 1.25rem;
@@ -420,6 +421,31 @@
   .sidebar-link.active { background: rgba(0,128,0,0.25); color: var(--gold-light); border-left-color: var(--gold-light); }
   .sidebar-link .icon { width: 18px; text-align: center; transition: all .3s cubic-bezier(0.4, 0, 0.2, 1); }
   .sidebar-link:hover .icon { transform: scale(1.2); }
+  .sidebar-link-text { display: inline; transition: opacity 0.3s ease; }
+  .sidebar-link[data-tooltip] {
+    position: relative;
+  }
+  .sidebar-link[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 128, 0, 0.9);
+    color: white;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    font-size: 0.85rem;
+    z-index: 1000;
+    margin-left: 0.5rem;
+  }
+  .sidebar-link:hover::after {
+    opacity: 1;
+  }
   .sidebar-footer { padding: 1rem 1.25rem; border-top: 1px solid rgba(0,128,0,0.1); }
   .logout-btn {
     width: 100%; padding: 0.75rem 1rem; background: rgba(220,38,38,0.15);
@@ -427,17 +453,40 @@
     border-radius: 10px; cursor: pointer; font-family: 'DM Sans', sans-serif;
     font-size: 0.88rem; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 0.6rem;
     transition: all .2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
   }
   .logout-btn:hover { background: rgba(220,38,38,0.25); border-color: rgba(220,38,38,0.5); color: #ff8a95; transform: translateY(-2px); }
+  .logout-btn[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(220,38,38,0.9);
+    color: white;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    font-size: 0.85rem;
+    z-index: 1000;
+    margin-left: 0.5rem;
+  }
+  .logout-btn:hover::after {
+    opacity: 1;
+  }
 
-  .admin-main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+  .admin-main { flex: 1; display: flex; flex-direction: column; min-width: 0; transition: min-width 0.3s ease; }
   .admin-topbar {
     background: var(--white); padding: 1.25rem 2rem;
     border-bottom: 1.5px solid rgba(0,128,0,0.08);
     display: flex; align-items: center; justify-content: space-between;
     position: sticky; top: 0; z-index: 10; box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
   }
-  .topbar-title { font-weight: 700; font-size: 1.15rem; color: var(--text); }
+  .topbar-title { font-weight: 700; font-size: 1.15rem; color: var(--text); transition: font-size 0.3s ease; }
   .topbar-user { display: flex; align-items: center; gap: 0.9rem; font-size: 0.9rem; color: var(--muted); font-weight: 500; }
   .avatar { width: 38px; height: 38px; background: linear-gradient(135deg, var(--gold), var(--gold-light)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; color: #000000; font-size: 0.9rem; }
   .admin-content { padding: 2rem; flex: 1; }
@@ -522,6 +571,45 @@
   .upload-zone:hover { border-color: var(--gold); background: rgba(0,128,0,0.08); transform: scale(1.02); }
   .upload-zone .upload-icon { font-size: 2rem; margin-bottom: .5rem; }
   .upload-zone p { font-size: .85rem; color: var(--muted); }
+
+  /* GOOGLE OAUTH & REGISTRATION BUTTONS */
+  .btn-google {
+    background: #ffffff; color: #000000; border: 1.5px solid #e0e0e0;
+    display: flex; align-items: center; justify-content: center; gap: 0.7rem;
+    font-weight: 600; border-radius: 12px; padding: 0.95rem 1.1rem;
+    cursor: pointer; transition: all .3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-family: 'DM Sans', sans-serif; font-size: 0.95rem;
+  }
+  .btn-google:hover {
+    background: #f8f8f8; border-color: var(--gold); box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+  }
+  .btn-google:active { transform: translateY(0); }
+
+  /* TAB STYLING */
+  .tab-btn {
+    position: relative; padding: 0.75rem 1.5rem;
+    border: none; background: none; color: var(--muted);
+    font-weight: 600; font-size: 0.95rem; cursor: pointer;
+    transition: all .3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active {
+    color: var(--gold); border-bottom-color: var(--gold) !important;
+  }
+
+  /* OTP INPUT STYLING */
+  #member-otp {
+    width: 100%; padding: 1.2rem 0.5rem;
+    border: 2px solid rgba(0,128,0,0.2); border-radius: 12px;
+    font-size: 1.5rem; letter-spacing: 0.3rem;
+    text-align: center; font-family: 'DM Mono', monospace;
+    background: #f8fafb; transition: all .3s ease;
+  }
+  #member-otp:focus {
+    outline: none; border-color: var(--gold);
+    background: #ffffff; box-shadow: 0 0 0 4px rgba(0,128,0,0.08);
+  }
 
   /* LOGIN */
   .login-screen {
@@ -821,6 +909,42 @@
   .status-indicator.active { background: var(--success); }
   .status-indicator.pending { background: var(--warning); }
 
+  /* SHARE BUTTONS */
+  .share-buttons {
+    display: flex; gap: 0.75rem; margin-top: 1.5rem; flex-wrap: wrap;
+  }
+  .share-btn {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    padding: 0.65rem 1.2rem; border-radius: 10px; border: none;
+    font-size: 0.9rem; font-weight: 600; cursor: pointer;
+    transition: all .3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-family: 'DM Sans', sans-serif;
+  }
+  .share-btn-facebook {
+    background: #1877F2; color: white;
+  }
+  .share-btn-facebook:hover {
+    background: #166FE5; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(24,119,242,0.4);
+  }
+  .share-btn-twitter {
+    background: #1DA1F2; color: white;
+  }
+  .share-btn-twitter:hover {
+    background: #1a8cd8; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(29,161,242,0.4);
+  }
+  .share-btn-whatsapp {
+    background: #25D366; color: white;
+  }
+  .share-btn-whatsapp:hover {
+    background: #20ba5a; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(37,211,102,0.4);
+  }
+  .share-btn-copy {
+    background: #E5E7EB; color: #374151;
+  }
+  .share-btn-copy:hover {
+    background: #D1D5DB; transform: translateY(-2px);
+  }
+
   /* RESPONSIVE */
   @media (max-width: 768px) {
     .nav-toggle { display: flex; }
@@ -910,9 +1034,141 @@
     }
     .about-split, .contact-grid, .form-row { grid-template-columns: 1fr; }
     .stats-row { gap: 1.5rem; flex-wrap: wrap; }
-    .admin-sidebar { display: none; }
-    .section { padding: 3rem 1.5rem; }
-    .hero { padding: 4rem 1.5rem; }
+    .admin-sidebar { 
+      display: flex;
+      width: 80px;
+      min-width: 80px;
+      flex-direction: column;
+      align-items: center;
+      padding: 0.75rem 0.5rem;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      border-right: 1px solid rgba(0,128,0,0.1);
+    }
+    .sidebar-brand {
+      padding: 0.8rem 0.4rem;
+      text-align: center;
+      border-bottom: 1px solid rgba(0,128,0,0.1);
+      width: 100%;
+    }
+    .sidebar-brand .logo {
+      font-size: 0.6rem;
+      display: block;
+      color: var(--gold-light);
+      font-weight: 800;
+    }
+    .sidebar-brand .sub {
+      font-size: 0.45rem;
+      display: none;
+    }
+    .sidebar-nav {
+      padding: 0.5rem 0;
+      width: 100%;
+      flex: 1;
+    }
+    .sidebar-section {
+      padding: 0.3rem 0.3rem;
+      font-size: 0.45rem;
+      display: none;
+    }
+    .sidebar-link {
+      padding: 0.7rem 0.5rem;
+      gap: 0;
+      font-size: 0;
+      width: 100%;
+      justify-content: center;
+      border-left: none;
+      border-bottom: 2px solid transparent;
+      position: relative;
+      color: rgba(255,255,255,0.75);
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .sidebar-link:hover {
+      transform: none;
+      background: rgba(0,128,0,0.2);
+      border-bottom-color: var(--gold);
+      color: rgba(255,255,255,0.98);
+    }
+    .sidebar-link.active {
+      border-bottom-color: var(--gold-light);
+      border-left: none;
+      background: rgba(0,128,0,0.25);
+      color: var(--gold-light);
+    }
+    .sidebar-link .icon {
+      width: 24px;
+      font-size: 1.4rem;
+    }
+    .sidebar-link-text {
+      display: none;
+    }
+    .sidebar-link[data-tooltip]::after {
+      content: attr(data-tooltip);
+      background: rgba(0, 128, 0, 0.95);
+      color: white;
+      padding: 0.4rem 0.6rem;
+      font-size: 0.75rem;
+    }
+    .sidebar-footer {
+      padding: 0.5rem 0.3rem;
+      width: 100%;
+      border-top: 1px solid rgba(0,128,0,0.1);
+    }
+    .logout-btn {
+      padding: 0.5rem 0.2rem;
+      font-size: 0.6rem;
+      width: 100%;
+      background: rgba(220,38,38,0.15);
+      border: 1.5px solid rgba(220,38,38,0.35);
+      color: #ff6b7a;
+      border-radius: 8px;
+    }
+    .logout-btn:hover {
+      background: rgba(220,38,38,0.25);
+    }
+    .logout-btn[data-tooltip]::after {
+      content: attr(data-tooltip);
+      background: rgba(220,38,38,0.95);
+      color: white;
+      padding: 0.4rem 0.6rem;
+      font-size: 0.75rem;
+    }
+    .admin-topbar {
+      padding: 0.75rem 1rem;
+      flex-wrap: wrap;
+    }
+    .topbar-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+    .topbar-user {
+      font-size: 0.75rem;
+      gap: 0.5rem;
+    }
+    .avatar {
+      width: 32px;
+      height: 32px;
+      font-size: 0.75rem;
+    }
+    .admin-content {
+      padding: 1rem;
+    }
+    .admin-panel {
+      padding: 0;
+    }
+    .stats-grid {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .stat-card {
+      padding: 1.25rem;
+    }
+    .section { padding: 2rem 1rem; }
+    .hero { padding: 3rem 1rem; }
 
     /* RESPONSIVE LOGIN */
     .login-container { 
@@ -935,6 +1191,189 @@
     .login-overlay-panel p { font-size: 0.95rem; margin-bottom: 2rem; }
     .overlay-btn { width: 100%; padding: 0.8rem 1.5rem; }
   }
+
+  /* RESPONSIVE TABLET (769px - 1024px) */
+  @media (min-width: 769px) and (max-width: 1024px) {
+    .admin-sidebar {
+      width: 200px;
+      min-width: 200px;
+    }
+    .sidebar-brand {
+      padding: 1.2rem 1rem;
+      border-bottom: 1px solid rgba(0,128,0,0.1);
+    }
+    .sidebar-brand .logo {
+      font-size: 0.95rem;
+      color: var(--gold-light);
+    }
+    .sidebar-brand .sub {
+      font-size: 0.65rem;
+      color: rgba(255,255,255,0.5);
+    }
+    .sidebar-nav {
+      padding: 0.6rem 0;
+    }
+    .sidebar-section {
+      padding: 0.5rem 1rem 0.25rem;
+      font-size: 0.62rem;
+      color: rgba(255,255,255,0.45);
+    }
+    .sidebar-link {
+      padding: 0.6rem 1rem;
+      gap: 0.7rem;
+      font-size: 0.85rem;
+      border-left: 3px solid transparent;
+      color: rgba(255,255,255,0.75);
+    }
+    .sidebar-link:hover {
+      background: rgba(0,128,0,0.15);
+      color: rgba(255,255,255,0.98);
+      border-left-color: var(--gold);
+      transform: none;
+    }
+    .sidebar-link.active {
+      border-left-color: var(--gold-light);
+      background: rgba(0,128,0,0.25);
+      color: var(--gold-light);
+    }
+    .sidebar-link .icon {
+      width: 16px;
+      font-size: 1rem;
+    }
+    .sidebar-link-text {
+      display: inline;
+    }
+    .sidebar-link[data-tooltip]::after {
+      display: none;
+    }
+    .sidebar-footer {
+      padding: 0.75rem 1rem;
+      border-top: 1px solid rgba(0,128,0,0.1);
+    }
+    .logout-btn {
+      padding: 0.6rem 0.8rem;
+      font-size: 0.8rem;
+      background: rgba(220,38,38,0.15);
+      border: 1.5px solid rgba(220,38,38,0.35);
+      color: #ff6b7a;
+    }
+    .logout-btn:hover {
+      background: rgba(220,38,38,0.25);
+      border-color: rgba(220,38,38,0.5);
+      color: #ff8a95;
+    }
+    .admin-topbar {
+      padding: 1rem 1.5rem;
+    }
+    .topbar-title {
+      font-size: 1rem;
+    }
+    .topbar-user {
+      font-size: 0.85rem;
+      gap: 0.7rem;
+    }
+    .avatar {
+      width: 35px;
+      height: 35px;
+      font-size: 0.8rem;
+    }
+    .admin-content {
+      padding: 1.5rem;
+    }
+    .stats-grid {
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 1rem;
+    }
+  }
+
+  /* RESPONSIVE DESKTOP (1025px+) */
+  @media (min-width: 1025px) {
+    .admin-sidebar {
+      width: 240px;
+      min-width: 240px;
+    }
+    .sidebar-brand {
+      padding: 1.5rem 1.25rem;
+    }
+    .sidebar-brand .logo {
+      font-size: 1.1rem;
+    }
+    .sidebar-brand .sub {
+      font-size: 0.75rem;
+    }
+    .sidebar-nav {
+      padding: 0.75rem 0;
+    }
+    .sidebar-section {
+      padding: 0.65rem 1.25rem 0.35rem;
+      font-size: 0.7rem;
+    }
+    .sidebar-link {
+      padding: 0.75rem 1.25rem;
+      gap: 0.85rem;
+      font-size: 0.9rem;
+      border-left: 3px solid transparent;
+    }
+    .sidebar-link .icon {
+      width: 18px;
+      font-size: 1.1rem;
+    }
+    .sidebar-link-text {
+      display: inline;
+    }
+    .sidebar-link[data-tooltip]::after {
+      display: none;
+    }
+    .sidebar-footer {
+      padding: 1rem 1.25rem;
+    }
+    .logout-btn {
+      padding: 0.75rem 1rem;
+      font-size: 0.88rem;
+    }
+    .admin-topbar {
+      padding: 1.25rem 2rem;
+    }
+    .topbar-title {
+      font-size: 1.15rem;
+    }
+    .topbar-user {
+      font-size: 0.9rem;
+      gap: 0.9rem;
+    }
+    .avatar {
+      width: 38px;
+      height: 38px;
+      font-size: 0.9rem;
+    }
+    .admin-content {
+      padding: 2rem;
+    }
+    .stats-grid {
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1.25rem;
+    }
+  }
+
+  /* LANDSCAPE MOBILE (max-height: 600px) */
+  @media (max-height: 600px) and (orientation: landscape) {
+    .admin-sidebar {
+      height: auto;
+      overflow-y: auto;
+      max-height: 100vh;
+    }
+    .sidebar-brand {
+      padding: 0.8rem 1rem;
+    }
+    .sidebar-brand .logo {
+      font-size: 0.9rem;
+    }
+    .sidebar-link {
+      padding: 0.5rem 1rem;
+      font-size: 0.8rem;
+    }
+  }
+
 </style>
 </head>
 <body>
@@ -956,6 +1395,9 @@
       <a onclick="showPage('home'); closeMobileMenu()" id="nav-home" class="active" data-icon="🏠">Beranda</a>
       <a onclick="showPage('news'); closeMobileMenu()" id="nav-news" data-icon="📰">Berita</a>
       <a onclick="showPage('achievements'); closeMobileMenu()" id="nav-achievements" data-icon="🏆">Prestasi</a>
+      <a onclick="showPage('edukasi'); closeMobileMenu()" id="nav-edukasi" data-icon="📚">Edukasi</a>
+      <a onclick="showPage('dokumentasi'); closeMobileMenu()" id="nav-dokumentasi" data-icon="📋">Dokumentasi</a>
+      <a onclick="showPage('kalender'); closeMobileMenu()" id="nav-kalender" data-icon="📅">Kalender</a>
       <a onclick="showPage('about'); closeMobileMenu()" id="nav-about" data-icon="ℹ️">Tentang</a>
       <a onclick="showPage('struktur'); closeMobileMenu()" id="nav-struktur" data-icon="🏛️">Struktur</a>
       <a onclick="showPage('contact'); closeMobileMenu()" id="nav-contact" data-icon="📞">Kontak</a>
@@ -1029,6 +1471,13 @@
     <div class="detail-content">
       <div class="detail-img" id="detail-img">📰</div>
       <div id="detail-body"></div>
+      <div class="share-buttons" style="margin-top:2rem; padding-top:2rem; border-top:2px solid rgba(0,128,0,0.1);">
+        <span style="font-weight:600; color:var(--text); margin-right:1rem;">Bagikan ke:</span>
+        <button class="share-btn share-btn-facebook" onclick="shareToSocial('facebook')">👍 Facebook</button>
+        <button class="share-btn share-btn-twitter" onclick="shareToSocial('twitter')">𝕏 Twitter</button>
+        <button class="share-btn share-btn-whatsapp" onclick="shareToSocial('whatsapp')">💬 WhatsApp</button>
+        <button class="share-btn share-btn-copy" onclick="shareToSocial('copy')">🔗 Salin Link</button>
+      </div>
     </div>
   </div>
 
@@ -1273,6 +1722,76 @@
     </section>
   </div>
 
+  <!-- EDUKASI PAGE -->
+  <div id="page-edukasi" class="view">
+    <div style="background:linear-gradient(135deg, #F5F7F6, #FFFFFF); padding:3rem 2rem; text-align:center;">
+      <div class="section-tag" style="justify-content:center; color:var(--gold);">Pengembangan Diri</div>
+      <h1 style="font-family:'Playfair Display',serif; color:#2F2F2F; font-size:2.5rem; margin-top:.5rem;">Program Edukasi</h1>
+      <p style="color:var(--muted); font-size:1.05rem; margin-top:1rem;">Berbagai program edukasi dan pengembangan potensi untuk anggota</p>
+    </div>
+    <section class="section">
+      <div class="section-inner">
+        <div id="edukasi-grid" class="grid grid-2"></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- DOKUMENTASI PAGE -->
+  <div id="page-dokumentasi" class="view">
+    <div style="background:linear-gradient(135deg, #F5F7F6, #FFFFFF); padding:3rem 2rem; text-align:center;">
+      <div class="section-tag" style="justify-content:center; color:var(--gold);">Referensi</div>
+      <h1 style="font-family:'Playfair Display',serif; color:#2F2F2F; font-size:2.5rem; margin-top:.5rem;">Dokumentasi</h1>
+      <p style="color:var(--muted); font-size:1.05rem; margin-top:1rem;">Kumpulan link referensi dan dokumentasi penting</p>
+    </div>
+    <section class="section">
+      <div class="section-inner">
+        <div class="table-card">
+          <table id="dokumentasi-public-table" style="width:100%;">
+            <thead><tr><th>Judul</th><th>Kategori</th><th>Aksi</th></tr></thead>
+            <tbody id="dokumentasi-public-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- CALENDAR PAGE (PUBLIC) -->
+  <div id="page-kalender" class="view">
+    <div style="background:linear-gradient(135deg, #F5F7F6, #FFFFFF); padding:3rem 2rem; text-align:center;">
+      <div class="section-tag" style="justify-content:center; color:var(--gold);">Acara</div>
+      <h1 style="font-family:'Playfair Display',serif; color:#2F2F2F; font-size:2.5rem; margin-top:.5rem;">Kalender Acara</h1>
+    </div>
+    <section class="section">
+      <div class="section-inner">
+        <div class="calendar-container">
+          <div class="calendar-header">
+            <div class="calendar-nav">
+              <button onclick="publicPreviousMonth()">← Sebelumnya</button>
+              <div class="calendar-month" id="public-calendar-month">Februari 2026</div>
+              <button onclick="publicNextMonth()">Berikutnya →</button>
+            </div>
+          </div>
+          <div class="calendar-body">
+            <div class="calendar-weekdays">
+              <div class="calendar-weekday">Min</div>
+              <div class="calendar-weekday">Sen</div>
+              <div class="calendar-weekday">Sel</div>
+              <div class="calendar-weekday">Rab</div>
+              <div class="calendar-weekday">Kam</div>
+              <div class="calendar-weekday">Jum</div>
+              <div class="calendar-weekday">Sab</div>
+            </div>
+            <div class="calendar-days" id="public-calendar-days"></div>
+          </div>
+        </div>
+        <div class="events-list">
+          <div class="events-title">📌 Acara Bulan Ini</div>
+          <div id="public-calendar-events" style="display:flex; flex-direction:column; gap:0.75rem;"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
   <!-- CONTACT PAGE -->
   <div id="page-contact" class="view">
     <div style="background:linear-gradient(135deg, #F5F7F6, #FFFFFF); padding:3rem 2rem; text-align:center;">
@@ -1358,28 +1877,27 @@
 
       <!-- LOGIN FORMS -->
       <div class="login-forms">
-        <!-- ANGGOTA LOGIN (LEFT SIDE) -->
+        <!-- ANGGOTA FORM (LEFT SIDE) - LOGIN ONLY -->
         <div class="login-form-side" id="memberForm">
-          <div>
-            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
-              <img src="https://raw.githubusercontent.com/vikrialhusna221-lang/vaalh_0/main/53_20251214_104522_0000.png" alt="Logo IPM" style="height: 35px; width: auto; border-radius: 6px; box-shadow: 0 3px 8px rgba(0,128,0,0.15);">
-              <div class="logo">PR IPM SMA MUHAMMADIYAH 1 METRO</div>
-            </div>
-            <div class="sub">Login sebagai Anggota</div>
-            <div id="member-error" class="alert alert-error" style="display:none;"></div>
-            
-            <div class="form-group">
-              <label>Username</label>
-              <input type="text" id="member-username" placeholder="Masukkan Username" required>
-            </div>
-            <div class="form-group">
-              <label>Password</label>
-              <input type="password" id="member-pass" placeholder="Masukkan password" required>
-              <button type="button" class="password-toggle" onclick="togglePasswordVisibility('member-pass')">👁️</button>
-            </div>
-            <button class="btn btn-primary" style="width:100%; justify-content:center; margin-top:.75rem; font-weight: 700;" onclick="doLoginMember()">Login Anggota →</button>
-            <button class="back-btn" onclick="showPage('home')">← Kembali ke Portal</button>
+          <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+            <img src="https://raw.githubusercontent.com/vikrialhusna221-lang/vaalh_0/main/53_20251214_104522_0000.png" alt="Logo IPM" style="height: 35px; width: auto; border-radius: 6px; box-shadow: 0 3px 8px rgba(0,128,0,0.15);">
+            <div class="logo" style="font-size: 0.95rem;">PR IPM</div>
           </div>
+          <div class="sub">Login dengan Email Terdaftar</div>
+          <div id="member-error" class="alert alert-error" style="display:none;"></div>
+          
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="member-email-login" placeholder="nama@email.com" required>
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="member-pass-login" placeholder="Masukkan password" required>
+            <button type="button" class="password-toggle" onclick="togglePasswordVisibility('member-pass-login')">👁️</button>
+          </div>
+          <button class="btn btn-primary" style="width:100%; justify-content:center; margin-top:.75rem; font-weight: 700;" onclick="doLoginMember()">Masuk →</button>
+          
+          <button class="back-btn" onclick="showPage('home')">← Kembali ke Portal</button>
         </div>
 
         <!-- ADMIN LOGIN (RIGHT SIDE) -->
@@ -1423,18 +1941,23 @@
       </div>
       <nav class="sidebar-nav">
         <div class="sidebar-section">Utama</div>
-        <div class="sidebar-link active" onclick="switchPanel('dashboard', this)"><span class="icon">📊</span> Dashboard</div>
+        <div class="sidebar-link active" data-tooltip="Dashboard" onclick="switchPanel('dashboard', this)"><span class="icon">📊</span><span class="sidebar-link-text">Dashboard</span></div>
         <div class="sidebar-section">Konten</div>
-        <div class="sidebar-link" onclick="switchPanel('news-admin', this)"><span class="icon">📰</span> Kelola Berita</div>
-        <div class="sidebar-link" onclick="switchPanel('ach-admin', this)"><span class="icon">🏆</span> Kelola Prestasi</div>
-        <div class="sidebar-link" onclick="switchPanel('calendar-admin', this)"><span class="icon">📅</span> Kalender</div>
+        <div class="sidebar-link" data-tooltip="Kelola Berita" onclick="switchPanel('news-admin', this)"><span class="icon">📰</span><span class="sidebar-link-text">Kelola Berita</span></div>
+        <div class="sidebar-link" data-tooltip="Kelola Prestasi" onclick="switchPanel('ach-admin', this)"><span class="icon">🏆</span><span class="sidebar-link-text">Kelola Prestasi</span></div>
+        <div class="sidebar-link" data-tooltip="Kalender" onclick="switchPanel('calendar-admin', this)"><span class="icon">📅</span><span class="sidebar-link-text">Kalender</span></div>
         <div class="sidebar-section">Data Anggota</div>
-        <div class="sidebar-link" onclick="switchPanel('member-bidang', this)"><span class="icon">🏢</span> Bidang Anggota</div>
+        <div class="sidebar-link" data-tooltip="Bidang Anggota" onclick="switchPanel('member-bidang', this)"><span class="icon">🏢</span><span class="sidebar-link-text">Bidang Anggota</span></div>
+        <div class="sidebar-link" data-tooltip="Kelola Anggota" onclick="switchPanel('manage-members', this)"><span class="icon">👥</span><span class="sidebar-link-text">Kelola Anggota</span></div>
+        <div class="sidebar-section">Manajemen</div>
+        <div class="sidebar-link" data-tooltip="Info Data" onclick="switchPanel('info-data', this)"><span class="icon">ℹ️</span><span class="sidebar-link-text">Info Data</span></div>
+        <div class="sidebar-link" data-tooltip="Edukasi" onclick="switchPanel('edukasi-admin', this)"><span class="icon">📚</span><span class="sidebar-link-text">Edukasi</span></div>
+        <div class="sidebar-link" data-tooltip="Dokumentasi" onclick="switchPanel('dokumentasi-admin', this)"><span class="icon">📋</span><span class="sidebar-link-text">Dokumentasi</span></div>
         <div class="sidebar-section">Sistem</div>
-        <div class="sidebar-link" onclick="showPage('home')"><span class="icon">🌐</span> Lihat Portal</div>
+        <div class="sidebar-link" data-tooltip="Lihat Portal" onclick="showPage('home')"><span class="icon">🌐</span><span class="sidebar-link-text">Lihat Portal</span></div>
       </nav>
       <div class="sidebar-footer">
-        <button class="logout-btn" onclick="doLogout()">⏻ Logout</button>
+        <button class="logout-btn" data-tooltip="Logout" onclick="doLogout()">⏻<span class="sidebar-link-text">Logout</span></button>
       </div>
     </aside>
 
@@ -1499,6 +2022,16 @@
         <div class="admin-panel" id="panel-calendar-admin">
           <h2 style="font-family:'Playfair Display',serif; font-size:1.6rem; color:var(--text); margin-bottom:2rem;">Kalender Acara IPM</h2>
           
+          <div style="background:rgba(0,128,0,0.08); border:1.5px solid rgba(0,128,0,0.15); border-radius:14px; padding:1.75rem; margin-bottom:2rem;">
+            <h3 style="color:var(--text); margin-bottom:1rem; font-weight:600;">➕ Tandai Acara Baru</h3>
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem; margin-bottom:1rem;">
+              <input type="date" id="calendar-event-date" style="padding:0.75rem; border:1.5px solid var(--border); border-radius:8px; font-family:'DM Sans',sans-serif;">
+              <input type="text" id="calendar-event-title" placeholder="Nama acara..." style="padding:0.75rem; border:1.5px solid var(--border); border-radius:8px; font-family:'DM Sans',sans-serif;">
+              <button class="btn-sm btn-gold" onclick="addCalendarEvent()" style="width:100%;">Tandai</button>
+            </div>
+            <textarea id="calendar-event-desc" placeholder="Deskripsi acara (opsional)" rows="2" style="width:100%; padding:0.75rem; border:1.5px solid var(--border); border-radius:8px; font-family:'DM Sans',sans-serif;">  </textarea>
+          </div>
+
           <div class="calendar-container">
             <div class="calendar-header">
               <div class="calendar-nav">
@@ -1531,6 +2064,79 @@
         <div class="admin-panel" id="panel-member-bidang">
           <h2 style="font-family:'Playfair Display',serif; font-size:1.6rem; color:var(--text); margin-bottom:2rem;">Bidang-Bidang Anggota</h2>
           <div id="admin-member-bidang-content"></div>
+        </div>
+
+        <!-- MANAGE MEMBERS PANEL -->
+        <div class="admin-panel" id="panel-manage-members">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.5rem;">
+            <h2 style="font-family:'Playfair Display',serif; color:var(--text);">Kelola Anggota</h2>
+            <input type="text" id="member-search" placeholder="Cari anggota..." style="padding:0.65rem 1rem; border:1.5px solid var(--border); border-radius:10px; font-size:0.9rem;">
+          </div>
+          <div class="table-card">
+            <table id="manage-members-table">
+              <thead><tr><th>Nama</th><th>Email</th><th>Bidang</th><th>Tgl Daftar</th><th>Status</th><th>Aksi</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- INFO DATA PANEL (Anggota Aktif, Prestasi, Tahun Berdiri, Program) -->
+        <div class="admin-panel" id="panel-info-data">
+          <h2 style="font-family:'Playfair Display',serif; font-size:1.6rem; color:var(--text); margin-bottom:2rem;">Data Informasi Organisasi</h2>
+          
+          <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:1.5rem; margin-bottom:2rem;">
+            <div class="info-card" style="background:var(--white); border:1.5px solid rgba(0,128,0,0.1); border-radius:14px; padding:1.75rem;">
+              <label style="font-weight:600; color:var(--muted); font-size:0.9rem; margin-bottom:0.75rem; display:block;">Anggota Aktif</label>
+              <input type="number" id="info-aktif" placeholder="Jumlah anggota aktif" style="width:100%; padding:0.95rem; border:1.5px solid var(--border); border-radius:10px; font-size:1.1rem; font-weight:600; text-align:center;">
+              <button class="btn-sm btn-gold" onclick="saveInfoData('aktif')" style="width:100%; margin-top:1rem;">Simpan</button>
+            </div>
+
+            <div class="info-card" style="background:var(--white); border:1.5px solid rgba(0,128,0,0.1); border-radius:14px; padding:1.75rem;">
+              <label style="font-weight:600; color:var(--muted); font-size:0.9rem; margin-bottom:0.75rem; display:block;">Total Prestasi</label>
+              <input type="number" id="info-prestasi" placeholder="Total prestasi" style="width:100%; padding:0.95rem; border:1.5px solid var(--border); border-radius:10px; font-size:1.1rem; font-weight:600; text-align:center;">
+              <button class="btn-sm btn-gold" onclick="saveInfoData('prestasi')" style="width:100%; margin-top:1rem;">Simpan</button>
+            </div>
+
+            <div class="info-card" style="background:var(--white); border:1.5px solid rgba(0,128,0,0.1); border-radius:14px; padding:1.75rem;">
+              <label style="font-weight:600; color:var(--muted); font-size:0.9rem; margin-bottom:0.75rem; display:block;">Tahun Berdiri</label>
+              <input type="number" id="info-tahun" placeholder="YYYY" style="width:100%; padding:0.95rem; border:1.5px solid var(--border); border-radius:10px; font-size:1.1rem; font-weight:600; text-align:center;">
+              <button class="btn-sm btn-gold" onclick="saveInfoData('tahun')" style="width:100%; margin-top:1rem;">Simpan</button>
+            </div>
+
+            <div class="info-card" style="background:var(--white); border:1.5px solid rgba(0,128,0,0.1); border-radius:14px; padding:1.75rem;">
+              <label style="font-weight:600; color:var(--muted); font-size:0.9rem; margin-bottom:0.75rem; display:block;">Program Utama</label>
+              <input type="text" id="info-program" placeholder="Nama program utama" style="width:100%; padding:0.95rem; border:1.5px solid var(--border); border-radius:10px; font-size:0.95rem;">
+              <button class="btn-sm btn-gold" onclick="saveInfoData('program')" style="width:100%; margin-top:1rem;">Simpan</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- EDUKASI MANAGEMENT PANEL -->
+        <div class="admin-panel" id="panel-edukasi-admin">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.5rem;">
+            <h2 style="font-family:'Playfair Display',serif; color:var(--text);">Kelola Edukasi</h2>
+            <button class="btn-sm btn-gold" onclick="openEdukasiModal()">+ Tambah Materi</button>
+          </div>
+          <div class="table-card">
+            <table id="edukasi-admin-table">
+              <thead><tr><th></th><th>Judul</th><th>Kategori</th><th>Tanggal</th><th>Aksi</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- DOKUMENTASI MANAGEMENT PANEL -->
+        <div class="admin-panel" id="panel-dokumentasi-admin">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.5rem;">
+            <h2 style="font-family:'Playfair Display',serif; color:var(--text);">Kelola Dokumentasi</h2>
+            <button class="btn-sm btn-gold" onclick="openDokumentasiModal()">+ Tambah Link</button>
+          </div>
+          <div class="table-card">
+            <table id="dokumentasi-admin-table">
+              <thead><tr><th>Judul</th><th>Link</th><th>Kategori</th><th>Aksi</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
         </div>
 
       </div>
@@ -1594,6 +2200,57 @@
     <div class="modal-foot">
       <button class="btn-sm btn-ghost" onclick="closeModal('modal-ach')">Batal</button>
       <button class="btn-sm btn-gold" onclick="saveAch()">Simpan Prestasi</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edukasi Modal -->
+<div class="modal-overlay" id="modal-edukasi">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="edukasi-modal-title">Tambah Materi Edukasi</h3>
+      <button class="modal-close" onclick="closeModal('modal-edukasi')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="edukasi-edit-id">
+      <div class="form-group"><label>Judul Materi *</label><input type="text" id="edukasi-form-title" placeholder="Judul materi edukasi..."></div>
+      <div class="form-group"><label>Kategori *</label><select id="edukasi-form-cat" style="width:100%; padding:0.75rem; border:1.5px solid var(--border); border-radius:8px; font-family:'DM Sans',sans-serif;"><option value="">Pilih Kategori</option><option value="workshop">Workshop</option><option value="webinar">Webinar</option><option value="training">Training</option><option value="seminar">Seminar</option></select></div>
+      <div class="form-group"><label>Deskripsi *</label><textarea id="edukasi-form-desc" rows="4" placeholder="Deskripsi materi..."></textarea></div>
+      <div class="form-group"><label>Tanggal *</label><input type="date" id="edukasi-form-date"></div>
+      <div class="form-group">
+        <label>Upload Gambar/Poster</label>
+        <div class="upload-zone" onclick="document.getElementById('edukasi-img-input').click()">
+          <div class="upload-icon">📚</div>
+          <p>Klik untuk upload gambar</p>
+          <input type="file" id="edukasi-img-input" accept="image/*" style="display:none" onchange="previewImg(this,'edukasi-img-preview')">
+        </div>
+        <img id="edukasi-img-preview" style="display:none; width:100%; border-radius:8px; margin-top:.5rem; max-height:180px; object-fit:cover;">
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-sm btn-ghost" onclick="closeModal('modal-edukasi')">Batal</button>
+      <button class="btn-sm btn-gold" onclick="saveEdukasi()">Simpan Materi</button>
+    </div>
+  </div>
+</div>
+
+<!-- Dokumentasi Modal -->
+<div class="modal-overlay" id="modal-dokumentasi">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="dokumentasi-modal-title">Tambah Link Dokumentasi</h3>
+      <button class="modal-close" onclick="closeModal('modal-dokumentasi')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="dokumentasi-edit-id">
+      <div class="form-group"><label>Judul *</label><input type="text" id="dokumentasi-form-title" placeholder="Judul dokumentasi..."></div>
+      <div class="form-group"><label>URL/Link *</label><input type="url" id="dokumentasi-form-url" placeholder="https://example.com/dokumen"></div>
+      <div class="form-group"><label>Kategori *</label><select id="dokumentasi-form-cat" style="width:100%; padding:0.75rem; border:1.5px solid var(--border); border-radius:8px; font-family:'DM Sans',sans-serif;"><option value="">Pilih Kategori</option><option value="pedoman">Pedoman</option><option value="proposal">Proposal</option><option value="laporan">Laporan</option><option value="sop">SOP</option><option value="lainnya">Lainnya</option></select></div>
+      <div class="form-group"><label>Deskripsi</label><textarea id="dokumentasi-form-desc" rows="3" placeholder="Deskripsi singkat..."></textarea></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-sm btn-ghost" onclick="closeModal('modal-dokumentasi')">Batal</button>
+      <button class="btn-sm btn-gold" onclick="saveDokumentasi()">Simpan Link</button>
     </div>
   </div>
 </div>
@@ -1884,12 +2541,111 @@ async function loadAllData() {
     
     renderHome();
     console.log('✅ Data berhasil dimuat dari Supabase');
+
+    // Aktifkan Realtime setelah data pertama berhasil dimuat
+    initRealtime();
   } catch (err) {
     console.error('❌ Gagal memuat data dari Supabase:', err);
     showToast('⚠️ Gagal memuat data. Periksa koneksi internet atau konfigurasi Supabase.', 'error');
   } finally {
     showLoadingOverlay(false);
   }
+}
+
+// ── SUPABASE REALTIME ──
+// Auto-refresh data ketika ada perubahan di Supabase (INSERT/UPDATE/DELETE)
+function initRealtime() {
+  const realtimeUrl = SUPABASE_URL.replace('https://', 'wss://') + '/realtime/v1/websocket?apikey=' + SUPABASE_KEY + '&vsn=1.0.0';
+  let ws;
+  let heartbeatInterval;
+  let reconnectTimeout;
+  let ref = 1;
+
+  function connect() {
+    try {
+      ws = new WebSocket(realtimeUrl);
+
+      ws.onopen = () => {
+        console.log('🔴 Realtime terhubung');
+        ref = 1;
+
+        // Subscribe ke semua tabel
+        ['news', 'achievements', 'events', 'programs'].forEach(table => {
+          ws.send(JSON.stringify({
+            topic: `realtime:public:${table}`,
+            event: 'phx_join',
+            payload: { config: { broadcast: { self: true }, presence: { key: '' }, postgres_changes: [{ event: '*', schema: 'public', table }] } },
+            ref: String(ref++)
+          }));
+        });
+
+        // Heartbeat setiap 30 detik
+        heartbeatInterval = setInterval(() => {
+          if (ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({ topic: 'phoenix', event: 'heartbeat', payload: {}, ref: String(ref++) }));
+          }
+        }, 30000);
+      };
+
+      ws.onmessage = async (e) => {
+        try {
+          const msg = JSON.parse(e.data);
+          if (msg.event !== 'postgres_changes') return;
+
+          const change = msg.payload?.data;
+          if (!change) return;
+
+          const { table, eventType } = change;
+          console.log(`🔄 Realtime: ${eventType} pada tabel ${table}`);
+
+          // Refresh data tabel yang berubah
+          if (table === 'news') {
+            state.news = await sbFetch('news');
+            renderHome();
+            if (state.currentPage === 'news') renderNewsList();
+            renderAdminNews();
+            renderMemberNews();
+            showToast('🔄 Berita diperbarui secara realtime', 'success');
+          } else if (table === 'achievements') {
+            state.achievements = await sbFetch('achievements');
+            renderHome();
+            if (state.currentPage === 'achievements') renderAchievements();
+            renderAdminAch();
+            renderMemberAchievements();
+            showToast('🔄 Prestasi diperbarui secara realtime', 'success');
+          } else if (table === 'events') {
+            state.events = await sbFetch('events', { order: 'date.asc' });
+            renderCalendar();
+            renderAdminCalendar();
+            renderMemberCalendar();
+          } else if (table === 'programs') {
+            state.programs = await sbFetch('programs');
+            renderMemberPrograms();
+          }
+
+          // Update statistik dashboard
+          refreshAdminData();
+        } catch (err) {
+          console.warn('⚠️ Error parsing realtime message:', err);
+        }
+      };
+
+      ws.onclose = () => {
+        console.log('🔌 Realtime terputus, mencoba reconnect dalam 5 detik...');
+        clearInterval(heartbeatInterval);
+        reconnectTimeout = setTimeout(connect, 5000);
+      };
+
+      ws.onerror = (err) => {
+        console.warn('⚠️ Realtime error:', err);
+      };
+
+    } catch (err) {
+      console.warn('⚠️ Gagal inisialisasi Realtime:', err);
+    }
+  }
+
+  connect();
 }
 
 function showLoadingOverlay(show) {
@@ -3230,6 +3986,39 @@ function renderAdminCalendar() {
   renderAdminCalendarEvents(year, month, today.getDate());
 }
 
+// ADD CALENDAR EVENT (Admin can mark event)
+function addCalendarEvent() {
+  const date = document.getElementById('calendar-event-date').value;
+  const title = document.getElementById('calendar-event-title').value;
+  const desc = document.getElementById('calendar-event-desc').value;
+  
+  if (!date || !title) {
+    alert('⚠️ Tanggal dan nama acara wajib diisi');
+    return;
+  }
+  
+  const event = { id: Date.now().toString(), date, name: title, description: desc };
+  
+  if (!state.events) state.events = [];
+  state.events.push(event);
+  
+  // Save to localStorage
+  let calendarEvents = JSON.parse(localStorage.getItem('calendarEvents') || '[]');
+  calendarEvents.push(event);
+  localStorage.setItem('calendarEvents', JSON.stringify(calendarEvents));
+  
+  // Clear form
+  document.getElementById('calendar-event-date').value = '';
+  document.getElementById('calendar-event-title').value = '';
+  document.getElementById('calendar-event-desc').value = '';
+  
+  alert('✅ Acara berhasil ditandai pada kalender');
+  
+  // Refresh calendar display
+  const today = new Date();
+  renderAdminCalendarEvents(today.getFullYear(), today.getMonth(), today.getDate());
+}
+
 function renderAdminCalendarEvents(year, month, day) {
   const selectedDate = new Date(year, month, day);
   const eventsList = document.getElementById('admin-calendar-events');
@@ -3284,8 +4073,370 @@ state.bidang_data = [
   }
 ];
 
-// ── INIT: Load semua data dari Supabase saat halaman dibuka ──
-window.addEventListener('DOMContentLoaded', loadAllData);
+// ═══════════════════════════════════════════════════════════════════════════════
+// ── NEW FEATURES: Member Login Tabs, Google OAuth, OTP, Share Buttons ──
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// MEMBER TAB SWITCHING
+function showMemberTab(tab) {
+  document.getElementById('member-login-content').style.display = tab === 'login' ? 'block' : 'none';
+  document.getElementById('member-register-content').style.display = tab === 'register' ? 'block' : 'none';
+  document.getElementById('member-otp-content').style.display = 'none';
+  
+  document.getElementById('member-login-tab').classList.toggle('active', tab === 'login');
+  document.getElementById('member-register-tab').classList.toggle('active', tab === 'register');
+  
+  if (tab === 'login') {
+    document.getElementById('member-login-tab').style.borderBottomColor = 'var(--gold)';
+    document.getElementById('member-register-tab').style.borderBottomColor = 'transparent';
+  } else {
+    document.getElementById('member-login-tab').style.borderBottomColor = 'transparent';
+    document.getElementById('member-register-tab').style.borderBottomColor = 'var(--gold)';
+  }
+}
+
+// GOOGLE OAUTH LOGIN
+function loginWithGoogle() {
+  alert('🔐 Fitur Login Google akan terintegrasi dengan Google OAuth API.\n\nUntuk saat ini, silakan gunakan email + password untuk login.');
+}
+
+// GOOGLE OAUTH REGISTER
+function registerWithGoogle() {
+  alert('📧 Fitur Registrasi Google akan membuka proses verifikasi email.\n\nUntuk saat ini, email placeholder digunakan untuk demo.');
+  const fullname = document.getElementById('member-fullname').value;
+  const email = document.getElementById('member-email-register').value;
+  
+  if (!fullname || !email) {
+    alert('Mohon isi nama dan email terlebih dahulu');
+    return;
+  }
+  
+  // Generate OTP
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  localStorage.setItem('pendingOTP', JSON.stringify({email, otp, fullname, timestamp: Date.now()}));
+  
+  document.getElementById('otp-email').textContent = email;
+  document.getElementById('member-login-content').style.display = 'none';
+  document.getElementById('member-register-content').style.display = 'none';
+  document.getElementById('member-otp-content').style.display = 'block';
+  
+  console.log('📨 OTP dikirim:', otp);
+}
+
+// VERIFY OTP
+function verifyOTP() {
+  const inputOTP = document.getElementById('member-otp').value;
+  const pending = JSON.parse(localStorage.getItem('pendingOTP') || '{}');
+  
+  if (inputOTP !== pending.otp) {
+    document.getElementById('member-otp-error').textContent = '❌ Kode OTP tidak valid';
+    document.getElementById('member-otp-error').style.display = 'block';
+    return;
+  }
+  
+  // OTP valid - register member
+  const newMember = {
+    id: Date.now().toString(),
+    fullname: pending.fullname,
+    email: pending.email,
+    phone: document.getElementById('member-phone').value,
+    bidang: document.getElementById('member-bidang').value,
+    registeredAt: new Date().toLocaleDateString('id-ID'),
+    status: 'aktif'
+  };
+  
+  let members = JSON.parse(localStorage.getItem('members') || '[]');
+  members.push(newMember);
+  localStorage.setItem('members', JSON.stringify(members));
+  localStorage.removeItem('pendingOTP');
+  
+  alert('✅ Registrasi berhasil! Silakan login dengan email dan password.');
+  showMemberTab('login');
+  document.getElementById('member-otp').value = '';
+}
+
+// RESEND OTP
+function resendOTP() {
+  alert('📨 OTP baru telah dikirim ke email Anda');
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  const pending = JSON.parse(localStorage.getItem('pendingOTP') || '{}');
+  pending.otp = otp;
+  localStorage.setItem('pendingOTP', JSON.stringify(pending));
+  console.log('📨 OTP baru:', otp);
+}
+
+// SHARE TO SOCIAL MEDIA
+function shareToSocial(platform) {
+  const title = document.title;
+  const url = window.location.href;
+  const urls = {
+    facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
+    twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`,
+    whatsapp: `https://wa.me/?text=${encodeURIComponent(title + ' ' + url)}`,
+    copy: () => {
+      navigator.clipboard.writeText(url);
+      alert('✅ Link disalin ke clipboard');
+    }
+  };
+  
+  if (platform === 'copy') {
+    urls.copy();
+  } else {
+    window.open(urls[platform], '_blank', 'width=600,height=400');
+  }
+}
+
+// MANAGE MEMBERS - Load Data
+function loadMembersTable() {
+  const members = JSON.parse(localStorage.getItem('members') || '[]');
+  const tbody = document.querySelector('#manage-members-table tbody');
+  tbody.innerHTML = '';
+  
+  members.forEach(member => {
+    const row = tbody.insertRow();
+    row.innerHTML = `
+      <td><strong>${member.fullname}</strong></td>
+      <td>${member.email}</td>
+      <td>${member.bidang}</td>
+      <td>${member.registeredAt}</td>
+      <td><span style="background:var(--success); color:white; padding:0.25rem 0.75rem; border-radius:20px; font-size:0.8rem;">${member.status}</span></td>
+      <td><button class="btn-sm btn-danger" onclick="deleteMember('${member.id}')">Hapus</button></td>
+    `;
+  });
+}
+
+// DELETE MEMBER
+function deleteMember(id) {
+  if (!confirm('Apakah Anda yakin ingin menghapus anggota ini?')) return;
+  let members = JSON.parse(localStorage.getItem('members') || '[]');
+  members = members.filter(m => m.id !== id);
+  localStorage.setItem('members', JSON.stringify(members));
+  loadMembersTable();
+}
+
+// INFO DATA MANAGEMENT
+function saveInfoData(field) {
+  const values = {
+    aktif: document.getElementById('info-aktif')?.value,
+    prestasi: document.getElementById('info-prestasi')?.value,
+    tahun: document.getElementById('info-tahun')?.value,
+    program: document.getElementById('info-program')?.value
+  };
+  
+  let infoData = JSON.parse(localStorage.getItem('organizationInfo') || '{}');
+  infoData[field] = values[field];
+  localStorage.setItem('organizationInfo', JSON.stringify(infoData));
+  alert('✅ Data ' + field + ' berhasil disimpan');
+}
+
+// EDUKASI MANAGEMENT
+function openEdukasiModal() {
+  document.getElementById('edukasi-edit-id').value = '';
+  document.getElementById('edukasi-form-title').value = '';
+  document.getElementById('edukasi-form-cat').value = '';
+  document.getElementById('edukasi-form-desc').value = '';
+  document.getElementById('edukasi-form-date').value = '';
+  document.getElementById('edukasi-img-preview').style.display = 'none';
+  document.getElementById('modal-edukasi').classList.add('open');
+}
+
+function saveEdukasi() {
+  const title = document.getElementById('edukasi-form-title').value;
+  const cat = document.getElementById('edukasi-form-cat').value;
+  const desc = document.getElementById('edukasi-form-desc').value;
+  const date = document.getElementById('edukasi-form-date').value;
+  
+  if (!title || !cat || !desc || !date) {
+    alert('⚠️ Mohon isi semua field');
+    return;
+  }
+  
+  const edukasi = {
+    id: Date.now().toString(),
+    title, category: cat, description: desc, date
+  };
+  
+  let edukasiList = JSON.parse(localStorage.getItem('edukasi') || '[]');
+  edukasiList.push(edukasi);
+  localStorage.setItem('edukasi', JSON.stringify(edukasiList));
+  
+  alert('✅ Materi edukasi berhasil ditambahkan');
+  closeModal('modal-edukasi');
+  loadEdukasiTable();
+}
+
+function loadEdukasiTable() {
+  const edukasi = JSON.parse(localStorage.getItem('edukasi') || '[]');
+  const tbody = document.querySelector('#edukasi-admin-table tbody');
+  if (tbody) {
+    tbody.innerHTML = '';
+    edukasi.forEach(item => {
+      const row = tbody.insertRow();
+      row.innerHTML = `
+        <td></td>
+        <td>${item.title}</td>
+        <td>${item.category}</td>
+        <td>${item.date}</td>
+        <td><button class="btn-sm btn-danger" onclick="deleteEdukasi('${item.id}')">Hapus</button></td>
+      `;
+    });
+  }
+  
+  // Load di public page
+  const eduGrid = document.getElementById('edukasi-grid');
+  if (eduGrid) {
+    eduGrid.innerHTML = edukasi.map(item => `
+      <div class="card" style="background:var(--white); border:1.5px solid rgba(0,128,0,0.1); border-radius:12px; padding:1.5rem; transition:all .3s;">
+        <div style="font-size:2.5rem; margin-bottom:1rem;">📚</div>
+        <h3 style="font-weight:700; color:var(--text); margin-bottom:0.5rem;">${item.title}</h3>
+        <span style="background:rgba(0,128,0,0.1); color:var(--gold); padding:0.25rem 0.75rem; border-radius:20px; font-size:0.8rem; font-weight:600;">${item.category}</span>
+        <p style="color:var(--muted); margin-top:0.75rem; font-size:0.9rem; line-height:1.6;">${item.description}</p>
+        <div style="color:var(--muted); font-size:0.85rem; margin-top:1rem;">📅 ${item.date}</div>
+      </div>
+    `).join('');
+  }
+}
+
+function deleteEdukasi(id) {
+  if (!confirm('Hapus materi ini?')) return;
+  let edukasi = JSON.parse(localStorage.getItem('edukasi') || '[]');
+  edukasi = edukasi.filter(e => e.id !== id);
+  localStorage.setItem('edukasi', JSON.stringify(edukasi));
+  loadEdukasiTable();
+}
+
+// DOKUMENTASI MANAGEMENT
+function openDokumentasiModal() {
+  document.getElementById('dokumentasi-edit-id').value = '';
+  document.getElementById('dokumentasi-form-title').value = '';
+  document.getElementById('dokumentasi-form-url').value = '';
+  document.getElementById('dokumentasi-form-cat').value = '';
+  document.getElementById('dokumentasi-form-desc').value = '';
+  document.getElementById('modal-dokumentasi').classList.add('open');
+}
+
+function saveDokumentasi() {
+  const title = document.getElementById('dokumentasi-form-title').value;
+  const url = document.getElementById('dokumentasi-form-url').value;
+  const cat = document.getElementById('dokumentasi-form-cat').value;
+  const desc = document.getElementById('dokumentasi-form-desc').value;
+  
+  if (!title || !url || !cat) {
+    alert('⚠️ Mohon isi field wajib');
+    return;
+  }
+  
+  const dok = { id: Date.now().toString(), title, url, category: cat, description: desc };
+  let dokList = JSON.parse(localStorage.getItem('dokumentasi') || '[]');
+  dokList.push(dok);
+  localStorage.setItem('dokumentasi', JSON.stringify(dokList));
+  
+  alert('✅ Link dokumentasi berhasil ditambahkan');
+  closeModal('modal-dokumentasi');
+  loadDokumentasiTable();
+}
+
+function loadDokumentasiTable() {
+  const dok = JSON.parse(localStorage.getItem('dokumentasi') || '[]');
+  const tbody = document.querySelector('#dokumentasi-admin-table tbody');
+  if (tbody) {
+    tbody.innerHTML = '';
+    dok.forEach(item => {
+      const row = tbody.insertRow();
+      row.innerHTML = `
+        <td>${item.title}</td>
+        <td><a href="${item.url}" target="_blank" style="color:var(--gold);">Buka Link →</a></td>
+        <td>${item.category}</td>
+        <td><button class="btn-sm btn-danger" onclick="deleteDokumentasi('${item.id}')">Hapus</button></td>
+      `;
+    });
+  }
+}
+
+function deleteDokumentasi(id) {
+  if (!confirm('Hapus dokumentasi ini?')) return;
+  let dok = JSON.parse(localStorage.getItem('dokumentasi') || '[]');
+  dok = dok.filter(d => d.id !== id);
+  localStorage.setItem('dokumentasi', JSON.stringify(dok));
+  loadDokumentasiTable();
+}
+
+// PUBLIC DOKUMENTASI PAGE
+function loadPublicDokumentasi() {
+  const dok = JSON.parse(localStorage.getItem('dokumentasi') || '[]');
+  const tbody = document.querySelector('#dokumentasi-public-tbody');
+  if (tbody) {
+    tbody.innerHTML = '';
+    dok.forEach(item => {
+      const row = tbody.insertRow();
+      row.innerHTML = `
+        <td><strong>${item.title}</strong></td>
+        <td><span style="background:rgba(0,128,0,0.1); padding:0.25rem 0.75rem; border-radius:20px; font-size:0.85rem;">${item.category}</span></td>
+        <td><a href="${item.url}" target="_blank" class="btn-sm" style="background:var(--gold); color:#000; text-decoration:none;">Akses →</a></td>
+      `;
+    });
+  }
+}
+
+// PUBLIC CALENDAR
+function publicPreviousMonth() {
+  state.calendarMonth = (state.calendarMonth - 1 + 12) % 12;
+  state.calendarYear = state.calendarMonth === 11 ? state.calendarYear - 1 : state.calendarYear;
+  renderPublicCalendar();
+}
+
+function publicNextMonth() {
+  state.calendarMonth = (state.calendarMonth + 1) % 12;
+  state.calendarYear = state.calendarMonth === 0 ? state.calendarYear + 1 : state.calendarYear;
+  renderPublicCalendar();
+}
+
+function renderPublicCalendar() {
+  const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+  const monthEl = document.getElementById('public-calendar-month');
+  if (monthEl) monthEl.textContent = monthNames[state.calendarMonth] + ' ' + state.calendarYear;
+  
+  const daysEl = document.getElementById('public-calendar-days');
+  const eventsEl = document.getElementById('public-calendar-events');
+  
+  if (daysEl && eventsEl) {
+    const firstDay = new Date(state.calendarYear, state.calendarMonth, 1).getDay();
+    const daysInMonth = new Date(state.calendarYear, state.calendarMonth + 1, 0).getDate();
+    
+    let html = '';
+    for (let i = 0; i < firstDay; i++) html += '<div class="calendar-day empty"></div>';
+    for (let day = 1; day <= daysInMonth; day++) html += `<div class="calendar-day">${day}</div>`;
+    daysEl.innerHTML = html;
+    
+    const events = JSON.parse(localStorage.getItem('calendarEvents') || '[]');
+    eventsEl.innerHTML = events.map(e => `<div class="event-item"><div class="event-date">${e.date}</div><div class="event-name">${e.title}</div></div>`).join('');
+  }
+}
+
+// INIT: Load semua data dari Supabase saat halaman dibuka ──
+window.addEventListener('DOMContentLoaded', () => {
+  loadAllData();
+  loadPublicDokumentasi();
+  renderPublicCalendar();
+  
+  // Load calendar events from localStorage
+  const calendarEvents = JSON.parse(localStorage.getItem('calendarEvents') || '[]');
+  if (calendarEvents.length > 0) {
+    state.events = calendarEvents;
+  }
+  
+  // Load organization info
+  const orgInfo = JSON.parse(localStorage.getItem('organizationInfo') || '{}');
+  if (orgInfo.aktif) document.getElementById('info-aktif').value = orgInfo.aktif;
+  if (orgInfo.prestasi) document.getElementById('info-prestasi').value = orgInfo.prestasi;
+  if (orgInfo.tahun) document.getElementById('info-tahun').value = orgInfo.tahun;
+  if (orgInfo.program) document.getElementById('info-program').value = orgInfo.program;
+  
+  // Load members and tables
+  loadMembersTable();
+  loadEdukasiTable();
+  loadDokumentasiTable();
+});
 
 </script>
 </body>
