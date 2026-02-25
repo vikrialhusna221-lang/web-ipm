@@ -1746,9 +1746,8 @@
 const SUPABASE_URL = 'https://sbipkblxezdrkmsnlwol.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_o1VZBWT9rIj8j-FEUNN7Tg_vmV7gqLo';
 
-// ── IMGBB CONFIG (untuk upload gambar) ──
-// Daftar gratis di https://imgbb.com lalu ambil API key di https://api.imgbb.com
-const IMGBB_KEY = '418d7080e6fdc60ff511e1eb0bb1f7f6';
+// ── CLOUDINARY CONFIG (untuk upload gambar) ──
+// Cloud Name dan Upload Preset dikonfigurasi di fungsi uploadToImgBB (bawah)
 
 const SB_HEADERS = {
   'apikey': SUPABASE_KEY,
@@ -1864,16 +1863,25 @@ let state = {
 async function loadAllData() {
   showLoadingOverlay(true);
   try {
+    console.log('📥 Mengambil data dari Supabase...');
     const [news, achievements, events, programs] = await Promise.all([
       sbFetch('news'),
       sbFetch('achievements'),
       sbFetch('events', { order: 'date.asc' }),
       sbFetch('programs')
     ]);
+    
+    console.log('📰 Raw news data:', JSON.stringify(news, null, 2));
+    console.log('🏆 Raw achievements data:', JSON.stringify(achievements, null, 2));
+    
     state.news         = news         || [];
     state.achievements = achievements || [];
     state.events       = events       || [];
     state.programs     = programs     || [];
+    
+    console.log('✅ State news:', state.news);
+    console.log('✅ State achievements:', state.achievements);
+    
     renderHome();
     console.log('✅ Data berhasil dimuat dari Supabase');
   } catch (err) {
@@ -1960,16 +1968,28 @@ function showPage(page) {
 }
 
 function showNewsDetail(id) {
+  console.log('📰 Showing news detail for ID:', id);
   const n = state.news.find(x => x.id === id);
-  if (!n) return;
+  if (!n) {
+    console.error('❌ Berita dengan ID', id, 'tidak ditemukan');
+    return;
+  }
+  
+  console.log('📰 News data:', n);
+  console.log('📰 News image:', n.image);
+  
   document.getElementById('detail-title').textContent = n.title;
   document.getElementById('detail-meta').textContent = '📅 ' + formatDate(n.created_at);
   const detailImg = document.getElementById('detail-img');
+  
   if (n.image && n.image.startsWith('http')) {
-    detailImg.innerHTML = `<img src="${n.image}" alt="Foto berita" onerror="this.parentElement.innerHTML='📰'">`;
+    console.log('✅ Loading image from URL:', n.image);
+    detailImg.innerHTML = `<img src="${n.image}" alt="Foto berita" style="width:100%;height:auto;border-radius:12px;" onerror="console.error('❌ Gagal load image:', this.src); this.parentElement.innerHTML='<div style=\\'display:flex;align-items:center;justify-content:center;height:360px;font-size:4rem;\\'> 📰</div>'">`;
   } else {
+    console.log('⚠️ Image is emoji or empty:', n.image);
     detailImg.innerHTML = n.image || '📰';
   }
+  
   document.getElementById('detail-body').innerHTML = n.content.split('\n\n').map(p => `<p>${p}</p>`).join('');
   document.querySelectorAll('[id^="page-"]').forEach(p => p.classList.remove('active'));
   document.getElementById('page-news-detail').classList.add('active');
@@ -1982,21 +2002,29 @@ function formatDate(d) {
 }
 
 function renderHome() {
+  console.log('🏠 Render Home - News data:', state.news);
+  console.log('🏠 Render Home - Achievements data:', state.achievements);
+  
   // News grid
   const grid = document.getElementById('home-news-grid');
-  grid.innerHTML = state.news.slice(0, 3).map(n => `
+  grid.innerHTML = state.news.slice(0, 3).map(n => {
+    console.log('📰 Rendering news card:', n.title, 'Image:', n.image);
+    return `
     <div class="card" onclick="showNewsDetail(${n.id})">
       ${renderImg(n.image, "📰")}
       <div class="card-body">
         <div class="card-meta"><span>${formatDate(n.created_at)}</span><span class="tag">Berita</span></div>
         <div class="card-title">${n.title}</div>
-        <div class="card-excerpt">${n.content.substring(0, 100)}...
+        <div class="card-excerpt">${n.content.substring(0, 100)}...</div>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 
   // Achievements
   const ag = document.getElementById('home-ach-grid');
-  ag.innerHTML = state.achievements.slice(0, 4).map(a => `
+  ag.innerHTML = state.achievements.slice(0, 4).map(a => {
+    console.log('🏆 Rendering achievement card:', a.title, 'Image:', a.image);
+    return `
     <div class="ach-card">
       ${renderAchImg(a.image, "🏆")}
       <div>
@@ -2004,14 +2032,18 @@ function renderHome() {
         <div class="ach-title">${a.title}</div>
         <div class="ach-desc">${a.description}</div>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 function renderNewsList() {
+  console.log('📰 Render News List - Total news:', state.news.length);
   const start = (state.newsPage - 1) * state.newsPerPage;
   const paginated = state.news.slice(start, start + state.newsPerPage);
   const grid = document.getElementById('news-grid');
-  grid.innerHTML = paginated.map(n => `
+  grid.innerHTML = paginated.map(n => {
+    console.log('📰 Rendering news item:', n.title, 'Image:', n.image);
+    return `
     <div class="card" onclick="showNewsDetail(${n.id})">
       ${renderImg(n.image, "📰")}
       <div class="card-body">
@@ -2019,7 +2051,8 @@ function renderNewsList() {
         <div class="card-title">${n.title}</div>
         <div class="card-excerpt">${n.content.substring(0, 110)}...
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 
   // Pagination
   const pages = Math.ceil(state.news.length / state.newsPerPage);
@@ -2032,7 +2065,10 @@ function renderNewsList() {
 function setNewsPage(p) { state.newsPage = p; renderNewsList(); window.scrollTo({top: 200, behavior:'smooth'}); }
 
 function renderAchievements() {
-  document.getElementById('ach-grid').innerHTML = state.achievements.map(a => `
+  console.log('🏆 Render Achievements - Total achievements:', state.achievements.length);
+  document.getElementById('ach-grid').innerHTML = state.achievements.map(a => {
+    console.log('🏆 Rendering achievement:', a.title, 'Image:', a.image);
+    return `
     <div class="ach-card">
       ${renderAchImg(a.image, "🏆")}
       <div>
@@ -2040,7 +2076,8 @@ function renderAchievements() {
         <div class="ach-title">${a.title}</div>
         <div class="ach-desc">${a.description}</div>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 // ── INTERACTIVE HELPERS ──
@@ -2353,39 +2390,78 @@ function openNewsModal(id) {
   modal.classList.add('open');
 }
 
-// ── IMGBB UPLOAD ──
+// ── CLOUDINARY UPLOAD ──
+const CLOUDINARY_CLOUD_NAME = 'dzkez0hsc';
+const CLOUDINARY_UPLOAD_PRESET = 'ipm_uploud';
+
 async function uploadToImgBB(file) {
   const formData = new FormData();
-  formData.append('image', file);
-  const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, {
+  formData.append('file', file);
+  formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+  
+  console.log('📤 Mengunggah file ke Cloudinary:', file.name, 'Ukuran:', file.size, 'bytes');
+  console.log('☁️ Menggunakan Cloud Name:', CLOUDINARY_CLOUD_NAME, '| Preset:', CLOUDINARY_UPLOAD_PRESET);
+  
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
     method: 'POST',
     body: formData
   });
+  
   const data = await res.json();
-  if (!data.success) throw new Error('Upload ImgBB gagal: ' + (data.error?.message || 'Unknown error'));
-  // Gunakan display_url = direct link ke gambar (bukan halaman web)
-  return data.data.display_url || data.data.image?.url || data.data.url;
+  console.log('📨 Raw Response dari Cloudinary:', JSON.stringify(data, null, 2));
+  
+  if (data.error) {
+    console.error('❌ Cloudinary Error:', data.error);
+    throw new Error('Upload Cloudinary gagal: ' + (data.error?.message || 'Unknown error'));
+  }
+  
+  const imageUrl = data.secure_url;
+  
+  if (!imageUrl) {
+    console.error('❌ Tidak ada URL dalam response Cloudinary:', JSON.stringify(data, null, 2));
+    throw new Error('Cloudinary tidak mengembalikan URL gambar');
+  }
+  
+  console.log('✅ URL gambar Cloudinary berhasil didapat:', imageUrl);
+  console.log('📊 Full Cloudinary data:', JSON.stringify(data, null, 2));
+  
+  return imageUrl;
 }
 
 // ── IMAGE RENDER HELPERS ──
 function renderImg(src, fallback) {
-  if (src && src.startsWith('http')) {
-    return `<div class="card-img"><img src="${src}" alt="Foto berita" onerror="this.parentElement.innerHTML='${fallback}'"></div>`;
+  console.log('🖼️ renderImg called with:', { src, fallback, type: typeof src, startsWith_http: src?.startsWith('http') });
+  
+  if (src && typeof src === 'string' && src.startsWith('http')) {
+    console.log('✅ Valid URL detected, creating img tag with src:', src);
+    return `<div class="card-img"><img src="${src}" alt="Foto berita" style="width:100%;height:100%;object-fit:cover;" onerror="console.error('❌ Gagal load image, src was:', '${src}'); this.parentElement.innerHTML='<div style=\\'display:flex;align-items:center;justify-content:center;height:100%;font-size:2rem;\\'>${fallback}</div>'"></div>`;
   }
+  
+  console.log('⚠️ Not a valid HTTP URL, using fallback:', fallback);
   return `<div class="card-img">${src || fallback}</div>`;
 }
 
 function renderAchImg(src, fallback) {
-  if (src && src.startsWith('http')) {
-    return `<img src="${src}" style="width:60px;height:60px;object-fit:cover;border-radius:10px;flex-shrink:0;" onerror="this.outerHTML='<div class=\'ach-icon\'>${fallback}</div>'">`;
+  console.log('🏆 renderAchImg called with:', { src, fallback, type: typeof src, startsWith_http: src?.startsWith('http') });
+  
+  if (src && typeof src === 'string' && src.startsWith('http')) {
+    console.log('✅ Valid URL detected for achievement, creating img tag with src:', src);
+    return `<img src="${src}" style="width:60px;height:60px;object-fit:cover;border-radius:10px;flex-shrink:0;" onerror="console.error('❌ Gagal load achievement image, src was:', '${src}'); this.outerHTML='<div style=\\'width:60px;height:60px;background:linear-gradient(135deg, var(--gold-light) 0%, #FFFF00 100%);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:2rem;\\'>${fallback}</div>'">`;
   }
+  
+  console.log('⚠️ Not a valid HTTP URL for achievement, using fallback:', fallback);
   return `<div class="ach-icon">${src || fallback}</div>`;
 }
 
 function renderThumb(src, fallback) {
-  if (src && src.startsWith('http')) {
-    return `<img src="${src}" style="width:44px;height:44px;object-fit:cover;border-radius:8px;" onerror="this.outerHTML='<div class=\'td-img\'>${fallback}</div>'">`;
+  console.log('📸 renderThumb called with:', { src, fallback, type: typeof src, startsWith_http: src?.startsWith('http') });
+  
+  if (src && typeof src === 'string' && src.startsWith('http')) {
+    console.log('✅ Valid URL detected for thumb, creating img tag with src:', src);
+    return `<img src="${src}" style="width:44px;height:44px;object-fit:cover;border-radius:8px;" onerror="console.error('❌ Gagal load thumbnail, src was:', '${src}'); this.outerHTML='<div style=\\'width:44px;height:44px;background:linear-gradient(135deg, var(--gold), var(--gold-light));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:0.9rem;font-weight:700;color:#000;\\'>${fallback}</div>'">`;
   }
+  
+  console.log('⚠️ Not a valid HTTP URL for thumb, using fallback:', fallback);
   return `<div class="td-img">${src || fallback}</div>`;
 }
 
@@ -2419,19 +2495,26 @@ async function saveNews() {
     if (editId) {
       const payload = { title, content };
       if (imageUrl) payload.image = imageUrl;
+      console.log('📝 Updating news ID', editId, 'with payload:', payload);
       const updated = await sbUpdate('news', +editId, payload);
+      console.log('✅ Updated response:', updated);
       const idx = state.news.findIndex(x => x.id === +editId);
       if (idx > -1 && updated[0]) state.news[idx] = updated[0];
       showToast('✅ Berita berhasil diperbarui!', 'success');
     } else {
       // Jika tidak ada gambar, gunakan emoji default
+      console.log('💾 Saving news with image URL:', imageUrl || '📰');
       const inserted = await sbInsert('news', { 
         title, 
         content, 
         image: imageUrl || '📰',
         created_at: new Date().toISOString() 
       });
-      if (inserted[0]) state.news.unshift(inserted[0]);
+      console.log('✅ News inserted:', inserted);
+      if (inserted[0]) {
+        console.log('✅ Added to state:', inserted[0]);
+        state.news.unshift(inserted[0]);
+      }
       showToast('✅ Berita berhasil ditambahkan!', 'success');
     }
     
