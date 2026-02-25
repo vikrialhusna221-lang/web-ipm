@@ -1883,12 +1883,12 @@
             <img src="https://raw.githubusercontent.com/vikrialhusna221-lang/vaalh_0/main/53_20251214_104522_0000.png" alt="Logo IPM" style="height: 35px; width: auto; border-radius: 6px; box-shadow: 0 3px 8px rgba(0,128,0,0.15);">
             <div class="logo" style="font-size: 0.95rem;">PR IPM</div>
           </div>
-          <div class="sub">Login dengan Email Terdaftar</div>
+          <div class="sub">Login dengan Nama Terdaftar</div>
           <div id="member-error" class="alert alert-error" style="display:none;"></div>
           
           <div class="form-group">
-            <label>Email</label>
-            <input type="email" id="member-email-login" placeholder="nama@email.com" required>
+            <label>Nama Lengkap</label>
+            <input type="text" id="member-nama-login" placeholder="Masukkan nama lengkap" required>
           </div>
           <div class="form-group">
             <label>Password</label>
@@ -3511,34 +3511,43 @@ document.querySelectorAll('.card-img').forEach(img => {
 
 // Member Login
 function doLoginMember() {
-  const email = document.getElementById('member-email-login').value.trim().toLowerCase();
+  const nama = document.getElementById('member-nama-login').value.trim();
   const password = document.getElementById('member-pass-login').value.trim();
   const errorDiv = document.getElementById('member-error');
   
-  if (!email || !password) {
-    errorDiv.textContent = '📝 Email dan Password wajib diisi!';
+  if (!nama || !password) {
+    errorDiv.textContent = '📝 Nama dan Password wajib diisi!';
     errorDiv.style.display = 'block';
     return;
   }
   
-  // Cek data lokal dulu (lebih cepat)
+  // Cek data lokal (lebih cepat)
   let members = JSON.parse(localStorage.getItem('members') || '[]');
   let member = members.find(m => 
-    (m.email.toLowerCase() === email && m.password === password)
+    (m.fullname.toLowerCase() === nama.toLowerCase() && m.password === password)
   );
   
   if (member) {
     errorDiv.style.display = 'none';
     localStorage.setItem('currentMember', JSON.stringify(member));
+    
+    // Update member dashboard info
+    document.getElementById('member-name').textContent = member.fullname;
+    document.getElementById('member-welcome-name').textContent = member.fullname;
+    document.getElementById('member-avatar').textContent = member.fullname.charAt(0).toUpperCase();
+    document.getElementById('member-topbar-title').textContent = 'Dashboard';
+    
     alert('✅ Berhasil login sebagai ' + member.fullname);
-    document.getElementById('member-email-login').value = '';
+    document.getElementById('member-nama-login').value = '';
     document.getElementById('member-pass-login').value = '';
-    showPage('home');
+    
+    // Redirect ke member dashboard
+    showPage('member-dashboard');
     return;
   }
   
   // Jika tidak ditemukan di lokal, tampilkan error
-  errorDiv.textContent = '❌ Email atau password salah.';
+  errorDiv.textContent = '❌ Nama atau password salah.';
   errorDiv.style.display = 'block';
 }
 
@@ -3575,6 +3584,7 @@ function toggleLoginMode() {
 
 // Member Logout
 function doMemberLogout() {
+  localStorage.removeItem('currentMember');
   state.currentMember = null;
   showPage('home');
   showToast('Anda telah logout.', 'success');
