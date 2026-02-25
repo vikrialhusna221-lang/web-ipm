@@ -730,7 +730,9 @@
   @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.65; } }
   @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
   @keyframes spin { to { transform: rotate(360deg); } }
-  @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }\n  @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }\n  @keyframes heartbeat { 0%, 100% { transform: scale(1); } 25% { transform: scale(1.05); } 50% { transform: scale(1.1); } }
+  @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+  @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+  @keyframes heartbeat { 0%, 100% { transform: scale(1); } 25% { transform: scale(1.05); } 50% { transform: scale(1.1); } }
   @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
   @keyframes modalIn { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
   @keyframes slideIn { from { opacity: 0; transform: translateX(100px); } to { opacity: 1; transform: translateX(0); } }
@@ -1361,7 +1363,7 @@
           <div>
             <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
               <img src="https://raw.githubusercontent.com/vikrialhusna221-lang/vaalh_0/main/53_20251214_104522_0000.png" alt="Logo IPM" style="height: 35px; width: auto; border-radius: 6px; box-shadow: 0 3px 8px rgba(0,128,0,0.15);">
-              <div class="logo">✦ IPM SMA MUHAMMADIYAH 1 METRO</div>
+              <div class="logo">PR IPM SMA MUHAMMADIYAH 1 METRO</div>
             </div>
             <div class="sub">Login sebagai Anggota</div>
             <div id="member-error" class="alert alert-error" style="display:none;"></div>
@@ -1385,7 +1387,7 @@
           <div>
             <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
               <img src="https://raw.githubusercontent.com/vikrialhusna221-lang/vaalh_0/main/53_20251214_104522_0000.png" alt="Logo IPM" style="height: 35px; width: auto; border-radius: 6px; box-shadow: 0 3px 8px rgba(0,128,0,0.15);">
-              <div class="logo">✦ IPM SMA MUHAMMADIYAH 1 METRO</div>
+              <div class="logo">PR IPM SMA MUHAMMADIYAH 1 METRO</div>
             </div>
             <div class="sub">Login sebagai Admin</div>
             <div id="admin-error" class="alert alert-error" style="display:none;"></div>
@@ -1416,7 +1418,7 @@
     <!-- Sidebar -->
     <aside class="admin-sidebar">
       <div class="sidebar-brand">
-        <div class="logo">✦ IPM SMA MUHAMMADIYAH 1 METRO</div>
+        <div class="logo">PR IPM SMA MUHAMMADIYAH 1 METRO</div>
         <div class="sub">Admin Panel</div>
       </div>
       <nav class="sidebar-nav">
@@ -1624,7 +1626,7 @@
     <!-- Sidebar -->
     <aside class="admin-sidebar">
       <div class="sidebar-brand">
-        <div class="logo">✦ IPM SMA MUHAMMADIYAH 1 METRO</div>
+        <div class="logo">PR IPM SMA MUHAMMADIYAH 1 METRO</div>
         <div class="sub">Member Portal</div>
       </div>
       <nav class="sidebar-nav">
@@ -2391,17 +2393,29 @@ async function saveNews() {
   const title = document.getElementById('news-form-title').value.trim();
   const content = document.getElementById('news-form-content').value.trim();
   if (!title || !content) { showToast('Judul dan konten wajib diisi.', 'error'); return; }
+  
   const editId = document.getElementById('news-edit-id').value;
   const btn = document.querySelector('#modal-news .btn-primary');
   const fileInput = document.getElementById('news-img-input');
   const file = fileInput.files[0];
+  
   if (btn) setButtonLoading(btn, true);
   try {
     let imageUrl = null;
+    
+    // Jika ada file baru, upload ke ImgBB
     if (file) {
-      showToast('⏳ Mengupload gambar...', 'info');
-      imageUrl = await uploadToImgBB(file);
+      showToast('⏳ Mengupload gambar ke server...', 'info');
+      try {
+        imageUrl = await uploadToImgBB(file);
+        showToast('✅ Gambar berhasil diupload!', 'success');
+      } catch (uploadErr) {
+        console.error('Upload error:', uploadErr);
+        showToast('⚠️ Gagal upload gambar, tapi berita tetap disimpan. Error: ' + uploadErr.message, 'warning');
+        // Lanjut tanpa gambar
+      }
     }
+    
     if (editId) {
       const payload = { title, content };
       if (imageUrl) payload.image = imageUrl;
@@ -2410,10 +2424,17 @@ async function saveNews() {
       if (idx > -1 && updated[0]) state.news[idx] = updated[0];
       showToast('✅ Berita berhasil diperbarui!', 'success');
     } else {
-      const inserted = await sbInsert('news', { title, content, image: imageUrl || '📰', created_at: new Date().toISOString() });
+      // Jika tidak ada gambar, gunakan emoji default
+      const inserted = await sbInsert('news', { 
+        title, 
+        content, 
+        image: imageUrl || '📰',
+        created_at: new Date().toISOString() 
+      });
       if (inserted[0]) state.news.unshift(inserted[0]);
       showToast('✅ Berita berhasil ditambahkan!', 'success');
     }
+    
     fileInput.value = '';
     document.getElementById('news-img-preview').style.display = 'none';
     closeModal('modal-news');
@@ -2454,17 +2475,29 @@ async function saveAch() {
   const desc = document.getElementById('ach-form-desc').value.trim();
   const year = +document.getElementById('ach-form-year').value;
   if (!title || !desc || !year) { showToast('Semua field wajib diisi.', 'error'); return; }
+  
   const editId = document.getElementById('ach-edit-id').value;
   const btn = document.querySelector('#modal-ach .btn-primary');
   const fileInput = document.getElementById('ach-img-input');
   const file = fileInput.files[0];
+  
   if (btn) setButtonLoading(btn, true);
   try {
     let imageUrl = null;
+    
+    // Jika ada file baru, upload ke ImgBB
     if (file) {
-      showToast('⏳ Mengupload gambar...', 'info');
-      imageUrl = await uploadToImgBB(file);
+      showToast('⏳ Mengupload gambar ke server...', 'info');
+      try {
+        imageUrl = await uploadToImgBB(file);
+        showToast('✅ Gambar berhasil diupload!', 'success');
+      } catch (uploadErr) {
+        console.error('Upload error:', uploadErr);
+        showToast('⚠️ Gagal upload gambar, tapi prestasi tetap disimpan. Error: ' + uploadErr.message, 'warning');
+        // Lanjut tanpa gambar
+      }
     }
+    
     if (editId) {
       const payload = { title, description: desc, year };
       if (imageUrl) payload.image = imageUrl;
@@ -2473,10 +2506,17 @@ async function saveAch() {
       if (idx > -1 && updated[0]) state.achievements[idx] = updated[0];
       showToast('✅ Prestasi berhasil diperbarui!', 'success');
     } else {
-      const inserted = await sbInsert('achievements', { title, description: desc, image: imageUrl || '🏆', year });
+      // Jika tidak ada gambar, gunakan emoji default
+      const inserted = await sbInsert('achievements', { 
+        title, 
+        description: desc, 
+        image: imageUrl || '🏆',
+        year 
+      });
       if (inserted[0]) state.achievements.unshift(inserted[0]);
       showToast('✅ Prestasi berhasil ditambahkan!', 'success');
     }
+    
     fileInput.value = '';
     document.getElementById('ach-img-preview').style.display = 'none';
     closeModal('modal-ach');
@@ -2529,11 +2569,31 @@ document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('cli
 function previewImg(input, previewId) {
   const file = input.files[0];
   if (!file) return;
+  
+  // Validasi ukuran file
+  const maxSize = 5 * 1024 * 1024; // 5MB
+  if (file.size > maxSize) {
+    showToast('❌ Ukuran file terlalu besar (max 5MB)', 'error');
+    input.value = '';
+    return;
+  }
+  
+  // Validasi tipe file
+  if (!file.type.startsWith('image/')) {
+    showToast('❌ File harus berupa gambar', 'error');
+    input.value = '';
+    return;
+  }
+  
   const reader = new FileReader();
   reader.onload = e => {
     const img = document.getElementById(previewId);
     img.src = e.target.result;
     img.style.display = 'block';
+    showToast('✅ Preview gambar berhasil. Klik Simpan untuk upload ke server.', 'success');
+  };
+  reader.onerror = () => {
+    showToast('❌ Gagal membaca file gambar', 'error');
   };
   reader.readAsDataURL(file);
 }
