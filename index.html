@@ -2575,6 +2575,7 @@ let state = {
   achievements: [],
   events: [],
   programs: [],
+  calendarEvents: [],
   bidang_data: []
 };
 
@@ -3246,42 +3247,53 @@ async function saveNews() {
     
     if (editId) {
       // Edit existing news
-      try {
-        console.log('📝 Updating news ID', editId, 'to Supabase...');
-        const updated = await sbUpdate('news', +editId, newsData);
-        console.log('✅ Updated dari Supabase:', updated);
-        const idx = state.news.findIndex(x => x.id === +editId);
-        if (idx > -1 && updated && updated[0]) state.news[idx] = updated[0];
-      } catch (sbErr) {
-        console.warn('⚠️ Supabase update failed, using local update:', sbErr);
-        // Fallback: Update di local state saja
-        const idx = state.news.findIndex(x => x.id === +editId);
-        if (idx > -1) {
-          state.news[idx] = { ...state.news[idx], ...newsData };
+      const idx = state.news.findIndex(x => x.id === +editId);
+      if (idx > -1) {
+        const updatedItem = { ...state.news[idx], ...newsData };
+        state.news[idx] = updatedItem;
+        
+        // Save to backup (ALWAYS save)
+        let backupNews = JSON.parse(localStorage.getItem('backupNews') || '[]');
+        const backupIdx = backupNews.findIndex(n => n.id === +editId);
+        if (backupIdx > -1) {
+          backupNews[backupIdx] = updatedItem;
+        } else {
+          backupNews.push(updatedItem);
+        }
+        localStorage.setItem('backupNews', JSON.stringify(backupNews));
+        console.log('💾 News updated di local backup');
+        
+        // Try sync to Supabase
+        try {
+          console.log('📝 Updating news ID', editId, 'to Supabase...');
+          await sbUpdate('news', +editId, newsData);
+          console.log('✅ Updated di Supabase');
+        } catch (sbErr) {
+          console.warn('⚠️ Supabase update failed, data tersimpan lokal:', sbErr);
         }
       }
       showToast('✅ Berita berhasil diperbarui!', 'success');
     } else {
       // Add new news
+      const newItem = { id: Date.now(), ...newsData };
+      state.news.unshift(newItem);
+      
+      // ALWAYS save to backup
+      let backupNews = JSON.parse(localStorage.getItem('backupNews') || '[]');
+      backupNews.unshift(newItem);
+      localStorage.setItem('backupNews', JSON.stringify(backupNews));
+      console.log('💾 News saved ke local backup:', newItem);
+      
+      // Try sync to Supabase
       try {
         console.log('💾 Inserting new news ke Supabase...');
         const inserted = await sbInsert('news', newsData);
         console.log('✅ Inserted dari Supabase:', inserted);
         if (inserted && inserted[0]) {
-          state.news.unshift(inserted[0]);
-        } else {
-          // Jika response kosong, tambahkan dengan id lokal
-          const newItem = { id: Date.now(), ...newsData };
-          state.news.unshift(newItem);
+          state.news[0] = inserted[0];
         }
       } catch (sbErr) {
-        console.warn('⚠️ Supabase insert failed, using local storage:', sbErr);
-        // Fallback: Simpan ke localStorage backup
-        const newItem = { id: Date.now(), ...newsData };
-        state.news.unshift(newItem);
-        let backupNews = JSON.parse(localStorage.getItem('backupNews') || '[]');
-        backupNews.unshift(newItem);
-        localStorage.setItem('backupNews', JSON.stringify(backupNews));
+        console.warn('⚠️ Supabase insert failed, data tersimpan lokal:', sbErr);
       }
       showToast('✅ Berita berhasil ditambahkan!', 'success');
     }
@@ -3357,39 +3369,53 @@ async function saveAch() {
     
     if (editId) {
       // Edit existing achievement
-      try {
-        console.log('📝 Updating achievement ID', editId, 'to Supabase...');
-        const updated = await sbUpdate('achievements', +editId, achData);
-        console.log('✅ Updated dari Supabase:', updated);
-        const idx = state.achievements.findIndex(x => x.id === +editId);
-        if (idx > -1 && updated && updated[0]) state.achievements[idx] = updated[0];
-      } catch (sbErr) {
-        console.warn('⚠️ Supabase update failed, using local update:', sbErr);
-        const idx = state.achievements.findIndex(x => x.id === +editId);
-        if (idx > -1) {
-          state.achievements[idx] = { ...state.achievements[idx], ...achData };
+      const idx = state.achievements.findIndex(x => x.id === +editId);
+      if (idx > -1) {
+        const updatedItem = { ...state.achievements[idx], ...achData };
+        state.achievements[idx] = updatedItem;
+        
+        // Save to backup (ALWAYS save)
+        let backupAch = JSON.parse(localStorage.getItem('backupAchievements') || '[]');
+        const backupIdx = backupAch.findIndex(a => a.id === +editId);
+        if (backupIdx > -1) {
+          backupAch[backupIdx] = updatedItem;
+        } else {
+          backupAch.push(updatedItem);
+        }
+        localStorage.setItem('backupAchievements', JSON.stringify(backupAch));
+        console.log('💾 Achievement updated di local backup');
+        
+        // Try sync to Supabase
+        try {
+          console.log('📝 Updating achievement ID', editId, 'to Supabase...');
+          await sbUpdate('achievements', +editId, achData);
+          console.log('✅ Updated di Supabase');
+        } catch (sbErr) {
+          console.warn('⚠️ Supabase update failed, data tersimpan lokal:', sbErr);
         }
       }
       showToast('✅ Prestasi berhasil diperbarui!', 'success');
     } else {
       // Add new achievement
+      const newItem = { id: Date.now(), ...achData };
+      state.achievements.unshift(newItem);
+      
+      // ALWAYS save to backup
+      let backupAch = JSON.parse(localStorage.getItem('backupAchievements') || '[]');
+      backupAch.unshift(newItem);
+      localStorage.setItem('backupAchievements', JSON.stringify(backupAch));
+      console.log('💾 Achievement saved ke local backup:', newItem);
+      
+      // Try sync to Supabase
       try {
         console.log('💾 Inserting new achievement ke Supabase...');
         const inserted = await sbInsert('achievements', achData);
         console.log('✅ Inserted dari Supabase:', inserted);
         if (inserted && inserted[0]) {
-          state.achievements.unshift(inserted[0]);
-        } else {
-          const newItem = { id: Date.now(), ...achData };
-          state.achievements.unshift(newItem);
+          state.achievements[0] = inserted[0];
         }
       } catch (sbErr) {
-        console.warn('⚠️ Supabase insert failed, using local storage:', sbErr);
-        const newItem = { id: Date.now(), ...achData };
-        state.achievements.unshift(newItem);
-        let backupAch = JSON.parse(localStorage.getItem('backupAchievements') || '[]');
-        backupAch.unshift(newItem);
-        localStorage.setItem('backupAchievements', JSON.stringify(backupAch));
+        console.warn('⚠️ Supabase insert failed, data tersimpan lokal:', sbErr);
       }
       showToast('✅ Prestasi berhasil ditambahkan!', 'success');
     }
@@ -4543,12 +4569,6 @@ window.addEventListener('DOMContentLoaded', () => {
   loadAllData();
   loadPublicDokumentasi();
   renderPublicCalendar();
-  
-  // Load calendar events from localStorage
-  const calendarEvents = JSON.parse(localStorage.getItem('calendarEvents') || '[]');
-  if (calendarEvents.length > 0) {
-    state.events = calendarEvents;
-  }
   
   // Load organization info
   const orgInfo = JSON.parse(localStorage.getItem('organizationInfo') || '{}');
