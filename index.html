@@ -2475,42 +2475,86 @@ const SB_HEADERS = {
   'Prefer': 'return=representation'
 };
 
-// ── SUPABASE HELPER FUNCTIONS ──
+// ── SUPABASE HELPER FUNCTIONS dengan LOGGING DETAIL ──
 async function sbFetch(table, options = {}) {
   const { filter = '', order = 'id.desc' } = options;
   const url = `${SUPABASE_URL}/rest/v1/${table}?order=${order}${filter ? '&' + filter : ''}`;
-  const res = await fetch(url, { headers: SB_HEADERS });
-  if (!res.ok) throw new Error(`Gagal fetch ${table}: ${res.status}`);
-  return res.json();
+  console.log(`📡 [FETCH] ${table}`, { url, filter, order });
+  try {
+    const res = await fetch(url, { headers: SB_HEADERS });
+    const data = await res.json();
+    if (!res.ok) {
+      console.error(`❌ [FETCH ERROR] ${table}:`, { status: res.status, error: data });
+      throw new Error(`Gagal fetch ${table}: ${res.status} - ${JSON.stringify(data)}`);
+    }
+    console.log(`✅ [FETCH SUCCESS] ${table}:`, { count: data.length, data });
+    return data;
+  } catch (err) {
+    console.error(`❌ [FETCH EXCEPTION] ${table}:`, err.message);
+    throw err;
+  }
 }
 
 async function sbInsert(table, data) {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
-    method: 'POST',
-    headers: SB_HEADERS,
-    body: JSON.stringify(data)
-  });
-  if (!res.ok) throw new Error(`Gagal insert ke ${table}: ${res.status}`);
-  return res.json();
+  console.log(`📡 [INSERT] ${table}`, { data });
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
+      method: 'POST',
+      headers: SB_HEADERS,
+      body: JSON.stringify(data)
+    });
+    const responseData = await res.json();
+    if (!res.ok) {
+      console.error(`❌ [INSERT ERROR] ${table}:`, { status: res.status, error: responseData });
+      throw new Error(`Gagal insert ke ${table}: ${res.status} - ${JSON.stringify(responseData)}`);
+    }
+    console.log(`✅ [INSERT SUCCESS] ${table}:`, responseData);
+    return responseData;
+  } catch (err) {
+    console.error(`❌ [INSERT EXCEPTION] ${table}:`, err.message);
+    throw err;
+  }
 }
 
 async function sbUpdate(table, id, data) {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`, {
-    method: 'PATCH',
-    headers: SB_HEADERS,
-    body: JSON.stringify(data)
-  });
-  if (!res.ok) throw new Error(`Gagal update ${table}: ${res.status}`);
-  return res.json();
+  console.log(`📡 [UPDATE] ${table}?id=eq.${id}`, { data });
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`, {
+      method: 'PATCH',
+      headers: SB_HEADERS,
+      body: JSON.stringify(data)
+    });
+    const responseData = await res.json();
+    if (!res.ok) {
+      console.error(`❌ [UPDATE ERROR] ${table}:`, { status: res.status, id, error: responseData });
+      throw new Error(`Gagal update ${table}: ${res.status} - ${JSON.stringify(responseData)}`);
+    }
+    console.log(`✅ [UPDATE SUCCESS] ${table}:`, responseData);
+    return responseData;
+  } catch (err) {
+    console.error(`❌ [UPDATE EXCEPTION] ${table}:`, err.message);
+    throw err;
+  }
 }
 
 async function sbDelete(table, id) {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`, {
-    method: 'DELETE',
-    headers: SB_HEADERS
-  });
-  if (!res.ok) throw new Error(`Gagal hapus dari ${table}: ${res.status}`);
-  return true;
+  console.log(`📡 [DELETE] ${table}?id=eq.${id}`);
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`, {
+      method: 'DELETE',
+      headers: SB_HEADERS
+    });
+    if (!res.ok) {
+      const error = await res.text();
+      console.error(`❌ [DELETE ERROR] ${table}:`, { status: res.status, id, error });
+      throw new Error(`Gagal hapus dari ${table}: ${res.status} - ${error}`);
+    }
+    console.log(`✅ [DELETE SUCCESS] ${table}: id=${id}`);
+    return true;
+  } catch (err) {
+    console.error(`❌ [DELETE EXCEPTION] ${table}:`, err.message);
+    throw err;
+  }
 }
 
 // ── AUTH (tetap pakai data lokal untuk keamanan) ──
@@ -3047,7 +3091,7 @@ function renderAdminNews() {
   const tbody = document.querySelector('#news-admin-table tbody');
   tbody.innerHTML = state.news.map(n => `
     <tr>
-      <td>${renderThumb(n.image, "📰")}</td>
+      <td>${renderThumb(n.image_url, "📰")}</td>
       <td><div class="td-title">${n.title}</div><div class="td-sub">${formatDate(n.created_at)}</div></td>
       <td style="color:var(--muted);font-size:.82rem">${formatDate(n.created_at)}</td>
       <td><span class="status-badge badge-green">Terbit</span></td>
@@ -3062,7 +3106,7 @@ function renderAdminAch() {
   const tbody = document.querySelector('#ach-admin-table tbody');
   tbody.innerHTML = state.achievements.map(a => `
     <tr>
-      <td>${renderThumb(a.image, "🏆")}</td>
+      <td>${renderThumb(a.image_url, "🏆")}</td>
       <td><div class="td-title">${a.title}</div></td>
       <td style="font-family:'DM Mono',monospace;font-size:.82rem">${a.year}</td>
       <td style="color:var(--muted);font-size:.82rem;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${a.description}</td>
@@ -3241,7 +3285,7 @@ async function saveNews() {
     const newsData = { 
       title, 
       content, 
-      image: imageUrl || '📰',
+      image_url: imageUrl || '📰',
       created_at: new Date().toISOString() 
     };
     
@@ -3363,7 +3407,7 @@ async function saveAch() {
     const achData = {
       title,
       description: desc,
-      image: imageUrl || '🏆',
+      image_url: imageUrl || '🏆',
       year
     };
     
@@ -4104,7 +4148,7 @@ function addCalendarEvent() {
     return;
   }
   
-  const event = { id: Date.now().toString(), date, name: title, description: desc };
+  const event = { id: Date.now().toString(), date, title, description: desc };
   
   if (!state.calendarEvents) state.calendarEvents = [];
   state.calendarEvents.push(event);
