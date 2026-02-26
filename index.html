@@ -2690,6 +2690,7 @@ async function loadAllData() {
     console.log('✅ Members sudah disinkronisasi');
     
     renderHome();
+    loadPublicDokumentasi();
     console.log('✅ Semua data berhasil dimuat dari Supabase & localStorage');
   } catch (err) {
     console.error('❌ Gagal memuat data dari Supabase:', err);
@@ -2770,6 +2771,7 @@ function showPage(page) {
   if (page === 'home') renderHome();
   if (page === 'news') renderNewsList();
   if (page === 'achievements') renderAchievements();
+  if (page === 'dokumentasi') loadPublicDokumentasi();
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -4635,18 +4637,25 @@ async function deleteDokumentasi(id) {
 
 // PUBLIC DOKUMENTASI PAGE
 function loadPublicDokumentasi() {
-  const dok = JSON.parse(localStorage.getItem('dokumentasi') || '[]');
+  // Baca dari state.dokumentasi (dari Supabase), bukan localStorage
+  const dok = state.dokumentasi || JSON.parse(localStorage.getItem('dokumentasi') || '[]');
+  console.log('📋 Load Public Dokumentasi:', dok);
+  
   const tbody = document.querySelector('#dokumentasi-public-tbody');
   if (tbody) {
     tbody.innerHTML = '';
-    dok.forEach(item => {
-      const row = tbody.insertRow();
-      row.innerHTML = `
-        <td><strong>${item.title}</strong></td>
-        <td><span style="background:rgba(0,128,0,0.1); padding:0.25rem 0.75rem; border-radius:20px; font-size:0.85rem;">${item.category}</span></td>
-        <td><a href="${item.url}" target="_blank" class="btn-sm" style="background:var(--gold); color:#000; text-decoration:none;">Akses →</a></td>
-      `;
-    });
+    if (dok.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:2rem; color:var(--muted);">Belum ada dokumentasi</td></tr>';
+    } else {
+      dok.forEach(item => {
+        const row = tbody.insertRow();
+        row.innerHTML = `
+          <td><strong>${item.title}</strong></td>
+          <td><span style="background:rgba(0,128,0,0.1); padding:0.25rem 0.75rem; border-radius:20px; font-size:0.85rem;">${item.category}</span></td>
+          <td><a href="${item.url}" target="_blank" class="btn-sm" style="background:var(--gold); color:#000; text-decoration:none;">Akses →</a></td>
+        `;
+      });
+    }
   }
 }
 
