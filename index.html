@@ -2799,10 +2799,10 @@ function renderHome() {
   // News grid
   const grid = document.getElementById('home-news-grid');
   grid.innerHTML = state.news.slice(0, 3).map(n => {
-    console.log('📰 Rendering news card:', n.title, 'Image:', n.image);
+    console.log('📰 Rendering news card:', n.title, 'Image:', n.image_url);
     return `
     <div class="card" onclick="showNewsDetail(${n.id})">
-      ${renderImg(n.image, "📰")}
+      ${renderImg(n.image_url, "📰")}
       <div class="card-body">
         <div class="card-meta"><span>${formatDate(n.created_at)}</span><span class="tag">Berita</span></div>
         <div class="card-title">${n.title}</div>
@@ -2814,10 +2814,10 @@ function renderHome() {
   // Achievements
   const ag = document.getElementById('home-ach-grid');
   ag.innerHTML = state.achievements.slice(0, 4).map(a => {
-    console.log('🏆 Rendering achievement card:', a.title, 'Image:', a.image);
+    console.log('🏆 Rendering achievement card:', a.title, 'Image:', a.image_url);
     return `
     <div class="ach-card">
-      ${renderAchImg(a.image, "🏆")}
+      ${renderAchImg(a.image_url, "🏆")}
       <div>
         <div class="ach-year">${a.year}</div>
         <div class="ach-title">${a.title}</div>
@@ -2833,10 +2833,10 @@ function renderNewsList() {
   const paginated = state.news.slice(start, start + state.newsPerPage);
   const grid = document.getElementById('news-grid');
   grid.innerHTML = paginated.map(n => {
-    console.log('📰 Rendering news item:', n.title, 'Image:', n.image);
+    console.log('📰 Rendering news item:', n.title, 'Image:', n.image_url);
     return `
     <div class="card" onclick="showNewsDetail(${n.id})">
-      ${renderImg(n.image, "📰")}
+      ${renderImg(n.image_url, "📰")}
       <div class="card-body">
         <div class="card-meta"><span>${formatDate(n.created_at)}</span><span class="tag">Berita</span></div>
         <div class="card-title">${n.title}</div>
@@ -2858,10 +2858,10 @@ function setNewsPage(p) { state.newsPage = p; renderNewsList(); window.scrollTo(
 function renderAchievements() {
   console.log('🏆 Render Achievements - Total achievements:', state.achievements.length);
   document.getElementById('ach-grid').innerHTML = state.achievements.map(a => {
-    console.log('🏆 Rendering achievement:', a.title, 'Image:', a.image);
+    console.log('🏆 Rendering achievement:', a.title, 'Image:', a.image_url);
     return `
     <div class="ach-card">
-      ${renderAchImg(a.image, "🏆")}
+      ${renderAchImg(a.image_url, "🏆")}
       <div>
         <div class="ach-year">${a.year}</div>
         <div class="ach-title">${a.title}</div>
