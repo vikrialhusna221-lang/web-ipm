@@ -16,23 +16,23 @@
   <!-- NAVBAR -->
   <nav class="navbar">
     <div class="nav-brand" onclick="showPage('home')">
-      <img src="https://github.com/vikrialhusna221-lang/STORAGE/blob/main/53_20251214_104522_0000.png" alt="Logo" style="height: 40px; width: auto;">
+      <img src="https://raw.githubusercontent.com/vikrialhusna221-lang/STORAGE/main/53_20251214_104522_0000.png" alt="Logo" style="height: 40px; width: auto;">
       <span>PR IPM SMA MUHAMMADIYAH 1 METRO</span>
     </div>
     <button class="nav-toggle" id="nav-toggle" onclick="toggleMobileMenu()">
       <span></span><span></span><span></span>
     </button>
     <div class="nav-links" id="nav-links">
-      <a onclick="showPage('home'); closeMobileMenu()" id="nav-home" class="active">Beranda</a>
-      <a onclick="showPage('news'); closeMobileMenu()" id="nav-news">Berita</a>
-      <a onclick="showPage('achievements'); closeMobileMenu()" id="nav-achievements">Prestasi</a>
-      <a onclick="showPage('edukasi'); closeMobileMenu()" id="nav-edukasi" >Edukasi</a>
-      <a onclick="showPage('dokumentasi'); closeMobileMenu()" id="nav-dokumentasi" >Dokumentasi</a>
-      <a onclick="showPage('kalender'); closeMobileMenu()" id="nav-kalender" Kalender</a>
-      <a onclick="showPage('about'); closeMobileMenu()" id="nav-about" >Tentang</a>
-      <a onclick="showPage('struktur'); closeMobileMenu()" id="nav-struktur" >Struktur</a>
-      <a onclick="showPage('contact'); closeMobileMenu()" id="nav-contact" >Kontak</a>
-      <a onclick="showPage('login'); closeMobileMenu()" class="nav-cta" >Masuk</a>
+      <a onclick="showPage('home'); closeMobileMenu()" id="nav-home" class="active" data-icon="🏠">Beranda</a>
+      <a onclick="showPage('news'); closeMobileMenu()" id="nav-news" data-icon="📰">Berita</a>
+      <a onclick="showPage('achievements'); closeMobileMenu()" id="nav-achievements" data-icon="🏆">Prestasi</a>
+      <a onclick="showPage('edukasi'); closeMobileMenu()" id="nav-edukasi" data-icon="📚">Edukasi</a>
+      <a onclick="showPage('dokumentasi'); closeMobileMenu()" id="nav-dokumentasi" data-icon="📋">Dokumentasi</a>
+      <a onclick="showPage('kalender'); closeMobileMenu()" id="nav-kalender" data-icon="📅">Kalender</a>
+      <a onclick="showPage('about'); closeMobileMenu()" id="nav-about" data-icon="ℹ️">Tentang</a>
+      <a onclick="showPage('struktur'); closeMobileMenu()" id="nav-struktur" data-icon="🏛️">Struktur</a>
+      <a onclick="showPage('contact'); closeMobileMenu()" id="nav-contact" data-icon="📞">Kontak</a>
+      <a onclick="showPage('login'); closeMobileMenu()" class="nav-cta" data-icon="🔑">Masuk</a>
     </div>
   </nav>
 
@@ -104,9 +104,9 @@
       <div id="detail-body"></div>
       <div class="share-buttons" style="margin-top:2rem; padding-top:2rem; border-top:2px solid rgba(0,128,0,0.1);">
         <span style="font-weight:600; color:var(--text); margin-right:1rem;">Bagikan ke:</span>
-        <button class="share-btn share-btn-facebook" onclick="shareToSocial('facebook')">Facebook</button>
+        <button class="share-btn share-btn-facebook" onclick="shareToSocial('facebook')">👍 Facebook</button>
         <button class="share-btn share-btn-twitter" onclick="shareToSocial('twitter')">𝕏 Twitter</button>
-        <button class="share-btn share-btn-whatsapp" onclick="shareToSocial('whatsapp')">WhatsApp</button>
+        <button class="share-btn share-btn-whatsapp" onclick="shareToSocial('whatsapp')">💬 WhatsApp</button>
         <button class="share-btn share-btn-copy" onclick="shareToSocial('copy')">🔗 Salin Link</button>
       </div>
     </div>
@@ -464,7 +464,7 @@
       <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1rem; text-align: left;">
         <div>
           <div style="display: flex; align-items: center; gap: .5rem; margin-bottom: .75rem;">
-            <img src="https://github.com/vikrialhusna221-lang/STORAGE/blob/main/53_20251214_104522_0000.png" alt="Logo" style="height: 40px; width: auto;">
+            <img src="https://raw.githubusercontent.com/vikrialhusna221-lang/STORAGE/main/53_20251214_104522_0000.png" alt="Logo" style="height: 40px; width: auto;">
             <span class="brand" style="margin: 0; font-size: 0.95rem;">PR IPM SMA MUHAMMADIYAH 1 METRO</span>
           </div>
           <p style="font-size: .8rem; line-height: 1.5;">IPM adalah organisasi pelajar fokus pada pembinaan karakter, kepemimpinan, dan pengembangan potensi pelajar.</p>
@@ -500,7 +500,7 @@
     <div class="login-container">
       <!-- OVERLAY PANEL -->
       <div class="login-overlay-panel" id="overlayPanel">
-        <img src="https://github.com/vikrialhusna221-lang/STORAGE/blob/main/53_20251214_104522_0000.png" alt="Logo IPM" style="height: 60px; width: auto; margin-bottom: 1.5rem; border-radius: 10px; box-shadow: 0 6px 16px rgba(0,0,0,0.15); filter: drop-shadow(0 0 8px rgba(255,255,255,0.3));">
+        <img src="https://raw.githubusercontent.com/vikrialhusna221-lang/STORAGE/main/53_20251214_104522_0000.png" alt="Logo IPM" style="height: 60px; width: auto; margin-bottom: 1.5rem; border-radius: 10px; box-shadow: 0 6px 16px rgba(0,0,0,0.15); filter: drop-shadow(0 0 8px rgba(255,255,255,0.3));">
         <h3 id="overlayTitle">MASUK</h3>
         <p id="overlayText">Akses database</p>
         <button class="overlay-btn" id="toggleBtn" onclick="toggleLoginMode()">Admin</button>
@@ -511,7 +511,7 @@
         <!-- ANGGOTA FORM (LEFT SIDE) - LOGIN ONLY -->
         <div class="login-form-side" id="memberForm">
           <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
-            <img src="https://github.com/vikrialhusna221-lang/STORAGE/blob/main/53_20251214_104522_0000.png" alt="Logo IPM" style="height: 35px; width: auto; border-radius: 6px; box-shadow: 0 3px 8px rgba(0,128,0,0.15);">
+            <img src="https://raw.githubusercontent.com/vikrialhusna221-lang/STORAGE/main/53_20251214_104522_0000.png" alt="Logo IPM" style="height: 35px; width: auto; border-radius: 6px; box-shadow: 0 3px 8px rgba(0,128,0,0.15);">
             <div class="logo" style="font-size: 0.95rem;">PR IPM</div>
           </div>
           <div class="sub">Login dengan Nama Terdaftar</div>
@@ -535,7 +535,7 @@
         <div class="login-form-side" id="adminForm" style="display:none;">
           <div>
             <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
-              <img src="https://github.com/vikrialhusna221-lang/STORAGE/blob/main/53_20251214_104522_0000.png" alt="Logo IPM" style="height: 35px; width: auto; border-radius: 6px; box-shadow: 0 3px 8px rgba(0,128,0,0.15);">
+              <img src="https://raw.githubusercontent.com/vikrialhusna221-lang/STORAGE/main/53_20251214_104522_0000.png" alt="Logo IPM" style="height: 35px; width: auto; border-radius: 6px; box-shadow: 0 3px 8px rgba(0,128,0,0.15);">
               <div class="logo">PR IPM SMA MUHAMMADIYAH 1 METRO</div>
             </div>
             <div class="sub">Login sebagai Admin</div>
