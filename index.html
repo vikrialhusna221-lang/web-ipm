@@ -2501,8 +2501,15 @@ async function sbDelete(table, id) {
 }
 
 // ── AUTH (tetap pakai data lokal untuk keamanan) ──
-const MOCK_USERS = [{ email: 'vaalh', password: '56964321', name: 'Admin User', role: 'admin' }];
-  
+const MOCK_USERS = [
+  { email: 'vikri al husna', password: '56964321', name: 'Vikri Al Husna', role: 'admin' },
+  { email: 'windi antika', password: 'ilovepip', name: 'Windi Antika', role: 'admin' },
+  { email: 'deva lia fajria', password: 'ilovepip', name: 'Deva Lia Fajria', role: 'admin' },
+  { email: 'khanza zabirah', password: 'ilovepip', name: 'Khanza Zabirah', role: 'admin' },
+  { email: 'andika zuhriyanto', password: 'ilovepip', name: 'Andika Zuhriyanto', role: 'admin' },
+  { email: 'zahra khuzaifah', password: 'ilovepip', name: 'Zahra Khuzaifah', role: 'admin' }
+];
+
 const MOCK_MEMBERS = [
   { username: 'hafis alfatrah', password: 'smamuhi', name: 'Hafis Alfatrah' },
   { username: 'vikri al husna', password: '56964321', name: 'vikri al husna' },
@@ -2602,8 +2609,7 @@ async function loadAllData() {
     
     // Load calendar events dari localStorage
     const calendarEvents = JSON.parse(localStorage.getItem('calendarEvents') || '[]');
-    state.calendarEvents = calendarEvents;
-    console.log('📅 Calendar events dari localStorage:', calendarEvents);
+    const backupEvents = JSON.parse(localStorage.getItem('backupEvents') || '[]');
     
     // Load backup data jika ada
     const backupNews = JSON.parse(localStorage.getItem('backupNews') || '[]');
@@ -2616,6 +2622,18 @@ async function loadAllData() {
       console.log('💾 Merging backup achievements...');
       state.achievements = [...state.achievements, ...backupAch.filter(ba => !state.achievements.some(a => a.id === ba.id))];
     }
+    if (backupEvents.length > 0) {
+      console.log('💾 Merging backup events...');
+      state.events = [...state.events, ...backupEvents.filter(be => !state.events.some(e => e.id === be.id))];
+    }
+    
+    // Merge dari calendarEvents (tambahan dari localStorage)
+    if (calendarEvents.length > 0) {
+      console.log('💾 Merging calendar events dari localStorage...');
+      state.events = [...state.events, ...calendarEvents.filter(ce => !state.events.some(e => e.id === ce.id))];
+    }
+    state.calendarEvents = calendarEvents;
+    console.log('📅 Total events:', state.events.length);
     
     // Sinkronisasi members dari Supabase ke localStorage
     if (members && members.length > 0) {
@@ -3637,6 +3655,15 @@ document.querySelectorAll('.card-img').forEach(img => {
 // MEMBER LOGIN & DASHBOARD FUNCTIONS
 // ═════════════════════════════════════════════
 
+// ── HELPER: Parse date string to YYYY-MM-DD (fix timezone issue) ──
+function normalizeDate(dateStr) {
+  if (!dateStr) return null;
+  if (dateStr.includes('T')) return dateStr.split('T')[0]; // Already ISO
+  // Parse as local date (not UTC)
+  const [year, month, day] = dateStr.split('-');
+  return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+}
+
 // Member Login
 function doLoginMember() {
   const nama = document.getElementById('member-nama-login').value.trim();
@@ -4081,12 +4108,11 @@ function renderAdminCalendar() {
     const dayDiv = document.createElement('div');
     dayDiv.className = 'calendar-day';
     
-    const currentDate = new Date(year, month, day);
-    const dateString = currentDate.toISOString().split('T')[0];
+    const dateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     
-    // Check for events on this day
+    // Check for events on this day (fix timezone issue)
     const dayEvents = allEvents.filter(e => {
-      const eventDate = new Date(e.date).toISOString().split('T')[0];
+      const eventDate = normalizeDate(e.date);
       return eventDate === dateString;
     });
     
@@ -4169,9 +4195,16 @@ async function addCalendarEvent() {
     
     // ✅ Also save to localStorage backup
     let calendarEvents = JSON.parse(localStorage.getItem('calendarEvents') || '[]');
-    calendarEvents.push({...eventData, id: result[0]?.id || Date.now()});
+    let backupEvents = JSON.parse(localStorage.getItem('backupEvents') || '[]');
+    const newEvent = {...eventData, id: result[0]?.id || Date.now()};
+    calendarEvents.push(newEvent);
+    backupEvents.push(newEvent);
     localStorage.setItem('calendarEvents', JSON.stringify(calendarEvents));
+    localStorage.setItem('backupEvents', JSON.stringify(backupEvents));
     console.log('💾 Calendar event saved ke local backup');
+    
+    // Update state
+    state.events.push(newEvent);
     
     // Clear form
     document.getElementById('calendar-event-date').value = '';
@@ -4190,18 +4223,52 @@ async function addCalendarEvent() {
     
   } catch (err) {
     console.error('❌ [INSERT ERROR] events:', err);
-    alert('⚠️ Gagal menyimpan acara: ' + err.message);
+    
+    // Jika RLS error, fallback ke localStorage
+    if (err.message.includes('42501') || err.message.includes('401')) {
+      console.warn('⚠️ RLS Policy Issue - Fallback ke localStorage');
+      
+      // Simpan ke localStorage backup
+      let calendarEvents = JSON.parse(localStorage.getItem('calendarEvents') || '[]');
+      let backupEvents = JSON.parse(localStorage.getItem('backupEvents') || '[]');
+      const newEvent = {
+        id: Date.now(),
+        date,
+        title,
+        description: desc,
+        created_at: new Date().toISOString(),
+        status: 'Dijadwalkan'
+      };
+      calendarEvents.push(newEvent);
+      backupEvents.push(newEvent);
+      localStorage.setItem('calendarEvents', JSON.stringify(calendarEvents));
+      localStorage.setItem('backupEvents', JSON.stringify(backupEvents));
+      
+      // Update state
+      state.events.push(newEvent);
+      
+      // Clear form
+      document.getElementById('calendar-event-date').value = '';
+      document.getElementById('calendar-event-title').value = '';
+      document.getElementById('calendar-event-desc').value = '';
+      
+      alert('✅ Acara disimpan lokal (belum sync Supabase). Kontak admin untuk fix RLS di Supabase.');
+      
+      // Refresh calendar display
+      renderAdminCalendar();
+    } else {
+      alert('❌ GAGAL MENYIMPAN: ' + err.message);
+    }
   }
 }
 
 function renderAdminCalendarEvents(year, month, day) {
-  const selectedDate = new Date(year, month, day);
-  const dateString = selectedDate.toISOString().split('T')[0];
+  const dateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
   const eventsList = document.getElementById('admin-calendar-events');
   
-  // Get events for this date
+  // Get events for this date (fix timezone issue)
   const dayEvents = (state.events || []).filter(e => {
-    const eventDate = new Date(e.date).toISOString().split('T')[0];
+    const eventDate = normalizeDate(e.date);
     return eventDate === dateString;
   });
   
@@ -4734,11 +4801,11 @@ function renderPublicCalendar() {
     // Days of the month
     for (let day = 1; day <= daysInMonth; day++) {
       const currentDate = new Date(state.calendarYear, state.calendarMonth, day);
-      const dateString = currentDate.toISOString().split('T')[0];
+      const dateString = `${state.calendarYear}-${String(state.calendarMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
       
-      // Check for events on this date
+      // Check for events on this date (fix timezone issue)
       const dayEvents = state.events.filter(e => {
-        const eventDate = new Date(e.date).toISOString().split('T')[0];
+        const eventDate = normalizeDate(e.date);
         return eventDate === dateString;
       });
       
@@ -4768,9 +4835,10 @@ function renderPublicCalendar() {
     
     // Render events list for current month
     const monthEvents = state.events.filter(e => {
-      const eventDate = new Date(e.date);
-      return eventDate.getFullYear() === state.calendarYear && 
-             eventDate.getMonth() === state.calendarMonth;
+      const normalized = normalizeDate(e.date);
+      const [eYear, eMonth] = normalized.split('-').map(Number);
+      return eYear === state.calendarYear && 
+             eMonth === state.calendarMonth + 1;
     }).sort((a, b) => new Date(a.date) - new Date(b.date));
     
     console.log('📅 Public Calendar Events for', monthNames[state.calendarMonth], state.calendarYear, ':', monthEvents);
