@@ -121,7 +121,7 @@
   .hero {
     min-height: 100vh; 
     background: linear-gradient(135deg, rgba(0, 128, 0, 0.25) 0%, rgba(0, 93, 0, 0.3) 30%, rgba(0, 170, 0, 0.25) 60%, rgba(0, 119, 0, 0.2) 100%), 
-                url('https://raw.githubusercontent.com/vikrialhusna221-lang/vaalh_0/main/WhatsApp%20Image%202026-02-23%20at%2021.05.08.jpeg') center/cover no-repeat;
+                url('https://raw.githubusercontent.com/vikrialhusna221-lang/STORAGE/main/WhatsApp%20Image%202026-02-23%20at%2021.05.08.jpeg') center/cover no-repeat;
     background-attachment: fixed;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     text-align: center; padding: 6rem 2rem;
