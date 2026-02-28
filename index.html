@@ -833,7 +833,9 @@
   .calendar-day.has-event { position: relative; background: rgba(0,128,0, 0.08); border: 1.5px solid rgba(0,128,0, 0.25); flex-direction: column; gap: 2px; }
   .calendar-day.has-event::after { content: ''; position: absolute; bottom: 3px; width: 6px; height: 6px; background: var(--gold); border-radius: 50%; }
   .calendar-day .day-number { font-weight: 700; font-size: 0.95rem; }
-  .calendar-day .event-indicator { display: flex; gap: 1px; justify-content: center; align-items: center; }
+  .calendar-day .event-indicator { display: flex; gap: 2px; justify-content: center; align-items: center; margin-top: 2px; }
+  .calendar-day .event-dot { display: inline-block; width: 5px; height: 5px; background: var(--gold); border-radius: 50%; }
+  .calendar-day .event-dot-more { display: inline-block; width: 5px; height: 5px; background: var(--gold); border-radius: 50%; font-size: 0.6rem; color: #000; font-weight: 700; }
   .calendar-day.day-number-only { flex-direction: column; }
 
   /* EVENT CALENDAR */
@@ -2564,7 +2566,10 @@ let state = {
   dokumentasi: [],
   edukasi: [],
   calendarEvents: [],
-  bidang_data: []
+  bidang_data: [],
+  // Calendar state
+  calendarMonth: new Date().getMonth(),
+  calendarYear: new Date().getFullYear()
 };
 
 // ── LOAD DATA FROM SUPABASE ON STARTUP ──
@@ -2982,8 +2987,8 @@ function toggleLoginMode() {
 
 // Member/Anggota login function
 function doLoginMember() {
-  const usernameInput = document.getElementById('member-username');
-  const passInput = document.getElementById('member-pass');
+  const usernameInput = document.getElementById('member-nama-login');
+  const passInput = document.getElementById('member-pass-login');
   const username = usernameInput.value.trim().toLowerCase();
   const pass = passInput.value.trim();
   const errEl = document.getElementById('member-error');
@@ -2991,7 +2996,7 @@ function doLoginMember() {
 
   // Validate required fields
   if (!username || !pass) {
-    errEl.textContent = '📝 Username/Email dan Password wajib diisi!';
+    errEl.textContent = '📝 Nama dan Password wajib diisi!';
     errEl.style.display = 'block';
     validateForm([usernameInput, passInput]);
     return;
@@ -3007,7 +3012,7 @@ function doLoginMember() {
     const member = MOCK_MEMBERS.find(m => m.username.toLowerCase() === username && m.password === pass);
     
     if (!member) {
-      errEl.textContent = '❌ Username atau Password salah. Silakan coba lagi.';
+      errEl.textContent = '❌ Nama atau Password salah. Silakan coba lagi.';
       errEl.style.display = 'block';
       setButtonLoading(btn, false);
       return;
@@ -3015,8 +3020,17 @@ function doLoginMember() {
 
     errEl.style.display = 'none';
     state.isLoggedIn = true;
+    
+    // Store member info
+    localStorage.setItem('currentMember', JSON.stringify({
+      name: member.name,
+      username: member.username,
+      avatar: member.name.charAt(0).toUpperCase()
+    }));
+    
     showToast('✨ Selamat datang, ' + member.name + '!', 'success');
-    setTimeout(() => showPage('home'), 600);
+    setTimeout(() => showPage('member-dashboard'), 600);
+    setButtonLoading(btn, false);
   }, 800);
 }
 
@@ -4033,9 +4047,14 @@ function adminNextMonth() {
 function renderAdminCalendar() {
   const year = adminCalendarDate.getFullYear();
   const month = adminCalendarDate.getMonth();
-  const monthName = new Date(year, month).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+  const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+  const monthName = monthNames[month] + ' ' + year;
   
-  document.getElementById('admin-calendar-month').textContent = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+  const monthEl = document.getElementById('admin-calendar-month');
+  if (monthEl) {
+    monthEl.textContent = monthName;
+    console.log('📅 Admin Calendar Month:', monthName);
+  }
   
   const firstDay = new Date(year, month, 1);
   const lastDay = new Date(year, month + 1, 0);
@@ -4043,6 +4062,8 @@ function renderAdminCalendar() {
   const startingDayOfWeek = firstDay.getDay();
   
   const calendarDays = document.getElementById('admin-calendar-days');
+  if (!calendarDays) return;
+  
   calendarDays.innerHTML = '';
   
   // Empty cells for days before month starts
@@ -4054,7 +4075,7 @@ function renderAdminCalendar() {
   
   // Days of month
   const today = new Date();
-  const calendarEvents = state.calendarEvents || JSON.parse(localStorage.getItem('calendarEvents') || '[]');
+  const allEvents = state.events || [];
   
   for (let day = 1; day <= daysInMonth; day++) {
     const dayDiv = document.createElement('div');
@@ -4064,22 +4085,41 @@ function renderAdminCalendar() {
     const dateString = currentDate.toISOString().split('T')[0];
     
     // Check for events on this day
-    const hasEvent = calendarEvents.some(e => e.date === dateString);
-    const eventCount = calendarEvents.filter(e => e.date === dateString).length;
+    const dayEvents = allEvents.filter(e => {
+      const eventDate = new Date(e.date).toISOString().split('T')[0];
+      return eventDate === dateString;
+    });
     
     // Create day content
-    if (hasEvent) {
-      dayDiv.innerHTML = `
-        <div class="day-number">${day}</div>
-        <div class="event-indicator" style="font-size:0.7rem; margin-top:2px;">
-          <span style="display:inline-block; width:4px; height:4px; background:#008000; border-radius:50%; margin:0 1px;"></span>
-          ${eventCount > 1 ? `<span style="display:inline-block; width:4px; height:4px; background:#008000; border-radius:50%; margin:0 1px;"></span>` : ''}
-          ${eventCount > 2 ? `<span style="display:inline-block; width:4px; height:4px; background:#008000; border-radius:50%; margin:0 1px;"></span>` : ''}
-        </div>
-      `;
+    const dayNumberDiv = document.createElement('div');
+    dayNumberDiv.className = 'day-number';
+    dayNumberDiv.textContent = day;
+    dayDiv.appendChild(dayNumberDiv);
+    
+    if (dayEvents.length > 0) {
       dayDiv.classList.add('has-event');
+      
+      const indicatorDiv = document.createElement('div');
+      indicatorDiv.className = 'event-indicator';
+      
+      // Show up to 3 event dots
+      for (let i = 0; i < Math.min(dayEvents.length, 3); i++) {
+        const dot = document.createElement('span');
+        dot.className = 'event-dot';
+        indicatorDiv.appendChild(dot);
+      }
+      
+      // Show + if more than 3 events
+      if (dayEvents.length > 3) {
+        const more = document.createElement('span');
+        more.className = 'event-dot-more';
+        more.textContent = '+';
+        indicatorDiv.appendChild(more);
+      }
+      
+      dayDiv.appendChild(indicatorDiv);
+      dayDiv.title = dayEvents.map(e => e.title).join(', ');
     } else {
-      dayDiv.textContent = day;
       dayDiv.classList.add('day-number-only');
     }
     
@@ -4156,19 +4196,28 @@ async function addCalendarEvent() {
 
 function renderAdminCalendarEvents(year, month, day) {
   const selectedDate = new Date(year, month, day);
+  const dateString = selectedDate.toISOString().split('T')[0];
   const eventsList = document.getElementById('admin-calendar-events');
   
-  // Check both Supabase events and localStorage calendar events
-  const supabaseEvents = state.events.filter(e => new Date(e.date).toDateString() === selectedDate.toDateString());
-  const calendarEvents = (state.calendarEvents || []).filter(e => e.date === selectedDate.toISOString().split('T')[0]);
-  const allEvents = [...supabaseEvents, ...calendarEvents];
+  // Get events for this date
+  const dayEvents = (state.events || []).filter(e => {
+    const eventDate = new Date(e.date).toISOString().split('T')[0];
+    return eventDate === dateString;
+  });
   
-  eventsList.innerHTML = allEvents.length > 0 ? allEvents.map(e => `
-    <div class="event-item">
-      <div class="event-name">${e.name}</div>
-      <div class="event-desc">${e.description || '-'}</div>
-    </div>
-  `).join('') : '<p style="color:var(--muted); padding:1rem;">Tidak ada acara pada hari ini.</p>';
+  console.log('📅 Admin Calendar Events for', dateString, ':', dayEvents);
+  
+  if (dayEvents.length > 0) {
+    eventsList.innerHTML = dayEvents.map(e => `
+      <div class="event-item" style="background:linear-gradient(135deg, rgba(0,128,0,0.08), rgba(255,255,0,0.04)); border-left:4px solid var(--gold); padding:1rem; border-radius:8px;">
+        <div class="event-name" style="font-weight:700; color:var(--text); margin-bottom:0.35rem;">📌 ${e.title}</div>
+        ${e.description ? `<div class="event-desc" style="color:var(--muted); font-size:0.9rem;">${e.description}</div>` : ''}
+        <div class="event-date" style="font-size:0.8rem; color:var(--gold); margin-top:0.5rem;">📅 ${new Date(e.date).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
+      </div>
+    `).join('');
+  } else {
+    eventsList.innerHTML = '<div style="text-align:center; color:var(--muted); padding:1.5rem; font-style:italic;">📭 Tidak ada acara pada tanggal ini</div>';
+  }
 }
 
 // ── Static bidang_data (tidak berubah, hardcoded) ──
@@ -4661,7 +4710,11 @@ function publicNextMonth() {
 function renderPublicCalendar() {
   const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
   const monthEl = document.getElementById('public-calendar-month');
-  if (monthEl) monthEl.textContent = monthNames[state.calendarMonth] + ' ' + state.calendarYear;
+  if (monthEl) {
+    const monthText = monthNames[state.calendarMonth] + ' ' + state.calendarYear;
+    monthEl.textContent = monthText;
+    console.log('📅 Public Calendar Month:', monthText);
+  }
   
   const daysEl = document.getElementById('public-calendar-days');
   const eventsEl = document.getElementById('public-calendar-events');
@@ -4669,16 +4722,74 @@ function renderPublicCalendar() {
   if (daysEl && eventsEl) {
     const firstDay = new Date(state.calendarYear, state.calendarMonth, 1).getDay();
     const daysInMonth = new Date(state.calendarYear, state.calendarMonth + 1, 0).getDate();
+    const today = new Date();
     
     let html = '';
-    for (let i = 0; i < firstDay; i++) html += '<div class="calendar-day empty"></div>';
-    for (let day = 1; day <= daysInMonth; day++) html += `<div class="calendar-day">${day}</div>`;
+    
+    // Empty cells for days before month starts
+    for (let i = 0; i < firstDay; i++) {
+      html += '<div class="calendar-day empty"></div>';
+    }
+    
+    // Days of the month
+    for (let day = 1; day <= daysInMonth; day++) {
+      const currentDate = new Date(state.calendarYear, state.calendarMonth, day);
+      const dateString = currentDate.toISOString().split('T')[0];
+      
+      // Check for events on this date
+      const dayEvents = state.events.filter(e => {
+        const eventDate = new Date(e.date).toISOString().split('T')[0];
+        return eventDate === dateString;
+      });
+      
+      const isToday = currentDate.toDateString() === today.toDateString();
+      const hasEvent = dayEvents.length > 0;
+      
+      let dayClass = 'calendar-day';
+      if (isToday) dayClass += ' today';
+      if (hasEvent) dayClass += ' has-event';
+      
+      if (hasEvent) {
+        html += `
+          <div class="${dayClass}" title="${dayEvents.map(e => e.title).join(', ')}">
+            <div class="day-number">${day}</div>
+            <div class="event-indicator">
+              ${dayEvents.slice(0, 3).map((_, i) => `<div class="event-dot"></div>`).join('')}
+              ${dayEvents.length > 3 ? '<div class="event-dot-more">+</div>' : ''}
+            </div>
+          </div>
+        `;
+      } else {
+        html += `<div class="${dayClass}"><div class="day-number">${day}</div></div>`;
+      }
+    }
+    
     daysEl.innerHTML = html;
     
-    // Gunakan state.events dari Supabase (bukan localStorage)
-    const events = state.events || [];
-    console.log('📅 Public Calendar Events:', events);
-    eventsEl.innerHTML = events.map(e => `<div class="event-item"><div class="event-date">${e.date}</div><div class="event-name">${e.title}</div></div>`).join('');
+    // Render events list for current month
+    const monthEvents = state.events.filter(e => {
+      const eventDate = new Date(e.date);
+      return eventDate.getFullYear() === state.calendarYear && 
+             eventDate.getMonth() === state.calendarMonth;
+    }).sort((a, b) => new Date(a.date) - new Date(b.date));
+    
+    console.log('📅 Public Calendar Events for', monthNames[state.calendarMonth], state.calendarYear, ':', monthEvents);
+    
+    if (monthEvents.length > 0) {
+      eventsEl.innerHTML = monthEvents.map((e, idx) => `
+        <div class="event-item" style="background:linear-gradient(135deg, rgba(0,128,0,0.08), rgba(255,255,0,0.04)); border-left:4px solid var(--gold); padding:1rem; border-radius:8px; transition:all .2s;">
+          <div class="event-date" style="font-size:0.8rem; color:var(--gold); font-weight:700; margin-bottom:0.35rem;">
+            📅 ${new Date(e.date).toLocaleDateString('id-ID', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}
+          </div>
+          <div class="event-name" style="font-weight:700; color:var(--text); margin-bottom:0.35rem; font-size:1rem;">
+            📌 ${e.title}
+          </div>
+          ${e.description ? `<div class="event-desc" style="color:var(--muted); font-size:0.9rem;">${e.description}</div>` : ''}
+        </div>
+      `).join('');
+    } else {
+      eventsEl.innerHTML = '<div style="text-align:center; color:var(--muted); padding:2rem; font-style:italic;">Belum ada acara bulan ini</div>';
+    }
   }
 }
 
