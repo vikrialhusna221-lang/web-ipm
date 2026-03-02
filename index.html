@@ -225,16 +225,19 @@
 
   /* ─── CARDS ─── */
   .grid { display: grid; gap: 2.5rem; animation: fadeUp .6s ease-out both; }
-  .grid-3 { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
-  .grid-2 { grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); }
+  .grid-3 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+  .grid-2 { grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); }
   .card {
     background: var(--white); border-radius: 16px;
     border: 1.5px solid rgba(0,128,0,0.08);
     overflow: hidden; transition: all .4s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer; position: relative;
     box-shadow: 0 8px 24px rgba(0,0,0,0.07);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
   }
-  .card::after { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(0,128,0,0.12) 0%, transparent 100%); opacity: 0; transition: opacity .4s; pointer-events: none; }
+  .card::after { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(0,128,0,0.12) 0%, transparent 100%); opacity: 0; transition: opacity .4s; pointer-events: none; z-index: 1; }
   .card:hover { transform: translateY(-14px); box-shadow: 0 32px 64px rgba(0,128,0,0.3); border-color: rgba(0,128,0,0.3); }
   .card:hover::after { opacity: 1; }
   .card-img {
@@ -250,14 +253,20 @@
     display: block; transition: transform .5s cubic-bezier(0.4, 0, 0.2, 1);
   }
   .card:hover .card-img img { transform: scale(1.08); }
-  .card-body { padding: 1.5rem; }
-  .card-meta { font-size: .78rem; color: var(--muted); margin-bottom: .5rem; display: flex; gap: .75rem; }
+  .card-body { 
+    padding: 1.5rem; 
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+  }
+  .card-meta { font-size: .78rem; color: var(--muted); margin-bottom: .5rem; display: flex; gap: .75rem; flex-wrap: wrap; }
   .card-title { font-family: 'Playfair Display', serif; font-size: 1.15rem; font-weight: 700; margin-bottom: 0.65rem; line-height: 1.45; color: var(--text); }
-  .card-excerpt { font-size: 0.9rem; color: var(--muted); line-height: 1.65; }
+  .card-excerpt { font-size: 0.9rem; color: var(--muted); line-height: 1.65; flex-grow: 1; }
   .tag {
     display: inline-block; background: rgba(0,128,0,0.15);
     color: #008000; font-size: 0.75rem; font-weight: 700;
     padding: 0.3rem 0.8rem; border-radius: 6px; letter-spacing: 0.05em; text-transform: uppercase;
+    white-space: nowrap;
   }
 
   /* ─── ACHIEVEMENT CARD ─── */
@@ -1143,6 +1152,15 @@
     .login-overlay-panel h3 { font-size: 1.6rem; margin-bottom: 0.6rem; }
     .login-overlay-panel p { font-size: 0.95rem; margin-bottom: 2rem; }
     .overlay-btn { width: 100%; padding: 0.8rem 1.5rem; }
+    
+    /* RESPONSIVE GRID - Mobile */
+    .grid-3 { grid-template-columns: 1fr; gap: 1.75rem; }
+    .grid { gap: 1.75rem; }
+    .card-img { height: 180px; }
+    .card-body { padding: 1rem; }
+    .card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,128,0,0.2); }
+    .section { padding: 4rem 1.5rem; }
+    .section-header { margin-bottom: 2.5rem; }
   }
 
   /* RESPONSIVE TABLET (769px - 1024px) */
@@ -1237,6 +1255,13 @@
       grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
       gap: 1rem;
     }
+    
+    /* RESPONSIVE GRID - Tablet */
+    .grid-3 { grid-template-columns: repeat(2, 1fr); gap: 2rem; }
+    .grid-2 { grid-template-columns: 1fr; gap: 2rem; }
+    .grid { gap: 2rem; }
+    .card-img { height: 200px; }
+    .card:hover { transform: translateY(-10px); }
   }
 
   /* RESPONSIVE DESKTOP (1025px+) */
@@ -1306,6 +1331,13 @@
       grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
       gap: 1.25rem;
     }
+    
+    /* RESPONSIVE GRID - Desktop */
+    .grid-3 { grid-template-columns: repeat(3, 1fr); gap: 2.5rem; }
+    .grid-2 { grid-template-columns: repeat(2, 1fr); gap: 2.5rem; }
+    .grid { gap: 2.5rem; }
+    .card-img { height: 240px; }
+    .card:hover { transform: translateY(-14px); }
   }
 
   /* LANDSCAPE MOBILE (max-height: 600px) */
@@ -2782,7 +2814,12 @@ function showPage(page) {
   console.log('✅ Navigation complete!');
 }
 
-function showNewsDetail(id) {
+function showNewsDetail(id, event) {
+  if (event) {
+    event.stopPropagation();
+    event.preventDefault();
+  }
+  
   console.log('📰 Showing news detail for ID:', id);
   const n = state.news.find(x => x.id === id);
   if (!n) {
@@ -2825,7 +2862,7 @@ function renderHome() {
   grid.innerHTML = state.news.slice(0, 3).map(n => {
     console.log('📰 Rendering news card:', n.title, 'Image:', n.image_url);
     return `
-    <div class="card" onclick="showNewsDetail(${n.id})">
+    <div class="card" onclick="showNewsDetail(${n.id}, event)" style="cursor: pointer;">
       ${renderImg(n.image_url, "📰")}
       <div class="card-body">
         <div class="card-meta"><span>${formatDate(n.created_at)}</span><span class="tag">Berita</span></div>
@@ -2859,7 +2896,7 @@ function renderNewsList() {
   grid.innerHTML = paginated.map(n => {
     console.log('📰 Rendering news item:', n.title, 'Image:', n.image_url);
     return `
-    <div class="card" onclick="showNewsDetail(${n.id})">
+    <div class="card" onclick="showNewsDetail(${n.id}, event)" style="cursor: pointer;">
       ${renderImg(n.image_url, "📰")}
       <div class="card-body">
         <div class="card-meta"><span>${formatDate(n.created_at)}</span><span class="tag">Berita</span></div>
@@ -4027,7 +4064,7 @@ function renderMemberNews() {
     return;
   }
   container.innerHTML = state.news.map(n => `
-    <div style="background:var(--white); border:1.5px solid rgba(0,128,0,0.08); border-radius:12px; overflow:hidden; transition:all .3s; cursor:pointer;" onclick="showNewsDetail(${n.id})">
+    <div style="background:var(--white); border:1.5px solid rgba(0,128,0,0.08); border-radius:12px; overflow:hidden; transition:all .3s; cursor:pointer;" onclick="showNewsDetail(${n.id}, event)">>
       <div style="padding:1.5rem;">
         <div style="font-size:.85rem; color:var(--muted); margin-bottom:.5rem;">📅 ${formatDate(n.created_at)}</div>
         <h3 style="font-size:1.2rem; font-weight:700; color:var(--text); margin-bottom:.75rem; line-height:1.4;">${n.title}</h3>
