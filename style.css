@@ -1351,4 +1351,13 @@
     }
   }
 
-</style>
+  /* LOADING OVERLAY */
+  #loading-overlay {
+    pointer-events: none !important;
+  }
+  
+  #loading-overlay[style*="display: flex"],
+  #loading-overlay[style*="display:flex"] {
+    pointer-events: auto !important;
+  }
+
