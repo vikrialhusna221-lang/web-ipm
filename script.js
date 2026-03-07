@@ -282,20 +282,25 @@ function showLoadingOverlay(show) {
   if (!overlay) {
     overlay = document.createElement('div');
     overlay.id = 'loading-overlay';
-    overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,0.85);z-index:9999;display:none;align-items:center;justify-content:center;flex-direction:column;gap:1rem;backdrop-filter:blur(4px);pointer-events:auto;';
+    overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,0.85);z-index:9999;display:none;align-items:center;justify-content:center;flex-direction:column;gap:1rem;backdrop-filter:blur(4px);pointer-events:none;';
     overlay.innerHTML = '<div style="width:50px;height:50px;border:4px solid rgba(0,128,0,0.2);border-top-color:#008000;border-radius:50%;animation:spin 1s linear infinite;"></div><p style="color:#008000;font-weight:600;font-size:1rem;">Memuat data...</p><style>@keyframes spin{to{transform:rotate(360deg)}}</style>';
     document.body.appendChild(overlay);
   }
   
   if (show) {
+    console.log('📡 Loading overlay SHOW');
     overlay.style.display = 'flex';
+    overlay.style.pointerEvents = 'auto';
     // Force hide overlay after 15 seconds as a safety mechanism
     loadingOverlayTimeout = setTimeout(() => {
       console.warn('⚠️ Loading overlay timeout - forcing it to hide');
       overlay.style.display = 'none';
+      overlay.style.pointerEvents = 'none';
     }, 15000);
   } else {
+    console.log('📡 Loading overlay HIDE');
     overlay.style.display = 'none';
+    overlay.style.pointerEvents = 'none';
   }
 }
 
@@ -2484,6 +2489,13 @@ function renderPublicCalendar() {
 
 // INIT: Load semua data dari Supabase saat halaman dibuka ──
 window.addEventListener('DOMContentLoaded', async () => {
+  // Pastikan tidak ada overlay blocking
+  const existingOverlay = document.getElementById('loading-overlay');
+  if (existingOverlay) {
+    existingOverlay.style.display = 'none';
+    existingOverlay.style.pointerEvents = 'none';
+  }
+  
   await loadAllData();
   loadPublicDokumentasi();
   renderPublicCalendar();
@@ -2499,4 +2511,11 @@ window.addEventListener('DOMContentLoaded', async () => {
   loadMembersTable();
   loadEdukasiTable();
   loadDokumentasiTable();
+  
+  // Cleanup: ensure all display:none elements don't block clicks
+  document.querySelectorAll('[style*="display:none"],[style*="display: none"]').forEach(el => {
+    if (el.style.display === 'none') {
+      el.style.pointerEvents = 'none';
+    }
+  });
 });
