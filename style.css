@@ -18,9 +18,15 @@
   html { scroll-behavior: smooth; }
   body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--text); min-height: 100vh; overflow-x: hidden; line-height: 1.6; }
 
+  /* Ensure hidden elements don't block clicks */
+  [style*="display:none"],
+  [style*="display: none"] {
+    pointer-events: none !important;
+  }
+
   /* ─── LAYOUT VIEWS ─── */
-  .view { display: none; }
-  .view.active { display: block; }
+  .view { display: none; pointer-events: none; }
+  .view.active { display: block; pointer-events: auto; }
 
   /* ─── NAVBAR ─── */
   .navbar {
